@@ -192,7 +192,8 @@ textarea{resize:vertical;min-height:80px}
 
     <div class="campo" style="margin-top:20px">
       <label>Equipamentos disponíveis <span class="obrig">*</span></label>
-      <div id="listaEquipamentos"><p class="msg-slots">Selecione uma data para ver os equipamentos disponíveis.</p></div>
+      <p class="campo-hint" style="margin-bottom:10px">Selecione a data de retirada acima para verificar a disponibilidade dos equipamentos.</p>
+    <div id="listaEquipamentos"></div>
     </div>
     <input type="hidden" id="equipSelecionadosHidden" name="equipamentosSelecionados">
   </div>
@@ -206,7 +207,7 @@ textarea{resize:vertical;min-height:80px}
 </form>
 <div class="feedback" id="feedbackEquip"></div>
 
-<div class="adm-link"><a href="https://script.google.com/macros/s/AKfycbxdgwciN7o58bVmwdWeYfY0HmAhRNtW2I3v0BJ87_oMHy7NRdumZCeDuW4SUuAx1FKB/exec?acao=adm" target="_blank">Acesso restrito</a></div>
+
 </div>
 
 <script>
@@ -473,5 +474,6 @@ document.getElementById('formEquip').addEventListener('submit', function(ev){
 gerarDias('diasGridEstudio', selecionarDiaEstudio);
 carregarInventario();
 </script>
+<div class="adm-link" style="width:100%;text-align:center;margin-top:24px;padding-bottom:20px"><a href="https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec?acao=adm" target="_blank">Acesso restrito</a></div>
 </body>
 </html>
