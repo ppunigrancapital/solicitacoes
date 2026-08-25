@@ -134,9 +134,16 @@ document.getElementById("senha").onkeydown = function(e) { if (e.key === "Enter"
 function entrar() {
   var s = document.getElementById("senha").value;
   document.getElementById("erro").style.display = "none";
-  fetch(URL + "?acao=dadosAdm&senha=" + encodeURIComponent(s))
-    .then(function(r) { return r.json(); })
+  fetch(URL + "?acao=dadosAdm&senha=" + encodeURIComponent(s), {
+    redirect: 'follow',
+    credentials: 'omit'
+  })
+    .then(function(r) {
+      console.log("Status:", r.status, "URL:", r.url, "Type:", r.type);
+      return r.json();
+    })
     .then(function(res) {
+      console.log("Resposta:", res);
       if (!res.ok) { document.getElementById("erro").style.display = "block"; return; }
       SENHA = s; DADOS = res;
       document.getElementById("login").style.display = "none";
@@ -145,7 +152,7 @@ function entrar() {
       renderEstudio();
       carregarStatus();
     })
-    .catch(function() { alert("Erro ao conectar."); });
+    .catch(function(err) { alert("Erro ao conectar: " + err.message); console.error("Erro completo:", err); });
 }
 
 function marcarAtt() {
