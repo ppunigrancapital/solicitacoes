@@ -7,416 +7,435 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--roxo:#6a1e9a;--roxo2:#4a1270;--am:#f5c200;--fundo:#f4f1f8;--borda:#ddd0ea;--r:8px;--verde:#2d7a2d;--verm:#c0392b}
+:root{--roxo:#6a1e9a;--roxo2:#4a1270;--fundo:#f4f1f8;--borda:#ddd0ea;--r:8px;--verde:#2d7a2d}
 body{background:var(--fundo);font-family:Inter,sans-serif;font-size:14px;color:#1a1a1a;min-height:100vh}
 #login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-#loginBox{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:40px;width:100%;max-width:360px;text-align:center}
-#loginBox h1{font-size:20px;color:var(--roxo2);margin-bottom:8px}
-#loginBox p{color:#6b6b6b;font-size:13px;margin-bottom:24px}
-#loginBox input{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:10px 12px;font-size:14px;outline:none;margin-bottom:12px;font-family:Inter,sans-serif}
-#loginBox input:focus{border-color:var(--roxo)}
-#loginBox button{width:100%;background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif}
-#loginBox button:hover{background:var(--roxo2)}
-#erroLogin{color:#c0392b;font-size:12px;margin-top:10px;display:none}
+.login-box{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:40px;width:100%;max-width:360px;text-align:center}
+.login-box h1{font-size:20px;color:var(--roxo2);margin-bottom:8px}
+.login-box p{color:#6b6b6b;font-size:13px;margin-bottom:24px}
+.login-box input{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:10px 12px;font-size:14px;outline:none;margin-bottom:12px;font-family:Inter,sans-serif}
+.login-box input:focus{border-color:var(--roxo)}
+.login-box button{width:100%;background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif}
+#erro{color:#c0392b;font-size:12px;margin-top:10px;display:none}
 #app{display:none}
-header{background:var(--roxo2);color:#fff;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header{background:var(--roxo2);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 header h1{font-size:16px;font-weight:700}
 header span{font-size:12px;opacity:.7}
-.tabs{display:flex;border-bottom:2px solid var(--borda);background:#fff;padding:0 24px;overflow-x:auto}
-.tab{padding:14px 20px;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b6b;border-bottom:3px solid transparent;margin-bottom:-2px;transition:all .15s;white-space:nowrap}
-.tab.ativo{color:var(--roxo);border-bottom-color:var(--roxo);font-weight:600}
+.tabs{display:flex;background:#fff;border-bottom:2px solid var(--borda);padding:0 24px;overflow-x:auto}
+.tab{padding:14px 20px;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b6b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab.on{color:var(--roxo);border-bottom-color:var(--roxo);font-weight:600}
 .painel{padding:24px;max-width:1100px;margin:0 auto}
-.secao-titulo{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--roxo2);margin-bottom:16px;margin-top:24px}
-.secao-titulo:first-child{margin-top:0}
+.sec-titulo{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--roxo2);margin:24px 0 12px}
+.sec-titulo:first-child{margin-top:0}
 .card{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:12px}
-.card-header{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
 .card-nome{font-weight:600;font-size:15px}
 .card-sub{font-size:12px;color:#6b6b6b;margin-top:2px}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
-.badge-pendente{background:#fff3cd;color:#856404}
-.badge-aprovado{background:#d4edda;color:#155724}
-.badge-recusado{background:#f8d7da;color:#721c24}
-.card-detalhes{margin-top:14px;display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px}
-.detalhe{font-size:12px}.detalhe strong{display:block;color:var(--roxo2);font-size:11px;margin-bottom:2px}
-.btns-acao{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.btn{padding:8px 18px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;transition:opacity .15s;font-family:Inter,sans-serif;text-decoration:none;display:inline-block}
-.btn:hover{opacity:.85}
-.btn-aprovar{background:var(--verde);color:#fff}
-.btn-recusar{background:#eee;color:#333}
+.pendente{background:#fff3cd;color:#856404}
+.aprovado{background:#d4edda;color:#155724}
+.recusado{background:#f8d7da;color:#721c24}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:14px}
+.det{font-size:12px}.det strong{display:block;color:var(--roxo2);font-size:11px;margin-bottom:2px}
+.btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
+.btn{padding:8px 18px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:Inter,sans-serif;text-decoration:none;display:inline-block}
+.btn-ok{background:var(--verde);color:#fff}
+.btn-no{background:#eee;color:#333}
 .btn-roxo{background:var(--roxo);color:#fff}
 .vazio{text-align:center;color:#6b6b6b;padding:40px;font-size:13px}
-.patrimonio-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.pat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
 .pat-card{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px}
 .pat-card h3{font-size:14px;font-weight:600;margin-bottom:4px}
 .pat-card p{font-size:12px;color:#6b6b6b;margin-bottom:2px}
-.pat-status{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;margin-top:8px}
-.status-disp{background:#d4edda;color:#155724}
-.status-emp{background:#f8d7da;color:#721c24}
-.pat-btns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-.btn-sm{padding:5px 12px;font-size:12px}
+.s-disp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#d4edda;color:#155724;margin-top:8px}
+.s-emp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24;margin-top:8px}
+.cfg{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:20px}
+.cfg h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:14px;letter-spacing:.08em}
+.sw{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer}
+.sw input{width:16px;height:16px;accent-color:var(--roxo)}
+textarea.cfg-msg{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;min-height:60px;resize:vertical;margin-bottom:10px;font-family:Inter,sans-serif}
+.add-btn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;font-family:Inter,sans-serif}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:16px}
-.modal.aberto{display:flex}
+.modal.on{display:flex}
 .modal-box{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
 .modal-box h2{font-size:16px;color:var(--roxo2);margin-bottom:20px}
 .campo{margin-bottom:14px}
 .campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
-.campo input,.campo select,.campo textarea{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
-.campo input:focus,.campo select:focus,.campo textarea:focus{border-color:var(--roxo)}
-.campo textarea{resize:vertical;min-height:65px}
-.modal-btns{display:flex;gap:8px;margin-top:20px}
-.btn-cancelar{background:#eee;color:#333}
-.add-btn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;font-family:Inter,sans-serif}
-.add-btn:hover{background:var(--roxo2)}
-.config-box{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:20px}
-.config-box h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:14px;letter-spacing:.08em}
-.switch-row{display:flex;align-items:center;gap:10px;margin-bottom:10px;font-size:13px;cursor:pointer}
-.switch-row input[type=checkbox]{width:16px;height:16px;accent-color:var(--roxo)}
-@media(max-width:600px){.card-detalhes{grid-template-columns:1fr 1fr}.painel{padding:16px}}
+.campo input,.campo select{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 </style>
 </head>
 <body>
 
 <div id="login">
-  <div id="loginBox">
+  <div class="login-box">
     <h1>Painel ADM</h1>
     <p>Publicidade e Propaganda — UNIGRAN Capital</p>
-    <input type="password" id="senhaInput" placeholder="Senha" onkeydown="if(event.key==='Enter')entrar()">
-    <button onclick="entrar()">Entrar</button>
-    <p id="erroLogin">Senha incorreta.</p>
+    <input type="password" id="senha" placeholder="Senha">
+    <button id="btnEntrar">Entrar</button>
+    <p id="erro">Senha incorreta.</p>
   </div>
 </div>
 
 <div id="app">
   <header>
     <h1>Painel ADM — PP UNIGRAN Capital</h1>
-    <span id="ultimaAtt"></span>
+    <span id="att"></span>
   </header>
   <div class="tabs">
-    <div class="tab ativo" onclick="mudarAba('estudio',this)">📷 Estúdio</div>
-    <div class="tab" onclick="mudarAba('equipamentos',this)">🎥 Equipamentos</div>
-    <div class="tab" onclick="mudarAba('patrimonio',this)">📦 Patrimônio</div>
+    <div class="tab on" data-aba="estudio">📷 Estúdio</div>
+    <div class="tab" data-aba="equipamentos">🎥 Equipamentos</div>
+    <div class="tab" data-aba="patrimonio">📦 Patrimônio</div>
   </div>
   <div class="painel">
-    <div id="painelEstudio"></div>
-    <div id="painelEquipamentos" style="display:none"></div>
-    <div id="painelPatrimonio" style="display:none"></div>
+    <div id="estudio"></div>
+    <div id="equipamentos" style="display:none"></div>
+    <div id="patrimonio" style="display:none"></div>
   </div>
 </div>
 
-<div class="modal" id="modalEquip">
+<div class="modal" id="modal">
   <div class="modal-box">
-    <h2 id="modalEquipTitulo">Novo Equipamento</h2>
-    <input type="hidden" id="equipRowIndex">
-    <input type="hidden" id="equipId">
+    <h2 id="modal-titulo">Equipamento</h2>
+    <input type="hidden" id="m-rowIndex">
+    <input type="hidden" id="m-id">
     <div class="campo"><label>Categoria</label>
-      <select id="equipCategoria">
-        <option value="Câmera">Câmera</option>
-        <option value="Iluminação">Iluminação</option>
-        <option value="Microfone">Microfone</option>
-        <option value="Tripé">Tripé</option>
-        <option value="Gimbal">Gimbal</option>
-        <option value="Cartão de Memória">Cartão de Memória</option>
-        <option value="Outro">Outro</option>
+      <select id="m-cat">
+        <option>Câmera</option><option>Iluminação</option><option>Microfone</option>
+        <option>Tripé</option><option>Gimbal</option><option>Cartão de Memória</option><option>Outro</option>
       </select>
     </div>
-    <div class="campo"><label>Descrição</label><input type="text" id="equipDescricao"></div>
-    <div class="campo"><label>Marca</label><input type="text" id="equipMarca"></div>
-    <div class="campo"><label>N. Patrimonial</label><input type="text" id="equipPatrimonio"></div>
+    <div class="campo"><label>Descrição</label><input type="text" id="m-desc"></div>
+    <div class="campo"><label>Marca</label><input type="text" id="m-marca"></div>
+    <div class="campo"><label>N. Patrimonial</label><input type="text" id="m-pat"></div>
     <div class="campo"><label>Status</label>
-      <select id="equipStatus">
+      <select id="m-status">
         <option value="Disponivel">Disponível</option>
         <option value="Emprestado">Emprestado</option>
         <option value="Manutencao">Manutenção</option>
       </select>
     </div>
-    <div class="modal-btns">
-      <button class="btn btn-roxo" onclick="salvarEquip()">Salvar</button>
-      <button class="btn btn-cancelar" onclick="fecharModal()">Cancelar</button>
+    <div class="btns">
+      <button class="btn btn-roxo" id="btnSalvarEquip">Salvar</button>
+      <button class="btn btn-no" id="btnCancelar">Cancelar</button>
     </div>
   </div>
 </div>
 
 <script>
-var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec";
+var URL = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec";
 var SENHA = "";
 var DADOS = null;
 var ABA = "estudio";
 
+// Login
+document.getElementById("btnEntrar").onclick = function() { entrar(); };
+document.getElementById("senha").onkeydown = function(e) { if (e.key === "Enter") entrar(); };
+
 function entrar() {
-  var s = document.getElementById("senhaInput").value;
-  document.getElementById("erroLogin").style.display = "none";
-  fetch(SCRIPT_URL + "?acao=dadosAdm&senha=" + encodeURIComponent(s))
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      if (!res.ok) { document.getElementById("erroLogin").style.display = "block"; return; }
+  var s = document.getElementById("senha").value;
+  document.getElementById("erro").style.display = "none";
+  fetch(URL + "?acao=dadosAdm&senha=" + encodeURIComponent(s))
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (!res.ok) { document.getElementById("erro").style.display = "block"; return; }
       SENHA = s; DADOS = res;
       document.getElementById("login").style.display = "none";
       document.getElementById("app").style.display = "block";
-      document.getElementById("ultimaAtt").textContent = "Atualizado: " + new Date().toLocaleTimeString("pt-BR");
+      marcarAtt();
       renderEstudio();
       carregarStatus();
-    }).catch(function(){ alert("Erro ao conectar. Tente novamente."); });
+    })
+    .catch(function() { alert("Erro ao conectar."); });
+}
+
+function marcarAtt() {
+  document.getElementById("att").textContent = "Atualizado: " + new Date().toLocaleTimeString("pt-BR");
 }
 
 function atualizar() {
-  fetch(SCRIPT_URL + "?acao=dadosAdm&senha=" + encodeURIComponent(SENHA))
-    .then(function(r){ return r.json(); })
-    .then(function(res){
+  fetch(URL + "?acao=dadosAdm&senha=" + encodeURIComponent(SENHA))
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
       if (!res.ok) return;
-      DADOS = res;
-      document.getElementById("ultimaAtt").textContent = "Atualizado: " + new Date().toLocaleTimeString("pt-BR");
+      DADOS = res; marcarAtt();
       if (ABA === "estudio") renderEstudio();
       else if (ABA === "equipamentos") renderEquipamentos();
       else renderPatrimonio();
     });
 }
 
-function mudarAba(aba, el) {
-  ABA = aba;
-  document.querySelectorAll(".tab").forEach(function(t){ t.classList.remove("ativo"); });
-  el.classList.add("ativo");
-  document.getElementById("painelEstudio").style.display = aba === "estudio" ? "block" : "none";
-  document.getElementById("painelEquipamentos").style.display = aba === "equipamentos" ? "block" : "none";
-  document.getElementById("painelPatrimonio").style.display = aba === "patrimonio" ? "block" : "none";
-  if (aba === "estudio") renderEstudio();
-  else if (aba === "equipamentos") renderEquipamentos();
-  else renderPatrimonio();
+// Abas
+document.querySelectorAll(".tab").forEach(function(tab) {
+  tab.onclick = function() {
+    ABA = this.dataset.aba;
+    document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("on"); });
+    this.classList.add("on");
+    ["estudio","equipamentos","patrimonio"].forEach(function(id) {
+      document.getElementById(id).style.display = id === ABA ? "block" : "none";
+    });
+    if (ABA === "estudio") renderEstudio();
+    else if (ABA === "equipamentos") renderEquipamentos();
+    else renderPatrimonio();
+  };
+});
+
+// Cards
+function mkCard(nome, sub, status, detalhes, botoesEl) {
+  var card = document.createElement("div");
+  card.className = "card";
+  var top = document.createElement("div");
+  top.className = "card-top";
+  var info = document.createElement("div");
+  info.innerHTML = "<div class='card-nome'>" + nome + "</div><div class='card-sub'>" + sub + "</div>";
+  var badge = document.createElement("span");
+  badge.className = "badge " + status.toLowerCase();
+  badge.textContent = status;
+  top.appendChild(info); top.appendChild(badge);
+  card.appendChild(top);
+  var grid = document.createElement("div");
+  grid.className = "grid";
+  detalhes.forEach(function(d) {
+    var el = document.createElement("div");
+    el.className = "det";
+    el.innerHTML = "<strong>" + d[0] + "</strong>" + d[1];
+    grid.appendChild(el);
+  });
+  card.appendChild(grid);
+  if (botoesEl) card.appendChild(botoesEl);
+  return card;
 }
 
-function cardEstudio(s, acoesHtml) {
-  var det = "<div class='card-detalhes'>" +
-    "<div class='detalhe'><strong>Tipo</strong>" + (s.tipoEstudio||"Estúdio") + "</div>" +
-    "<div class='detalhe'><strong>Data</strong>" + s.data + "</div>" +
-    "<div class='detalhe'><strong>Horário</strong>" + s.horario + "</div>" +
-    "<div class='detalhe'><strong>Finalidade</strong>" + s.finalidade + "</div>" +
-    "<div class='detalhe'><strong>Descrição</strong>" + s.descricao + "</div>" +
-    "<div class='detalhe'><strong>Equipamentos</strong>" + s.equipamentos + "</div>" +
-    "<div class='detalhe'><strong>Participantes</strong>" + s.participantes + "</div>" +
-    "</div>";
-  return "<div class='card'>" +
-    "<div class='card-header'>" +
-    "<div><div class='card-nome'>" + s.nome + " — " + s.semestre + " sem.</div>" +
-    "<div class='card-sub'>RGM " + s.rgm + " · " + s.email + " · " + s.whatsapp + "</div></div>" +
-    "<span class='badge badge-" + s.status.toLowerCase() + "'>" + s.status + "</span>" +
-    "</div>" + det + acoesHtml + "</div>";
+function mkBtns(lista) {
+  var div = document.createElement("div");
+  div.className = "btns";
+  lista.forEach(function(b) {
+    var el = document.createElement(b.href ? "a" : "button");
+    el.className = "btn " + b.cls;
+    el.textContent = b.label;
+    if (b.href) { el.href = b.href; el.target = "_blank"; }
+    else el.onclick = b.fn;
+    div.appendChild(el);
+  });
+  return div;
+}
+
+function renderSecao(containerId, titulo, itens, mkFn) {
+  var el = document.getElementById(containerId);
+  var p = document.createElement("p");
+  p.className = "sec-titulo";
+  p.textContent = titulo + " (" + itens.length + ")";
+  el.appendChild(p);
+  if (!itens.length) {
+    var v = document.createElement("div");
+    v.className = "vazio";
+    v.textContent = "Nenhum registro.";
+    el.appendChild(v);
+  }
+  itens.forEach(function(s) { el.appendChild(mkFn(s)); });
 }
 
 function renderEstudio() {
-  var el = document.getElementById("painelEstudio");
-  var pendentes = DADOS.estudio.filter(function(s){ return s.status === "Pendente"; });
-  var aprovados = DADOS.estudio.filter(function(s){ return s.status === "Aprovado"; });
-  var recusados = DADOS.estudio.filter(function(s){ return s.status === "Recusado"; });
-  var html = "<p class='secao-titulo'>Pendentes (" + pendentes.length + ")</p>";
-  if (!pendentes.length) html += "<div class='vazio'>Nenhuma solicitação pendente.</div>";
-  pendentes.forEach(function(s){
-    var btnId = "btn-est-" + s.id;
-    var ac = "<div class='btns-acao'>" +
-      "<button class='btn btn-aprovar' data-id='" + s.id + "' data-tipo='aprovar' data-cat='est'>✅ Aprovar</button>" +
-      "<button class='btn btn-recusar' data-id='" + s.id + "' data-tipo='recusar' data-cat='est'>❌ Recusar</button>" +
-      "</div>";
-    html += cardEstudio(s, ac);
+  var el = document.getElementById("estudio");
+  el.innerHTML = "";
+  var pend = DADOS.estudio.filter(function(s) { return s.status === "Pendente"; });
+  var apr  = DADOS.estudio.filter(function(s) { return s.status === "Aprovado"; });
+  var rec  = DADOS.estudio.filter(function(s) { return s.status === "Recusado"; });
+  renderSecao("estudio", "Pendentes", pend, function(s) {
+    var btns = mkBtns([
+      {label:"✅ Aprovar", cls:"btn-ok", fn: function() { acaoEstudio(s.id, "aprovar"); }},
+      {label:"❌ Recusar", cls:"btn-no", fn: function() { acaoEstudio(s.id, "recusar"); }}
+    ]);
+    return mkCard(
+      s.nome + " — " + s.semestre + " sem.",
+      "RGM " + s.rgm + " · " + s.email + " · " + s.whatsapp,
+      s.status,
+      [["Tipo", s.tipoEstudio||"Estúdio"],["Data",s.data],["Horário",s.horario],
+       ["Finalidade",s.finalidade],["Descrição",s.descricao],["Equipamentos",s.equipamentos],["Participantes",s.participantes]],
+      btns
+    );
   });
-  html += "<p class='secao-titulo'>Agendados (" + aprovados.length + ")</p>";
-  if (!aprovados.length) html += "<div class='vazio'>Nenhum agendamento aprovado.</div>";
-  aprovados.forEach(function(s){ html += cardEstudio(s, ""); });
-  html += "<p class='secao-titulo'>Histórico (" + recusados.length + ")</p>";
-  if (!recusados.length) html += "<div class='vazio'>Nenhum registro.</div>";
-  recusados.forEach(function(s){ html += cardEstudio(s, ""); });
-  el.innerHTML = html;
-  el.querySelectorAll("button[data-cat='est']").forEach(function(b){
-    b.addEventListener("click", function(){ acao(this.dataset.id, this.dataset.tipo); });
+  renderSecao("estudio", "Agendados", apr, function(s) {
+    return mkCard(s.nome + " — " + s.semestre + " sem.", "RGM " + s.rgm + " · " + s.email, s.status,
+      [["Tipo",s.tipoEstudio||"Estúdio"],["Data",s.data],["Horário",s.horario],["Finalidade",s.finalidade]], null);
   });
-}
-
-function cardEquip(s, acoesHtml) {
-  var det = "<div class='card-detalhes'>" +
-    "<div class='detalhe'><strong>Retirada</strong>" + s.dataRetirada + "</div>" +
-    "<div class='detalhe'><strong>Devolução</strong>" + s.dataDevolucao + "</div>" +
-    "<div class='detalhe'><strong>Equipamentos</strong>" + s.equipamentos + "</div>" +
-    "<div class='detalhe'><strong>Patrimônios</strong>" + s.patrimonios + "</div>" +
-    "<div class='detalhe'><strong>Finalidade</strong>" + s.finalidade + "</div>" +
-    "<div class='detalhe'><strong>Descrição</strong>" + s.descricao + "</div>" +
-    "</div>";
-  var termoBtn = "<div class='btns-acao'><a class='btn btn-roxo btn-sm' href='" + SCRIPT_URL + "?acao=termo&id=" + s.id + "' target='_blank'>🖨️ Ver Termo</a></div>";
-  return "<div class='card'>" +
-    "<div class='card-header'>" +
-    "<div><div class='card-nome'>" + s.nome + "</div>" +
-    "<div class='card-sub'>RGM " + s.rgm + " · " + s.email + "</div></div>" +
-    "<span class='badge badge-" + s.status.toLowerCase() + "'>" + s.status + "</span>" +
-    "</div>" + det + termoBtn + acoesHtml + "</div>";
+  renderSecao("estudio", "Histórico", rec, function(s) {
+    return mkCard(s.nome, "RGM " + s.rgm, s.status, [["Data",s.data],["Horário",s.horario]], null);
+  });
 }
 
 function renderEquipamentos() {
-  var el = document.getElementById("painelEquipamentos");
-  var pendentes = DADOS.emprestimos.filter(function(s){ return s.status === "Pendente"; });
-  var aprovados = DADOS.emprestimos.filter(function(s){ return s.status === "Aprovado"; });
-  var recusados = DADOS.emprestimos.filter(function(s){ return s.status === "Recusado"; });
-  var html = "<p class='secao-titulo'>Pendentes (" + pendentes.length + ")</p>";
-  if (!pendentes.length) html += "<div class='vazio'>Nenhuma solicitação pendente.</div>";
-  pendentes.forEach(function(s){
-    var ac = "<div class='btns-acao'>" +
-      "<button class='btn btn-aprovar' data-id='" + s.id + "' data-tipo='aprovarEquip' data-cat='eq'>✅ Aprovar e enviar termo</button>" +
-      "<button class='btn btn-recusar' data-id='" + s.id + "' data-tipo='recusarEquip' data-cat='eq'>❌ Recusar</button>" +
-      "</div>";
-    html += cardEquip(s, ac);
+  var el = document.getElementById("equipamentos");
+  el.innerHTML = "";
+  var pend = DADOS.emprestimos.filter(function(s) { return s.status === "Pendente"; });
+  var apr  = DADOS.emprestimos.filter(function(s) { return s.status === "Aprovado"; });
+  var rec  = DADOS.emprestimos.filter(function(s) { return s.status === "Recusado"; });
+  renderSecao("equipamentos", "Pendentes", pend, function(s) {
+    var btns = mkBtns([
+      {label:"✅ Aprovar e enviar termo", cls:"btn-ok", fn: function() { acaoEquip(s.id, "aprovarEquip"); }},
+      {label:"❌ Recusar", cls:"btn-no", fn: function() { acaoEquip(s.id, "recusarEquip"); }},
+      {label:"🖨️ Ver Termo", cls:"btn-roxo", href: URL + "?acao=termo&id=" + s.id}
+    ]);
+    return mkCard(s.nome, "RGM " + s.rgm + " · " + s.email, s.status,
+      [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],
+       ["Equipamentos",s.equipamentos],["Patrimônios",s.patrimonios],["Finalidade",s.finalidade]], btns);
   });
-  html += "<p class='secao-titulo'>Aprovados (" + aprovados.length + ")</p>";
-  if (!aprovados.length) html += "<div class='vazio'>Nenhum empréstimo aprovado.</div>";
-  aprovados.forEach(function(s){ html += cardEquip(s, ""); });
-  html += "<p class='secao-titulo'>Histórico (" + recusados.length + ")</p>";
-  if (!recusados.length) html += "<div class='vazio'>Nenhum registro.</div>";
-  recusados.forEach(function(s){ html += cardEquip(s, ""); });
-  el.innerHTML = html;
-  el.querySelectorAll("button[data-cat='eq']").forEach(function(b){
-    b.addEventListener("click", function(){ acaoEquip(this.dataset.id, this.dataset.tipo); });
+  renderSecao("equipamentos", "Aprovados", apr, function(s) {
+    var btns = mkBtns([{label:"🖨️ Ver Termo", cls:"btn-roxo", href: URL + "?acao=termo&id=" + s.id}]);
+    return mkCard(s.nome, "RGM " + s.rgm, s.status,
+      [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],["Equipamentos",s.equipamentos]], btns);
+  });
+  renderSecao("equipamentos", "Histórico", rec, function(s) {
+    return mkCard(s.nome, "RGM " + s.rgm, s.status, [["Retirada",s.dataRetirada]], null);
   });
 }
 
-function acao(id, tipo) {
-  var label = tipo === "aprovar" ? "aprovar" : "recusar";
-  if (!confirm("Confirmar: " + label + " esta solicitação?")) return;
-  fetch(SCRIPT_URL + "?acao=" + tipo + "&id=" + encodeURIComponent(id))
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) { alert("Feito!"); atualizar(); }
-      else alert("Erro: " + (res.erro || "desconhecido"));
-    }).catch(function(){ alert("Erro ao conectar."); });
+function acaoEstudio(id, tipo) {
+  if (!confirm("Confirmar: " + tipo + " esta solicitação?")) return;
+  fetch(URL + "?acao=" + tipo + "&id=" + encodeURIComponent(id))
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.ok) { alert("Feito!"); atualizar(); } else alert("Erro: " + (res.erro||"")); });
 }
 
 function acaoEquip(id, tipo) {
-  var label = tipo === "aprovarEquip" ? "aprovar e enviar o termo" : "recusar";
-  if (!confirm("Confirmar: " + label + " esta solicitação?")) return;
-  fetch(SCRIPT_URL + "?acao=" + tipo + "&id=" + encodeURIComponent(id))
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) { alert("Feito!"); atualizar(); }
-      else alert("Erro: " + (res.erro || "desconhecido"));
-    }).catch(function(){ alert("Erro ao conectar."); });
+  if (!confirm("Confirmar esta ação?")) return;
+  fetch(URL + "?acao=" + tipo + "&id=" + encodeURIComponent(id))
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.ok) { alert("Feito!"); atualizar(); } else alert("Erro: " + (res.erro||"")); });
 }
 
 function renderPatrimonio() {
-  var el = document.getElementById("painelPatrimonio");
-  var html = "";
-  html += "<div class='config-box'>" +
-    "<h3>Disponibilidade</h3>" +
-    "<label class='switch-row'><input type='checkbox' id='ckEstudio' onchange='salvarStatus()'> Est&uacute;dios liberados para agendamento</label>" +
-    "<textarea id='msgEstudio' placeholder='Mensagem quando est&uacute;dio bloqueado...'></textarea>" +
-    "<label class='switch-row' style='margin-top:12px'><input type='checkbox' id='ckEquip' onchange='salvarStatus()'> Equipamentos liberados para empr&eacute;stimo</label>" +
-    "<textarea id='msgEquip' placeholder='Mensagem quando equipamentos bloqueados...'></textarea>" +
-    "<button class='btn btn-roxo' style='margin-top:12px' onclick='salvarStatus()'>Salvar disponibilidade</button>" +
-    "</div>";
-  html += "<button class='add-btn' onclick='abrirModalEquip()'>+ Adicionar equipamento</button>";
+  var el = document.getElementById("patrimonio");
+  el.innerHTML = "";
+
+  // Config disponibilidade
+  var cfg = document.createElement("div");
+  cfg.className = "cfg";
+  cfg.innerHTML = "<h3>Disponibilidade</h3>" +
+    "<label class='sw'><input type='checkbox' id='ckEst'> Estúdios liberados para agendamento</label>" +
+    "<textarea class='cfg-msg' id='msgEst' placeholder='Mensagem quando bloqueado...'></textarea>" +
+    "<label class='sw'><input type='checkbox' id='ckEq'> Equipamentos liberados para empréstimo</label>" +
+    "<textarea class='cfg-msg' id='msgEq' placeholder='Mensagem quando bloqueado...'></textarea>";
+  var btnSalvar = document.createElement("button");
+  btnSalvar.className = "btn btn-roxo";
+  btnSalvar.textContent = "Salvar disponibilidade";
+  btnSalvar.onclick = salvarStatus;
+  cfg.appendChild(btnSalvar);
+  el.appendChild(cfg);
+
+  // Botão adicionar
+  var addBtn = document.createElement("button");
+  addBtn.className = "add-btn";
+  addBtn.textContent = "+ Adicionar equipamento";
+  addBtn.onclick = function() { abrirModal(); };
+  el.appendChild(addBtn);
+
+  // Grid por categoria
   var cats = {};
-  DADOS.patrimonio.forEach(function(p){
+  DADOS.patrimonio.forEach(function(p) {
     if (!cats[p.categoria]) cats[p.categoria] = [];
     cats[p.categoria].push(p);
   });
-  Object.keys(cats).sort().forEach(function(cat){
-    html += "<p class='secao-titulo'>" + cat + " (" + cats[cat].length + ")</p>";
-    html += "<div class='patrimonio-grid'>";
-    cats[cat].forEach(function(p){
-      var statusClass = p.status === "Disponivel" ? "status-disp" : "status-emp";
-      html += "<div class='pat-card'>" +
-        "<h3>" + p.descricao + "</h3>" +
-        "<p>Marca: " + p.marca + "</p>" +
-        "<p>Patrim&ocirc;nio: <strong>" + p.patrimonio + "</strong></p>" +
-        "<span class='pat-status " + statusClass + "'>" + p.status + "</span>" +
-        "<div class='pat-btns'>" +
-        "<button class='btn btn-roxo btn-sm' data-p='" + encodeURIComponent(JSON.stringify(p)) + "' data-act='edit'>Editar</button>" +
-        "<button class='btn btn-recusar btn-sm' data-id='" + p.id + "' data-act='del'>Remover</button>" +
-        "</div></div>";
+  Object.keys(cats).sort().forEach(function(cat) {
+    var titulo = document.createElement("p");
+    titulo.className = "sec-titulo";
+    titulo.textContent = cat + " (" + cats[cat].length + ")";
+    el.appendChild(titulo);
+    var grid = document.createElement("div");
+    grid.className = "pat-grid";
+    cats[cat].forEach(function(p) {
+      var card = document.createElement("div");
+      card.className = "pat-card";
+      var statusCls = p.status === "Disponivel" ? "s-disp" : "s-emp";
+      card.innerHTML = "<h3>" + p.descricao + "</h3><p>Marca: " + p.marca + "</p><p>Patrimônio: <strong>" + p.patrimonio + "</strong></p><span class='" + statusCls + "'>" + p.status + "</span>";
+      var btnsDiv = document.createElement("div");
+      btnsDiv.style.cssText = "display:flex;gap:6px;margin-top:10px;flex-wrap:wrap";
+      var bEdit = document.createElement("button");
+      bEdit.className = "btn btn-roxo btn-sm";
+      bEdit.textContent = "Editar";
+      bEdit.onclick = (function(item) { return function() { editarItem(item); }; })(p);
+      var bDel = document.createElement("button");
+      bDel.className = "btn btn-no btn-sm";
+      bDel.textContent = "Remover";
+      bDel.onclick = (function(item) { return function() { deletarItem(item.id); }; })(p);
+      btnsDiv.appendChild(bEdit);
+      btnsDiv.appendChild(bDel);
+      card.appendChild(btnsDiv);
+      grid.appendChild(card);
     });
-    html += "</div>";
-  });
-  el.innerHTML = html;
-  el.querySelectorAll("button[data-act='edit']").forEach(function(b){
-    b.addEventListener("click", function(){
-      editarEquip(JSON.parse(decodeURIComponent(this.dataset.p)));
-    });
-  });
-  el.querySelectorAll("button[data-act='del']").forEach(function(b){
-    b.addEventListener("click", function(){ deletarEquip(this.dataset.id); });
+    el.appendChild(grid);
   });
   carregarStatus();
 }
 
 function carregarStatus() {
-  fetch(SCRIPT_URL + "?acao=getStatus")
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      var ckEst = document.getElementById("ckEstudio");
-      var ckEq  = document.getElementById("ckEquip");
-      if (ckEst) ckEst.checked = res.estudioAtivo;
-      if (ckEq)  ckEq.checked  = res.equipAtivo;
-      var msgEst = document.getElementById("msgEstudio");
-      var msgEq  = document.getElementById("msgEquip");
-      if (msgEst) msgEst.value = res.msgEstudio || "";
-      if (msgEq)  msgEq.value  = res.msgEquip  || "";
-    }).catch(function(){});
+  fetch(URL + "?acao=getStatus")
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      var ce = document.getElementById("ckEst");
+      var cq = document.getElementById("ckEq");
+      var me = document.getElementById("msgEst");
+      var mq = document.getElementById("msgEq");
+      if (ce) ce.checked = res.estudioAtivo;
+      if (cq) cq.checked = res.equipAtivo;
+      if (me) me.value = res.msgEstudio || "";
+      if (mq) mq.value = res.msgEquip || "";
+    }).catch(function() {});
 }
 
 function salvarStatus() {
-  var estAtivo = document.getElementById("ckEstudio") ? document.getElementById("ckEstudio").checked : true;
-  var msgEst   = document.getElementById("msgEstudio") ? document.getElementById("msgEstudio").value : "";
-  var eqAtivo  = document.getElementById("ckEquip") ? document.getElementById("ckEquip").checked : true;
-  var msgEq    = document.getElementById("msgEquip") ? document.getElementById("msgEquip").value : "";
-  fetch(SCRIPT_URL + "?acao=setStatus&tipo=estudio&ativo=" + estAtivo + "&msg=" + encodeURIComponent(msgEst))
-    .then(function(){ return fetch(SCRIPT_URL + "?acao=setStatus&tipo=equip&ativo=" + eqAtivo + "&msg=" + encodeURIComponent(msgEq)); })
-    .catch(function(){});
+  var est = document.getElementById("ckEst");
+  var eq  = document.getElementById("ckEq");
+  var me  = document.getElementById("msgEst");
+  var mq  = document.getElementById("msgEq");
+  fetch(URL + "?acao=setStatus&tipo=estudio&ativo=" + (est?est.checked:true) + "&msg=" + encodeURIComponent(me?me.value:""))
+    .then(function() {
+      return fetch(URL + "?acao=setStatus&tipo=equip&ativo=" + (eq?eq.checked:true) + "&msg=" + encodeURIComponent(mq?mq.value:""));
+    })
+    .then(function() { alert("Salvo!"); })
+    .catch(function() {});
 }
 
-function abrirModalEquip() {
-  document.getElementById("modalEquipTitulo").textContent = "Novo Equipamento";
-  document.getElementById("equipRowIndex").value = "";
-  document.getElementById("equipId").value = "";
-  document.getElementById("equipCategoria").value = "Câmera";
-  document.getElementById("equipDescricao").value = "";
-  document.getElementById("equipMarca").value = "";
-  document.getElementById("equipPatrimonio").value = "";
-  document.getElementById("equipStatus").value = "Disponivel";
-  document.getElementById("modalEquip").classList.add("aberto");
+function abrirModal(item) {
+  document.getElementById("modal-titulo").textContent = item ? "Editar Equipamento" : "Novo Equipamento";
+  document.getElementById("m-rowIndex").value = item ? (item.rowIndex||"") : "";
+  document.getElementById("m-id").value = item ? item.id : "";
+  document.getElementById("m-cat").value = item ? item.categoria : "Câmera";
+  document.getElementById("m-desc").value = item ? item.descricao : "";
+  document.getElementById("m-marca").value = item ? item.marca : "";
+  document.getElementById("m-pat").value = item ? item.patrimonio : "";
+  document.getElementById("m-status").value = item ? item.status : "Disponivel";
+  document.getElementById("modal").classList.add("on");
 }
 
-function editarEquip(p) {
-  document.getElementById("modalEquipTitulo").textContent = "Editar Equipamento";
-  document.getElementById("equipRowIndex").value = p.rowIndex || "";
-  document.getElementById("equipId").value = p.id;
-  document.getElementById("equipCategoria").value = p.categoria;
-  document.getElementById("equipDescricao").value = p.descricao;
-  document.getElementById("equipMarca").value = p.marca;
-  document.getElementById("equipPatrimonio").value = p.patrimonio;
-  document.getElementById("equipStatus").value = p.status;
-  document.getElementById("modalEquip").classList.add("aberto");
-}
+function editarItem(item) { abrirModal(item); }
 
-function fecharModal() { document.getElementById("modalEquip").classList.remove("aberto"); }
+document.getElementById("btnCancelar").onclick = function() {
+  document.getElementById("modal").classList.remove("on");
+};
 
-function salvarEquip() {
+document.getElementById("btnSalvarEquip").onclick = function() {
   var params = new URLSearchParams();
   params.set("acao", "salvarEquipamento");
-  params.set("rowIndex", document.getElementById("equipRowIndex").value);
-  params.set("id", document.getElementById("equipId").value);
-  params.set("categoria", document.getElementById("equipCategoria").value);
-  params.set("descricao", document.getElementById("equipDescricao").value);
-  params.set("marca", document.getElementById("equipMarca").value);
-  params.set("patrimonio", document.getElementById("equipPatrimonio").value);
-  params.set("status", document.getElementById("equipStatus").value);
-  fetch(SCRIPT_URL + "?" + params.toString())
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) { fecharModal(); atualizar(); }
-      else alert("Erro: " + (res.erro || "desconhecido"));
+  params.set("rowIndex", document.getElementById("m-rowIndex").value);
+  params.set("id", document.getElementById("m-id").value);
+  params.set("categoria", document.getElementById("m-cat").value);
+  params.set("descricao", document.getElementById("m-desc").value);
+  params.set("marca", document.getElementById("m-marca").value);
+  params.set("patrimonio", document.getElementById("m-pat").value);
+  params.set("status", document.getElementById("m-status").value);
+  fetch(URL + "?" + params.toString())
+    .then(function(r) { return r.json(); })
+    .then(function(res) {
+      if (res.ok) { document.getElementById("modal").classList.remove("on"); atualizar(); }
+      else alert("Erro: " + (res.erro||""));
     });
-}
+};
 
-function deletarEquip(id) {
-  if (!confirm("Remover este equipamento do patrimônio?")) return;
-  fetch(SCRIPT_URL + "?acao=deletarEquipamento&id=" + encodeURIComponent(id))
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) atualizar();
-      else alert("Erro: " + (res.erro || "desconhecido"));
-    });
+function deletarItem(id) {
+  if (!confirm("Remover este equipamento?")) return;
+  fetch(URL + "?acao=deletarEquipamento&id=" + encodeURIComponent(id))
+    .then(function(r) { return r.json(); })
+    .then(function(res) { if (res.ok) atualizar(); else alert("Erro: " + (res.erro||"")); });
 }
 
 setInterval(atualizar, 60000);
