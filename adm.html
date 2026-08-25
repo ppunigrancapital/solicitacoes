@@ -209,9 +209,10 @@ function renderEstudio() {
   var html = "<p class='secao-titulo'>Pendentes (" + pendentes.length + ")</p>";
   if (!pendentes.length) html += "<div class='vazio'>Nenhuma solicitação pendente.</div>";
   pendentes.forEach(function(s){
+    var btnId = "btn-est-" + s.id;
     var ac = "<div class='btns-acao'>" +
-      "<button class='btn btn-aprovar' onclick='acao("" + s.id + "","aprovar")'>✅ Aprovar</button>" +
-      "<button class='btn btn-recusar' onclick='acao("" + s.id + "","recusar")'>❌ Recusar</button>" +
+      "<button class='btn btn-aprovar' data-id='" + s.id + "' data-tipo='aprovar' data-cat='est'>✅ Aprovar</button>" +
+      "<button class='btn btn-recusar' data-id='" + s.id + "' data-tipo='recusar' data-cat='est'>❌ Recusar</button>" +
       "</div>";
     html += cardEstudio(s, ac);
   });
@@ -222,6 +223,9 @@ function renderEstudio() {
   if (!recusados.length) html += "<div class='vazio'>Nenhum registro.</div>";
   recusados.forEach(function(s){ html += cardEstudio(s, ""); });
   el.innerHTML = html;
+  el.querySelectorAll("button[data-cat='est']").forEach(function(b){
+    b.addEventListener("click", function(){ acao(this.dataset.id, this.dataset.tipo); });
+  });
 }
 
 function cardEquip(s, acoesHtml) {
@@ -251,8 +255,8 @@ function renderEquipamentos() {
   if (!pendentes.length) html += "<div class='vazio'>Nenhuma solicitação pendente.</div>";
   pendentes.forEach(function(s){
     var ac = "<div class='btns-acao'>" +
-      "<button class='btn btn-aprovar' onclick='acaoEquip("" + s.id + "","aprovarEquip")'>✅ Aprovar e enviar termo</button>" +
-      "<button class='btn btn-recusar' onclick='acaoEquip("" + s.id + "","recusarEquip")'>❌ Recusar</button>" +
+      "<button class='btn btn-aprovar' data-id='" + s.id + "' data-tipo='aprovarEquip' data-cat='eq'>✅ Aprovar e enviar termo</button>" +
+      "<button class='btn btn-recusar' data-id='" + s.id + "' data-tipo='recusarEquip' data-cat='eq'>❌ Recusar</button>" +
       "</div>";
     html += cardEquip(s, ac);
   });
@@ -263,6 +267,9 @@ function renderEquipamentos() {
   if (!recusados.length) html += "<div class='vazio'>Nenhum registro.</div>";
   recusados.forEach(function(s){ html += cardEquip(s, ""); });
   el.innerHTML = html;
+  el.querySelectorAll("button[data-cat='eq']").forEach(function(b){
+    b.addEventListener("click", function(){ acaoEquip(this.dataset.id, this.dataset.tipo); });
+  });
 }
 
 function acao(id, tipo) {
@@ -290,18 +297,14 @@ function acaoEquip(id, tipo) {
 function renderPatrimonio() {
   var el = document.getElementById("painelPatrimonio");
   var html = "";
-
-  // Configurações de disponibilidade
   html += "<div class='config-box'>" +
     "<h3>Disponibilidade</h3>" +
-    "<label class='switch-row'><input type='checkbox' id='ckEstudio' onchange='salvarStatus()'> Estúdios liberados para agendamento</label>" +
-    "<textarea id='msgEstudio' placeholder='Mensagem quando estúdio bloqueado...'></textarea>" +
-    "<label class='switch-row' style='margin-top:12px'><input type='checkbox' id='ckEquip' onchange='salvarStatus()'> Equipamentos liberados para empréstimo</label>" +
+    "<label class='switch-row'><input type='checkbox' id='ckEstudio' onchange='salvarStatus()'> Est&uacute;dios liberados para agendamento</label>" +
+    "<textarea id='msgEstudio' placeholder='Mensagem quando est&uacute;dio bloqueado...'></textarea>" +
+    "<label class='switch-row' style='margin-top:12px'><input type='checkbox' id='ckEquip' onchange='salvarStatus()'> Equipamentos liberados para empr&eacute;stimo</label>" +
     "<textarea id='msgEquip' placeholder='Mensagem quando equipamentos bloqueados...'></textarea>" +
     "<button class='btn btn-roxo' style='margin-top:12px' onclick='salvarStatus()'>Salvar disponibilidade</button>" +
     "</div>";
-
-  // Patrimônio
   html += "<button class='add-btn' onclick='abrirModalEquip()'>+ Adicionar equipamento</button>";
   var cats = {};
   DADOS.patrimonio.forEach(function(p){
@@ -312,19 +315,28 @@ function renderPatrimonio() {
     html += "<p class='secao-titulo'>" + cat + " (" + cats[cat].length + ")</p>";
     html += "<div class='patrimonio-grid'>";
     cats[cat].forEach(function(p){
+      var statusClass = p.status === "Disponivel" ? "status-disp" : "status-emp";
       html += "<div class='pat-card'>" +
         "<h3>" + p.descricao + "</h3>" +
         "<p>Marca: " + p.marca + "</p>" +
-        "<p>Patrimônio: <strong>" + p.patrimonio + "</strong></p>" +
-        "<span class='pat-status " + (p.status === "Disponivel" ? "status-disp" : "status-emp") + "'>" + p.status + "</span>" +
+        "<p>Patrim&ocirc;nio: <strong>" + p.patrimonio + "</strong></p>" +
+        "<span class='pat-status " + statusClass + "'>" + p.status + "</span>" +
         "<div class='pat-btns'>" +
-        "<button class='btn btn-roxo btn-sm' onclick='editarEquip(" + JSON.stringify(p) + ")'>Editar</button>" +
-        "<button class='btn btn-recusar btn-sm' onclick='deletarEquip("" + p.id + "")'>Remover</button>" +
+        "<button class='btn btn-roxo btn-sm' data-p='" + encodeURIComponent(JSON.stringify(p)) + "' data-act='edit'>Editar</button>" +
+        "<button class='btn btn-recusar btn-sm' data-id='" + p.id + "' data-act='del'>Remover</button>" +
         "</div></div>";
     });
     html += "</div>";
   });
   el.innerHTML = html;
+  el.querySelectorAll("button[data-act='edit']").forEach(function(b){
+    b.addEventListener("click", function(){
+      editarEquip(JSON.parse(decodeURIComponent(this.dataset.p)));
+    });
+  });
+  el.querySelectorAll("button[data-act='del']").forEach(function(b){
+    b.addEventListener("click", function(){ deletarEquip(this.dataset.id); });
+  });
   carregarStatus();
 }
 
