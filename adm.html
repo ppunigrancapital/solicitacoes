@@ -10,76 +10,88 @@
 :root{--roxo:#6a1e9a;--roxo2:#4a1270;--fundo:#f4f1f8;--borda:#ddd0ea;--r:8px;--verde:#2d7a2d}
 body{background:var(--fundo);font-family:Inter,sans-serif;font-size:14px;color:#1a1a1a;min-height:100vh}
 #login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:20px}
-.login-box{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:40px;width:100%;max-width:360px;text-align:center}
-.login-box h1{font-size:20px;color:var(--roxo2);margin-bottom:8px}
-.login-box p{color:#6b6b6b;font-size:13px;margin-bottom:24px}
-.login-box input{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:10px 12px;font-size:14px;outline:none;margin-bottom:12px;font-family:Inter,sans-serif}
-.login-box input:focus{border-color:var(--roxo)}
-.login-box button{width:100%;background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif}
+.lbox{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:40px;width:100%;max-width:360px;text-align:center}
+.lbox h1{font-size:20px;color:var(--roxo2);margin-bottom:8px}
+.lbox p{color:#6b6b6b;font-size:13px;margin-bottom:24px}
+.lbox input{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:10px 12px;font-size:14px;outline:none;margin-bottom:12px;font-family:Inter,sans-serif}
+.lbox input:focus{border-color:var(--roxo)}
+.lbox button{width:100%;background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:12px;font-size:14px;font-weight:700;cursor:pointer;font-family:Inter,sans-serif}
+.lbox button:hover{background:var(--roxo2)}
 #erro{color:#c0392b;font-size:12px;margin-top:10px;display:none}
 #app{display:none}
-header{background:var(--roxo2);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+header{background:var(--roxo2);color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px}
 header h1{font-size:16px;font-weight:700}
+.header-right{display:flex;align-items:center;gap:16px}
 header span{font-size:12px;opacity:.7}
+.btn-sair{background:rgba(255,255,255,.15);color:#fff;border:1px solid rgba(255,255,255,.3);border-radius:var(--r);padding:6px 14px;font-size:12px;cursor:pointer;font-family:Inter,sans-serif}
 .tabs{display:flex;background:#fff;border-bottom:2px solid var(--borda);padding:0 24px;overflow-x:auto}
-.tab{padding:14px 20px;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b6b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab{padding:14px 20px;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b6b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;transition:all .15s}
 .tab.on{color:var(--roxo);border-bottom-color:var(--roxo);font-weight:600}
 .painel{padding:24px;max-width:1100px;margin:0 auto}
-.sec-titulo{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--roxo2);margin:24px 0 12px}
-.sec-titulo:first-child{margin-top:0}
+.st{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--roxo2);margin:24px 0 12px}
+.st:first-child{margin-top:0}
 .card{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:12px}
-.card-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.card-nome{font-weight:600;font-size:15px}
-.card-sub{font-size:12px;color:#6b6b6b;margin-top:2px}
+.ctop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
+.cnome{font-weight:600;font-size:15px}
+.csub{font-size:12px;color:#6b6b6b;margin-top:2px}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
 .pendente{background:#fff3cd;color:#856404}
 .aprovado{background:#d4edda;color:#155724}
 .recusado{background:#f8d7da;color:#721c24}
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:14px}
-.det{font-size:12px}.det strong{display:block;color:var(--roxo2);font-size:11px;margin-bottom:2px}
+.cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:14px}
+.det{font-size:12px}
+.det strong{display:block;color:var(--roxo2);font-size:11px;margin-bottom:2px}
 .btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
-.btn{padding:8px 18px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:Inter,sans-serif;text-decoration:none;display:inline-block}
-.btn-ok{background:var(--verde);color:#fff}
-.btn-no{background:#eee;color:#333}
-.btn-roxo{background:var(--roxo);color:#fff}
+.btn{padding:8px 18px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:Inter,sans-serif;text-decoration:none;display:inline-block;transition:opacity .15s}
+.btn:hover{opacity:.85}
+.bok{background:var(--verde);color:#fff}
+.bno{background:#eee;color:#333}
+.broxo{background:var(--roxo);color:#fff}
 .vazio{text-align:center;color:#6b6b6b;padding:40px;font-size:13px}
-.pat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
-.pat-card{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px}
-.pat-card h3{font-size:14px;font-weight:600;margin-bottom:4px}
-.pat-card p{font-size:12px;color:#6b6b6b;margin-bottom:2px}
-.s-disp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#d4edda;color:#155724;margin-top:8px}
-.s-emp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24;margin-top:8px}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px}
+.pcard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px}
+.pcard h3{font-size:14px;font-weight:600;margin-bottom:4px}
+.pcard p{font-size:12px;color:#6b6b6b;margin-bottom:2px}
+.sdisp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#d4edda;color:#155724;margin-top:8px}
+.semp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24;margin-top:8px}
 .cfg{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:20px}
 .cfg h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:14px;letter-spacing:.08em}
 .sw{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer}
 .sw input{width:16px;height:16px;accent-color:var(--roxo)}
-textarea.cfg-msg{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;min-height:60px;resize:vertical;margin-bottom:10px;font-family:Inter,sans-serif}
-.add-btn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;font-family:Inter,sans-serif}
+.cmsg{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;min-height:60px;resize:vertical;margin-bottom:10px;font-family:Inter,sans-serif}
+.abtn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;font-family:Inter,sans-serif}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:16px}
 .modal.on{display:flex}
-.modal-box{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
-.modal-box h2{font-size:16px;color:var(--roxo2);margin-bottom:20px}
+.mbox{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
+.mbox h2{font-size:16px;color:var(--roxo2);margin-bottom:20px}
 .campo{margin-bottom:14px}
 .campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
 .campo input,.campo select{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
+.campo input:focus,.campo select:focus{border-color:var(--roxo)}
+.loading{text-align:center;color:var(--roxo);padding:40px;font-size:13px}
+@media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}}
 </style>
 </head>
 <body>
 
 <div id="login">
-  <div class="login-box">
+  <div class="lbox">
     <h1>Painel ADM</h1>
     <p>Publicidade e Propaganda — UNIGRAN Capital</p>
+    <input type="email" id="email" placeholder="E-mail" autocomplete="email">
     <input type="password" id="senha" placeholder="Senha">
-    <button id="btnEntrar">Entrar</button>
-    <p id="erro">Senha incorreta.</p>
+    <button id="btnE">Entrar</button>
+    <p id="erro">E-mail ou senha incorretos.</p>
   </div>
 </div>
 
 <div id="app">
   <header>
     <h1>Painel ADM — PP UNIGRAN Capital</h1>
-    <span id="att"></span>
+    <div class="header-right">
+      <span id="att"></span>
+      <button class="btn-sair" id="btnSair">Sair</button>
+    </div>
   </header>
   <div class="tabs">
     <div class="tab on" data-aba="estudio">📷 Estúdio</div>
@@ -94,358 +106,365 @@ textarea.cfg-msg{width:100%;border:1.5px solid var(--borda);border-radius:var(--
 </div>
 
 <div class="modal" id="modal">
-  <div class="modal-box">
-    <h2 id="modal-titulo">Equipamento</h2>
-    <input type="hidden" id="m-rowIndex">
-    <input type="hidden" id="m-id">
+  <div class="mbox">
+    <h2 id="mt">Equipamento</h2>
+    <input type="hidden" id="mId">
     <div class="campo"><label>Categoria</label>
-      <select id="m-cat">
+      <select id="mcat">
         <option>Câmera</option><option>Iluminação</option><option>Microfone</option>
         <option>Tripé</option><option>Gimbal</option><option>Cartão de Memória</option><option>Outro</option>
       </select>
     </div>
-    <div class="campo"><label>Descrição</label><input type="text" id="m-desc"></div>
-    <div class="campo"><label>Marca</label><input type="text" id="m-marca"></div>
-    <div class="campo"><label>N. Patrimonial</label><input type="text" id="m-pat"></div>
+    <div class="campo"><label>Descrição</label><input type="text" id="mdesc"></div>
+    <div class="campo"><label>Marca</label><input type="text" id="mmarca"></div>
+    <div class="campo"><label>N. Patrimonial</label><input type="text" id="mpat"></div>
     <div class="campo"><label>Status</label>
-      <select id="m-status">
+      <select id="mstatus">
         <option value="Disponivel">Disponível</option>
         <option value="Emprestado">Emprestado</option>
         <option value="Manutencao">Manutenção</option>
       </select>
     </div>
     <div class="btns">
-      <button class="btn btn-roxo" id="btnSalvarEquip">Salvar</button>
-      <button class="btn btn-no" id="btnCancelar">Cancelar</button>
+      <button class="btn broxo" id="bSalv">Salvar</button>
+      <button class="btn bno" id="bCan">Cancelar</button>
     </div>
   </div>
 </div>
 
-<script>
-var URL = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec";
-var SENHA = "";
-var DADOS = null;
+<!-- Firebase SDKs -->
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
+import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc, deleteDoc, getDoc, setDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
+
+const firebaseConfig = {"apiKey": "AIzaSyD2JmP33idYRN6MBsdRzDM65TTZsYBV050", "authDomain": "ppuncapital-solicitacoes.firebaseapp.com", "projectId": "ppuncapital-solicitacoes", "storageBucket": "ppuncapital-solicitacoes.firebasestorage.app", "messagingSenderId": "317827844767", "appId": "1:317827844767:web:241de43cc89084232230aa"};
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec";
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
 var ABA = "estudio";
+var unsubEstudio = null;
+var unsubEquip = null;
+var unsubPat = null;
 
-// Login
-document.getElementById("btnEntrar").onclick = function() { entrar(); };
-document.getElementById("senha").onkeydown = function(e) { if (e.key === "Enter") entrar(); };
+// Auth
+onAuthStateChanged(auth, function(user) {
+  if (user) {
+    document.getElementById("login").style.display = "none";
+    document.getElementById("app").style.display = "block";
+    document.getElementById("att").textContent = user.email;
+    iniciarListeners();
+  } else {
+    document.getElementById("login").style.display = "flex";
+    document.getElementById("app").style.display = "none";
+  }
+});
 
-function entrar() {
-  var s = document.getElementById("senha").value;
+document.getElementById("btnE").onclick = function() {
+  var email = document.getElementById("email").value;
+  var senha = document.getElementById("senha").value;
   document.getElementById("erro").style.display = "none";
-  fetch(URL + "?acao=dadosAdm&senha=" + encodeURIComponent(s), {
-    redirect: 'follow',
-    credentials: 'omit'
-  })
-    .then(function(r) {
-      console.log("Status:", r.status, "URL:", r.url, "Type:", r.type);
-      return r.json();
-    })
-    .then(function(res) {
-      console.log("Resposta:", res);
-      if (!res.ok) { document.getElementById("erro").style.display = "block"; return; }
-      SENHA = s; DADOS = res;
-      document.getElementById("login").style.display = "none";
-      document.getElementById("app").style.display = "block";
-      marcarAtt();
-      renderEstudio();
-      carregarStatus();
-    })
-    .catch(function(err) { alert("Erro ao conectar: " + err.message); console.error("Erro completo:", err); });
-}
+  signInWithEmailAndPassword(auth, email, senha)
+    .catch(function() { document.getElementById("erro").style.display = "block"; });
+};
+document.getElementById("senha").onkeydown = function(e) { if (e.key === "Enter") document.getElementById("btnE").click(); };
 
-function marcarAtt() {
-  document.getElementById("att").textContent = "Atualizado: " + new Date().toLocaleTimeString("pt-BR");
-}
-
-function atualizar() {
-  fetch(URL + "?acao=dadosAdm&senha=" + encodeURIComponent(SENHA))
-    .then(function(r) { return r.json(); })
-    .then(function(res) {
-      if (!res.ok) return;
-      DADOS = res; marcarAtt();
-      if (ABA === "estudio") renderEstudio();
-      else if (ABA === "equipamentos") renderEquipamentos();
-      else renderPatrimonio();
-    });
-}
+document.getElementById("btnSair").onclick = function() { signOut(auth); };
 
 // Abas
-document.querySelectorAll(".tab").forEach(function(tab) {
-  tab.onclick = function() {
+document.querySelectorAll(".tab").forEach(function(t) {
+  t.onclick = function() {
     ABA = this.dataset.aba;
-    document.querySelectorAll(".tab").forEach(function(t) { t.classList.remove("on"); });
+    document.querySelectorAll(".tab").forEach(function(x) { x.classList.remove("on"); });
     this.classList.add("on");
     ["estudio","equipamentos","patrimonio"].forEach(function(id) {
       document.getElementById(id).style.display = id === ABA ? "block" : "none";
     });
-    if (ABA === "estudio") renderEstudio();
-    else if (ABA === "equipamentos") renderEquipamentos();
-    else renderPatrimonio();
   };
 });
 
-// Cards
-function mkCard(nome, sub, status, detalhes, botoesEl) {
-  var card = document.createElement("div");
-  card.className = "card";
-  var top = document.createElement("div");
-  top.className = "card-top";
-  var info = document.createElement("div");
-  info.innerHTML = "<div class='card-nome'>" + nome + "</div><div class='card-sub'>" + sub + "</div>";
-  var badge = document.createElement("span");
-  badge.className = "badge " + status.toLowerCase();
-  badge.textContent = status;
-  top.appendChild(info); top.appendChild(badge);
-  card.appendChild(top);
-  var grid = document.createElement("div");
-  grid.className = "grid";
-  detalhes.forEach(function(d) {
-    var el = document.createElement("div");
-    el.className = "det";
-    el.innerHTML = "<strong>" + d[0] + "</strong>" + d[1];
-    grid.appendChild(el);
+// Listeners em tempo real
+function iniciarListeners() {
+  // Estúdio
+  var qEst = query(collection(db, "solicitacoes"), orderBy("enviadoEm", "desc"));
+  unsubEstudio = onSnapshot(qEst, function(snap) {
+    var docs = [];
+    snap.forEach(function(d) { docs.push({id: d.id, ...d.data()}); });
+    renderEstudio(docs);
   });
-  card.appendChild(grid);
-  if (botoesEl) card.appendChild(botoesEl);
-  return card;
+
+  // Equipamentos
+  var qEq = query(collection(db, "emprestimos"), orderBy("enviadoEm", "desc"));
+  unsubEquip = onSnapshot(qEq, function(snap) {
+    var docs = [];
+    snap.forEach(function(d) { docs.push({id: d.id, ...d.data()}); });
+    renderEquipamentos(docs);
+  });
+
+  // Patrimônio
+  unsubPat = onSnapshot(collection(db, "patrimonio"), function(snap) {
+    var docs = [];
+    snap.forEach(function(d) { docs.push({id: d.id, ...d.data()}); });
+    renderPatrimonio(docs);
+  });
+
+  // Status
+  onSnapshot(doc(db, "config", "status"), function(d) {
+    if (d.exists()) {
+      var data = d.data();
+      var ckEst = document.getElementById("ckEst");
+      var ckEq = document.getElementById("ckEq");
+      var msgEst = document.getElementById("msgEst");
+      var msgEq = document.getElementById("msgEq");
+      if (ckEst) ckEst.checked = data.estudioAtivo !== false;
+      if (ckEq) ckEq.checked = data.equipAtivo !== false;
+      if (msgEst) msgEst.value = data.msgEstudio || "";
+      if (msgEq) msgEq.value = data.msgEquip || "";
+    }
+  });
+}
+
+// Helpers
+function mkCard(nome, sub, status, dets, btnsEl) {
+  var c = document.createElement("div"); c.className = "card";
+  var top = document.createElement("div"); top.className = "ctop";
+  var inf = document.createElement("div");
+  inf.innerHTML = "<div class='cnome'>" + nome + "</div><div class='csub'>" + sub + "</div>";
+  var b = document.createElement("span");
+  b.className = "badge " + status.toLowerCase(); b.textContent = status;
+  top.appendChild(inf); top.appendChild(b); c.appendChild(top);
+  var g = document.createElement("div"); g.className = "cgrid";
+  dets.forEach(function(d) {
+    var el = document.createElement("div"); el.className = "det";
+    el.innerHTML = "<strong>" + d[0] + "</strong>" + (d[1] || "—");
+    g.appendChild(el);
+  });
+  c.appendChild(g);
+  if (btnsEl) c.appendChild(btnsEl);
+  return c;
 }
 
 function mkBtns(lista) {
-  var div = document.createElement("div");
-  div.className = "btns";
+  var d = document.createElement("div"); d.className = "btns";
   lista.forEach(function(b) {
     var el = document.createElement(b.href ? "a" : "button");
-    el.className = "btn " + b.cls;
-    el.textContent = b.label;
+    el.className = "btn " + b.cls; el.textContent = b.label;
     if (b.href) { el.href = b.href; el.target = "_blank"; }
     else el.onclick = b.fn;
-    div.appendChild(el);
+    d.appendChild(el);
   });
-  return div;
+  return d;
 }
 
-function renderSecao(containerId, titulo, itens, mkFn) {
-  var el = document.getElementById(containerId);
-  var p = document.createElement("p");
-  p.className = "sec-titulo";
-  p.textContent = titulo + " (" + itens.length + ")";
-  el.appendChild(p);
+function renderSec(cid, titulo, itens, mkFn) {
+  var el = document.getElementById(cid);
+  var p = document.createElement("p"); p.className = "st";
+  p.textContent = titulo + " (" + itens.length + ")"; el.appendChild(p);
   if (!itens.length) {
-    var v = document.createElement("div");
-    v.className = "vazio";
-    v.textContent = "Nenhum registro.";
-    el.appendChild(v);
+    var v = document.createElement("div"); v.className = "vazio";
+    v.textContent = "Nenhum registro."; el.appendChild(v); return;
   }
   itens.forEach(function(s) { el.appendChild(mkFn(s)); });
 }
 
-function renderEstudio() {
-  var el = document.getElementById("estudio");
-  el.innerHTML = "";
-  var pend = DADOS.estudio.filter(function(s) { return s.status === "Pendente"; });
-  var apr  = DADOS.estudio.filter(function(s) { return s.status === "Aprovado"; });
-  var rec  = DADOS.estudio.filter(function(s) { return s.status === "Recusado"; });
-  renderSecao("estudio", "Pendentes", pend, function(s) {
-    var btns = mkBtns([
-      {label:"✅ Aprovar", cls:"btn-ok", fn: function() { acaoEstudio(s.id, "aprovar"); }},
-      {label:"❌ Recusar", cls:"btn-no", fn: function() { acaoEstudio(s.id, "recusar"); }}
+// Estúdio
+function renderEstudio(docs) {
+  var el = document.getElementById("estudio"); el.innerHTML = "";
+  var pend = docs.filter(function(s) { return s.status === "Pendente"; });
+  var apr  = docs.filter(function(s) { return s.status === "Aprovado"; });
+  var rec  = docs.filter(function(s) { return s.status === "Recusado"; });
+  renderSec("estudio", "Pendentes", pend, function(s) {
+    var bt = mkBtns([
+      {label: "✅ Aprovar", cls: "bok", fn: function() { aprovarEstudio(s); }},
+      {label: "❌ Recusar", cls: "bno", fn: function() { recusarEstudio(s); }}
     ]);
-    return mkCard(
-      s.nome + " — " + s.semestre + " sem.",
-      "RGM " + s.rgm + " · " + s.email + " · " + s.whatsapp,
-      s.status,
-      [["Tipo", s.tipoEstudio||"Estúdio"],["Data",s.data],["Horário",s.horario],
-       ["Finalidade",s.finalidade],["Descrição",s.descricao],["Equipamentos",s.equipamentos],["Participantes",s.participantes]],
-      btns
-    );
+    return mkCard(s.nome + " — " + s.semestre + " sem.",
+      "RGM " + s.rgm + " · " + s.email + " · " + s.whatsapp, s.status,
+      [["Tipo", s.tipoEstudio], ["Data", s.data], ["Horário", s.horario],
+       ["Finalidade", s.finalidade], ["Descrição", s.descricao],
+       ["Equipamentos", s.equipamentos], ["Participantes", s.participantes]], bt);
   });
-  renderSecao("estudio", "Agendados", apr, function(s) {
-    return mkCard(s.nome + " — " + s.semestre + " sem.", "RGM " + s.rgm + " · " + s.email, s.status,
-      [["Tipo",s.tipoEstudio||"Estúdio"],["Data",s.data],["Horário",s.horario],["Finalidade",s.finalidade]], null);
+  renderSec("estudio", "Agendados", apr, function(s) {
+    return mkCard(s.nome + " — " + s.semestre + " sem.", "RGM " + s.rgm, s.status,
+      [["Tipo", s.tipoEstudio], ["Data", s.data], ["Horário", s.horario]], null);
   });
-  renderSecao("estudio", "Histórico", rec, function(s) {
-    return mkCard(s.nome, "RGM " + s.rgm, s.status, [["Data",s.data],["Horário",s.horario]], null);
+  renderSec("estudio", "Histórico", rec, function(s) {
+    return mkCard(s.nome, "RGM " + s.rgm, s.status,
+      [["Data", s.data], ["Horário", s.horario]], null);
   });
 }
 
-function renderEquipamentos() {
-  var el = document.getElementById("equipamentos");
-  el.innerHTML = "";
-  var pend = DADOS.emprestimos.filter(function(s) { return s.status === "Pendente"; });
-  var apr  = DADOS.emprestimos.filter(function(s) { return s.status === "Aprovado"; });
-  var rec  = DADOS.emprestimos.filter(function(s) { return s.status === "Recusado"; });
-  renderSecao("equipamentos", "Pendentes", pend, function(s) {
-    var btns = mkBtns([
-      {label:"✅ Aprovar e enviar termo", cls:"btn-ok", fn: function() { acaoEquip(s.id, "aprovarEquip"); }},
-      {label:"❌ Recusar", cls:"btn-no", fn: function() { acaoEquip(s.id, "recusarEquip"); }},
-      {label:"🖨️ Ver Termo", cls:"btn-roxo", href: URL + "?acao=termo&id=" + s.id}
+async function aprovarEstudio(s) {
+  if (!confirm("Aprovar reserva de " + s.nome + "?")) return;
+  try {
+    await updateDoc(doc(db, "solicitacoes", s.id), {status: "Aprovado"});
+    var r = await fetch(SCRIPT_URL + "?acao=aprovar&id=" + encodeURIComponent(s.id));
+    var res = await r.json();
+    if (!res.ok) alert("Aprovado no sistema, mas erro no Apps Script: " + (res.erro || ""));
+    else alert("Reserva aprovada! E-mail enviado ao aluno.");
+  } catch(e) { alert("Erro: " + e.message); }
+}
+
+async function recusarEstudio(s) {
+  if (!confirm("Recusar reserva de " + s.nome + "?")) return;
+  try {
+    await updateDoc(doc(db, "solicitacoes", s.id), {status: "Recusado"});
+    await fetch(SCRIPT_URL + "?acao=recusar&id=" + encodeURIComponent(s.id));
+    alert("Solicitação recusada. Aluno notificado.");
+  } catch(e) { alert("Erro: " + e.message); }
+}
+
+// Equipamentos
+function renderEquipamentos(docs) {
+  var el = document.getElementById("equipamentos"); el.innerHTML = "";
+  var pend = docs.filter(function(s) { return s.status === "Pendente"; });
+  var apr  = docs.filter(function(s) { return s.status === "Aprovado"; });
+  var rec  = docs.filter(function(s) { return s.status === "Recusado"; });
+  renderSec("equipamentos", "Pendentes", pend, function(s) {
+    var bt = mkBtns([
+      {label: "✅ Aprovar e enviar termo", cls: "bok", fn: function() { aprovarEquip(s); }},
+      {label: "❌ Recusar", cls: "bno", fn: function() { recusarEquip(s); }}
     ]);
     return mkCard(s.nome, "RGM " + s.rgm + " · " + s.email, s.status,
-      [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],
-       ["Equipamentos",s.equipamentos],["Patrimônios",s.patrimonios],["Finalidade",s.finalidade]], btns);
+      [["Retirada", s.dataRetirada], ["Devolução", s.dataDevolucao],
+       ["Equipamentos", s.equipamentos], ["Patrimônios", s.patrimonios]], bt);
   });
-  renderSecao("equipamentos", "Aprovados", apr, function(s) {
-    var btns = mkBtns([{label:"🖨️ Ver Termo", cls:"btn-roxo", href: URL + "?acao=termo&id=" + s.id}]);
+  renderSec("equipamentos", "Aprovados", apr, function(s) {
+    var bt = mkBtns([{label: "🖨️ Ver Termo", cls: "broxo", href: SCRIPT_URL + "?acao=termo&id=" + s.firestoreId}]);
     return mkCard(s.nome, "RGM " + s.rgm, s.status,
-      [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],["Equipamentos",s.equipamentos]], btns);
+      [["Retirada", s.dataRetirada], ["Devolução", s.dataDevolucao], ["Equipamentos", s.equipamentos]], bt);
   });
-  renderSecao("equipamentos", "Histórico", rec, function(s) {
-    return mkCard(s.nome, "RGM " + s.rgm, s.status, [["Retirada",s.dataRetirada]], null);
+  renderSec("equipamentos", "Histórico", rec, function(s) {
+    return mkCard(s.nome, "RGM " + s.rgm, s.status, [["Retirada", s.dataRetirada]], null);
   });
 }
 
-function acaoEstudio(id, tipo) {
-  if (!confirm("Confirmar: " + tipo + " esta solicitação?")) return;
-  fetch(URL + "?acao=" + tipo + "&id=" + encodeURIComponent(id))
-    .then(function(r) { return r.json(); })
-    .then(function(res) { if (res.ok) { alert("Feito!"); atualizar(); } else alert("Erro: " + (res.erro||"")); });
+async function aprovarEquip(s) {
+  if (!confirm("Aprovar empréstimo de " + s.nome + "?")) return;
+  try {
+    await updateDoc(doc(db, "emprestimos", s.id), {status: "Aprovado"});
+    var r = await fetch(SCRIPT_URL + "?acao=aprovarEquip&id=" + encodeURIComponent(s.id));
+    var res = await r.json();
+    if (!res.ok) alert("Aprovado, mas erro no Apps Script: " + (res.erro || ""));
+    else alert("Empréstimo aprovado! Termo enviado por e-mail.");
+  } catch(e) { alert("Erro: " + e.message); }
 }
 
-function acaoEquip(id, tipo) {
-  if (!confirm("Confirmar esta ação?")) return;
-  fetch(URL + "?acao=" + tipo + "&id=" + encodeURIComponent(id))
-    .then(function(r) { return r.json(); })
-    .then(function(res) { if (res.ok) { alert("Feito!"); atualizar(); } else alert("Erro: " + (res.erro||"")); });
+async function recusarEquip(s) {
+  if (!confirm("Recusar empréstimo de " + s.nome + "?")) return;
+  try {
+    await updateDoc(doc(db, "emprestimos", s.id), {status: "Recusado"});
+    await fetch(SCRIPT_URL + "?acao=recusarEquip&id=" + encodeURIComponent(s.id));
+    alert("Recusado. Aluno notificado.");
+  } catch(e) { alert("Erro: " + e.message); }
 }
 
-function renderPatrimonio() {
-  var el = document.getElementById("patrimonio");
-  el.innerHTML = "";
+// Patrimônio
+function renderPatrimonio(docs) {
+  var el = document.getElementById("patrimonio"); el.innerHTML = "";
 
   // Config disponibilidade
-  var cfg = document.createElement("div");
-  cfg.className = "cfg";
-  cfg.innerHTML = "<h3>Disponibilidade</h3>" +
-    "<label class='sw'><input type='checkbox' id='ckEst'> Estúdios liberados para agendamento</label>" +
-    "<textarea class='cfg-msg' id='msgEst' placeholder='Mensagem quando bloqueado...'></textarea>" +
-    "<label class='sw'><input type='checkbox' id='ckEq'> Equipamentos liberados para empréstimo</label>" +
-    "<textarea class='cfg-msg' id='msgEq' placeholder='Mensagem quando bloqueado...'></textarea>";
-  var btnSalvar = document.createElement("button");
-  btnSalvar.className = "btn btn-roxo";
-  btnSalvar.textContent = "Salvar disponibilidade";
-  btnSalvar.onclick = salvarStatus;
-  cfg.appendChild(btnSalvar);
+  var cfg = document.createElement("div"); cfg.className = "cfg";
+  cfg.innerHTML = "<h3>Disponibilidade</h3>";
+  var lEst = document.createElement("label"); lEst.className = "sw";
+  lEst.innerHTML = "<input type='checkbox' id='ckEst'> Estúdios liberados para agendamento";
+  var mEst = document.createElement("textarea"); mEst.className = "cmsg"; mEst.id = "msgEst";
+  mEst.placeholder = "Mensagem quando bloqueado (ex: reforma)...";
+  var lEq = document.createElement("label"); lEq.className = "sw";
+  lEq.innerHTML = "<input type='checkbox' id='ckEq'> Equipamentos liberados para empréstimo";
+  var mEq = document.createElement("textarea"); mEq.className = "cmsg"; mEq.id = "msgEq";
+  mEq.placeholder = "Mensagem quando bloqueado...";
+  var bSv = document.createElement("button"); bSv.className = "btn broxo"; bSv.textContent = "Salvar disponibilidade";
+  bSv.onclick = salvarStatus;
+  cfg.appendChild(lEst); cfg.appendChild(mEst); cfg.appendChild(lEq); cfg.appendChild(mEq); cfg.appendChild(bSv);
   el.appendChild(cfg);
 
-  // Botão adicionar
-  var addBtn = document.createElement("button");
-  addBtn.className = "add-btn";
-  addBtn.textContent = "+ Adicionar equipamento";
-  addBtn.onclick = function() { abrirModal(); };
-  el.appendChild(addBtn);
+  // Add btn
+  var ab = document.createElement("button"); ab.className = "abtn";
+  ab.textContent = "+ Adicionar equipamento"; ab.onclick = function() { abrirModal(null); };
+  el.appendChild(ab);
 
   // Grid por categoria
   var cats = {};
-  DADOS.patrimonio.forEach(function(p) {
+  docs.forEach(function(p) {
     if (!cats[p.categoria]) cats[p.categoria] = [];
     cats[p.categoria].push(p);
   });
   Object.keys(cats).sort().forEach(function(cat) {
-    var titulo = document.createElement("p");
-    titulo.className = "sec-titulo";
-    titulo.textContent = cat + " (" + cats[cat].length + ")";
-    el.appendChild(titulo);
-    var grid = document.createElement("div");
-    grid.className = "pat-grid";
+    var t = document.createElement("p"); t.className = "st";
+    t.textContent = cat + " (" + cats[cat].length + ")"; el.appendChild(t);
+    var g = document.createElement("div"); g.className = "pgrid";
     cats[cat].forEach(function(p) {
-      var card = document.createElement("div");
-      card.className = "pat-card";
-      var statusCls = p.status === "Disponivel" ? "s-disp" : "s-emp";
-      card.innerHTML = "<h3>" + p.descricao + "</h3><p>Marca: " + p.marca + "</p><p>Patrimônio: <strong>" + p.patrimonio + "</strong></p><span class='" + statusCls + "'>" + p.status + "</span>";
-      var btnsDiv = document.createElement("div");
-      btnsDiv.style.cssText = "display:flex;gap:6px;margin-top:10px;flex-wrap:wrap";
-      var bEdit = document.createElement("button");
-      bEdit.className = "btn btn-roxo btn-sm";
-      bEdit.textContent = "Editar";
-      bEdit.onclick = (function(item) { return function() { editarItem(item); }; })(p);
-      var bDel = document.createElement("button");
-      bDel.className = "btn btn-no btn-sm";
-      bDel.textContent = "Remover";
-      bDel.onclick = (function(item) { return function() { deletarItem(item.id); }; })(p);
-      btnsDiv.appendChild(bEdit);
-      btnsDiv.appendChild(bDel);
-      card.appendChild(btnsDiv);
-      grid.appendChild(card);
+      var c = document.createElement("div"); c.className = "pcard";
+      var sc = p.status === "Disponivel" ? "sdisp" : "semp";
+      c.innerHTML = "<h3>" + p.descricao + "</h3><p>Marca: " + p.marca + "</p><p>Patrimônio: <strong>" + p.patrimonio + "</strong></p><span class='" + sc + "'>" + p.status + "</span>";
+      var bd = document.createElement("div"); bd.style = "display:flex;gap:6px;margin-top:10px;flex-wrap:wrap";
+      var bE = document.createElement("button"); bE.className = "btn broxo"; bE.style = "font-size:12px;padding:5px 12px"; bE.textContent = "Editar";
+      bE.onclick = (function(item) { return function() { abrirModal(item); }; })(p);
+      var bD = document.createElement("button"); bD.className = "btn bno"; bD.style = "font-size:12px;padding:5px 12px"; bD.textContent = "Remover";
+      bD.onclick = (function(item) { return function() { deletarItem(item.id); }; })(p);
+      bd.appendChild(bE); bd.appendChild(bD); c.appendChild(bd); g.appendChild(c);
     });
-    el.appendChild(grid);
+    el.appendChild(g);
   });
-  carregarStatus();
 }
 
-function carregarStatus() {
-  fetch(URL + "?acao=getStatus")
-    .then(function(r) { return r.json(); })
-    .then(function(res) {
-      var ce = document.getElementById("ckEst");
-      var cq = document.getElementById("ckEq");
-      var me = document.getElementById("msgEst");
-      var mq = document.getElementById("msgEq");
-      if (ce) ce.checked = res.estudioAtivo;
-      if (cq) cq.checked = res.equipAtivo;
-      if (me) me.value = res.msgEstudio || "";
-      if (mq) mq.value = res.msgEquip || "";
-    }).catch(function() {});
+async function salvarStatus() {
+  var ce = document.getElementById("ckEst");
+  var cq = document.getElementById("ckEq");
+  var me = document.getElementById("msgEst");
+  var mq = document.getElementById("msgEq");
+  try {
+    await setDoc(doc(db, "config", "status"), {
+      estudioAtivo: ce ? ce.checked : true,
+      msgEstudio: me ? me.value : "",
+      equipAtivo: cq ? cq.checked : true,
+      msgEquip: mq ? mq.value : ""
+    });
+    alert("Disponibilidade salva!");
+  } catch(e) { alert("Erro: " + e.message); }
 }
 
-function salvarStatus() {
-  var est = document.getElementById("ckEst");
-  var eq  = document.getElementById("ckEq");
-  var me  = document.getElementById("msgEst");
-  var mq  = document.getElementById("msgEq");
-  fetch(URL + "?acao=setStatus&tipo=estudio&ativo=" + (est?est.checked:true) + "&msg=" + encodeURIComponent(me?me.value:""))
-    .then(function() {
-      return fetch(URL + "?acao=setStatus&tipo=equip&ativo=" + (eq?eq.checked:true) + "&msg=" + encodeURIComponent(mq?mq.value:""));
-    })
-    .then(function() { alert("Salvo!"); })
-    .catch(function() {});
-}
-
+// Modal patrimônio
 function abrirModal(item) {
-  document.getElementById("modal-titulo").textContent = item ? "Editar Equipamento" : "Novo Equipamento";
-  document.getElementById("m-rowIndex").value = item ? (item.rowIndex||"") : "";
-  document.getElementById("m-id").value = item ? item.id : "";
-  document.getElementById("m-cat").value = item ? item.categoria : "Câmera";
-  document.getElementById("m-desc").value = item ? item.descricao : "";
-  document.getElementById("m-marca").value = item ? item.marca : "";
-  document.getElementById("m-pat").value = item ? item.patrimonio : "";
-  document.getElementById("m-status").value = item ? item.status : "Disponivel";
+  document.getElementById("mt").textContent = item ? "Editar Equipamento" : "Novo Equipamento";
+  document.getElementById("mId").value = item ? item.id : "";
+  document.getElementById("mcat").value = item ? item.categoria : "Câmera";
+  document.getElementById("mdesc").value = item ? item.descricao : "";
+  document.getElementById("mmarca").value = item ? item.marca : "";
+  document.getElementById("mpat").value = item ? item.patrimonio : "";
+  document.getElementById("mstatus").value = item ? item.status : "Disponivel";
   document.getElementById("modal").classList.add("on");
 }
 
-function editarItem(item) { abrirModal(item); }
+document.getElementById("bCan").onclick = function() { document.getElementById("modal").classList.remove("on"); };
 
-document.getElementById("btnCancelar").onclick = function() {
-  document.getElementById("modal").classList.remove("on");
+document.getElementById("bSalv").onclick = async function() {
+  var id = document.getElementById("mId").value;
+  var data = {
+    categoria: document.getElementById("mcat").value,
+    descricao: document.getElementById("mdesc").value,
+    marca: document.getElementById("mmarca").value,
+    patrimonio: document.getElementById("mpat").value,
+    status: document.getElementById("mstatus").value
+  };
+  try {
+    if (id) await updateDoc(doc(db, "patrimonio", id), data);
+    else await addDoc(collection(db, "patrimonio"), data);
+    document.getElementById("modal").classList.remove("on");
+  } catch(e) { alert("Erro: " + e.message); }
 };
 
-document.getElementById("btnSalvarEquip").onclick = function() {
-  var params = new URLSearchParams();
-  params.set("acao", "salvarEquipamento");
-  params.set("rowIndex", document.getElementById("m-rowIndex").value);
-  params.set("id", document.getElementById("m-id").value);
-  params.set("categoria", document.getElementById("m-cat").value);
-  params.set("descricao", document.getElementById("m-desc").value);
-  params.set("marca", document.getElementById("m-marca").value);
-  params.set("patrimonio", document.getElementById("m-pat").value);
-  params.set("status", document.getElementById("m-status").value);
-  fetch(URL + "?" + params.toString())
-    .then(function(r) { return r.json(); })
-    .then(function(res) {
-      if (res.ok) { document.getElementById("modal").classList.remove("on"); atualizar(); }
-      else alert("Erro: " + (res.erro||""));
-    });
-};
-
-function deletarItem(id) {
+async function deletarItem(id) {
   if (!confirm("Remover este equipamento?")) return;
-  fetch(URL + "?acao=deletarEquipamento&id=" + encodeURIComponent(id))
-    .then(function(r) { return r.json(); })
-    .then(function(res) { if (res.ok) atualizar(); else alert("Erro: " + (res.erro||"")); });
+  try { await deleteDoc(doc(db, "patrimonio", id)); }
+  catch(e) { alert("Erro: " + e.message); }
 }
 
-setInterval(atualizar, 60000);
+window.abrirModal = abrirModal;
 </script>
 </body>
 </html>
