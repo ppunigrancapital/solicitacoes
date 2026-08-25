@@ -287,6 +287,11 @@ document.getElementById('formEstudio').addEventListener('submit', function(ev){
   var fb = document.getElementById('feedbackEstudio');
   var eq = document.querySelectorAll('input[name=equipamentos]:checked');
   var outros = document.querySelector('input[name=equipamentosOutros]').value.trim();
+  var emailEst = fd.get('email') || '';
+  if (!emailEst.endsWith('@alunos.unigrancapital.com.br')) {
+    alert('Apenas e-mails acadêmicos são aceitos.\nUse seu e-mail @alunos.unigrancapital.com.br.');
+    return;
+  }
   if (eq.length === 0 && !outros) { alert('Selecione ao menos um equipamento.'); return; }
   if (!diaSelecionadoEstudio) { alert('Selecione uma data.'); return; }
   if (!horarioSelecionado) { alert('Selecione um horário.'); return; }
@@ -369,32 +374,48 @@ function renderEquipamentosDisponiveis(data) {
 }
 
 function renderLista(data) {
-  // Agrupar por categoria
   var cats = {};
   inventario.forEach(function(item){
     if (!cats[item.categoria]) cats[item.categoria] = [];
     cats[item.categoria].push(item);
   });
 
-  var html = '';
+  var container = document.getElementById('listaEquipamentos');
+  container.innerHTML = '';
+
   Object.keys(cats).sort().forEach(function(cat){
     var disponiveis = cats[cat].filter(function(i){ return i.disponivel; });
-    html += '<div style="margin-bottom:16px">';
-    html += '<div style="font-size:12px;font-weight:700;color:#4a1270;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px">' + cat + '</div>';
-    html += '<div class="equip-lista">';
+    var wrap = document.createElement('div');
+    wrap.style.marginBottom = '16px';
+
+    var titulo = document.createElement('div');
+    titulo.style.cssText = 'font-size:12px;font-weight:700;color:#4a1270;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px';
+    titulo.textContent = cat;
+    wrap.appendChild(titulo);
+
+    var lista = document.createElement('div');
+    lista.className = 'equip-lista';
+
     if (disponiveis.length === 0) {
-      html += '<div class="equip-item indisponivel"><div><div class="equip-nome">' + cat + '</div><div class="equip-det">Nenhuma unidade disponível nesta data</div></div><span class="equip-badge indisponivel">Indisponível</span></div>';
+      lista.innerHTML = '<div class="equip-item indisponivel"><div><div class="equip-nome">' + cat + '</div><div class="equip-det">Nenhuma unidade disponível</div></div><span class="equip-badge indisponivel">Indisponível</span></div>';
     } else {
-      // Mostrar apenas 1 item representativo por categoria (alocação automática)
       var item = disponiveis[0];
-      html += '<div class="equip-item" id="equip-' + item.id + '" onclick="toggleEquip('' + item.id + '','' + cat + '','' + item.patrimonio + '')">' +
-        '<div><div class="equip-nome">' + cat + '</div>' +
-        '<div class="equip-det">' + item.descricao + ' — ' + item.marca + ' · ' + disponiveis.length + ' unidade(s) disponível(veis)</div></div>' +
-        '<span class="equip-badge">Disponível</span></div>';
+      var el = document.createElement('div');
+      el.className = 'equip-item';
+      el.id = 'equip-' + item.id;
+      el.dataset.id = item.id;
+      el.dataset.cat = cat;
+      el.dataset.patrimonio = item.patrimonio;
+      el.innerHTML = '<div><div class="equip-nome">' + cat + '</div><div class="equip-det">' + item.descricao + ' — ' + item.marca + ' · ' + disponiveis.length + ' unidade(s) disponível(veis)</div></div><span class="equip-badge">Disponível</span>';
+      el.addEventListener('click', function(){
+        toggleEquip(this.dataset.id, this.dataset.cat, this.dataset.patrimonio);
+      });
+      lista.appendChild(el);
     }
-    html += '</div></div>';
+
+    wrap.appendChild(lista);
+    container.appendChild(wrap);
   });
-  document.getElementById('listaEquipamentos').innerHTML = html;
 }
 
 function toggleEquip(id, cat, patrimonio) {
@@ -415,6 +436,11 @@ document.getElementById('formEquip').addEventListener('submit', function(ev){
   var btn = document.getElementById('btnEquip');
   var fb = document.getElementById('feedbackEquip');
   var dataRet = document.getElementById('dataRetirada').value;
+  var emailEquip = fd.get('emailE') || '';
+  if (!emailEquip.endsWith('@alunos.unigrancapital.com.br')) {
+    alert('Apenas e-mails acadêmicos são aceitos.\nUse seu e-mail @alunos.unigrancapital.com.br.');
+    return;
+  }
   if (!dataRet) { alert('Selecione uma data de retirada.'); return; }
   if (equipSelecionados.length === 0) { alert('Selecione ao menos um equipamento.'); return; }
   btn.disabled = true; btn.textContent = 'Enviando...'; fb.style.display = 'none';
