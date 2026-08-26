@@ -546,99 +546,134 @@ function renderEquipamentosDisponiveis(dataRetirada) {
   });
 }
 
-function renderLista(data) {
+function renderLista(dataRetirada) {
   var catsOcultas = ['Lente','Cartão de Memória','Bateria','Carregador'];
+
+  // Agrupar por categoria > modelo (descricao)
   var cats = {};
   inventario.forEach(function(item){
     if (catsOcultas.indexOf(item.categoria) >= 0) return;
-    if (!cats[item.categoria]) cats[item.categoria] = [];
-    cats[item.categoria].push(item);
+    if (!cats[item.categoria]) cats[item.categoria] = {};
+    var key = item.descricao;
+    if (!cats[item.categoria][key]) cats[item.categoria][key] = {descricao:item.descricao, marca:item.marca, itens:[]};
+    cats[item.categoria][key].itens.push(item);
   });
 
   var container = document.getElementById('listaEquipamentos');
   container.innerHTML = '';
-
   var temItens = false;
+
   Object.keys(cats).sort().forEach(function(cat){
-    var wrap = document.createElement('div');
-    wrap.style.marginBottom = '20px';
+    var modelos = cats[cat];
+    var modelosOrdenados = Object.keys(modelos).sort();
 
     var titulo = document.createElement('p');
-    titulo.style.cssText = 'font-size:12px;font-weight:700;color:#4a1270;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px';
+    titulo.style.cssText = 'font-size:12px;font-weight:700;color:#4a1270;text-transform:uppercase;letter-spacing:.08em;margin-bottom:10px;margin-top:16px';
     titulo.textContent = cat;
-    wrap.appendChild(titulo);
+    container.appendChild(titulo);
 
     var grid = document.createElement('div');
     grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px';
 
-    cats[cat].forEach(function(item){
+    modelosOrdenados.forEach(function(modelo){
       temItens = true;
+      var grupo = modelos[modelo];
+      var disponiveis = grupo.itens.filter(function(i){ return i.disponivel; });
+      var total = grupo.itens.length;
+      var nDisp = disponiveis.length;
+      var disponivel = nDisp > 0;
+
       var el = document.createElement('div');
-      el.className = 'equip-item' + (item.disponivel ? '' : ' indisponivel');
-      el.style.cssText = 'padding:12px 14px;flex-direction:column;align-items:flex-start;gap:4px';
-      el.id = 'equip-' + item.id;
-      el.dataset.id = item.id;
+      el.className = 'equip-item' + (disponivel ? '' : ' indisponivel');
+      el.style.cssText = 'padding:12px 14px;flex-direction:column;align-items:flex-start;gap:4px;cursor:' + (disponivel ? 'pointer' : 'default');
+      el.dataset.modelo = modelo;
       el.dataset.cat = cat;
-      el.dataset.patrimonio = item.patrimonio;
-      el.dataset.disponivel = item.disponivel ? '1' : '0';
+      el.dataset.disponivel = disponivel ? '1' : '0';
 
       var nome = document.createElement('div');
       nome.className = 'equip-nome';
       nome.style.fontSize = '13px';
-      nome.textContent = item.descricao;
+      nome.textContent = grupo.descricao;
 
       var marca = document.createElement('div');
       marca.className = 'equip-det';
       marca.style.fontSize = '11px';
-      marca.textContent = item.marca + ' · ' + item.patrimonio;
+      marca.textContent = grupo.marca || '';
 
       var badge = document.createElement('span');
-      badge.className = 'equip-badge' + (item.disponivel ? '' : ' indisponivel');
+      badge.className = 'equip-badge' + (disponivel ? '' : ' indisponivel');
       badge.style.marginTop = '6px';
-      badge.textContent = item.disponivel ? 'Disponível' : 'Indisponível';
+      badge.textContent = disponivel ? 'Disponível' : 'Indisponível para esta data';
 
       el.appendChild(nome);
-      el.appendChild(marca);
+      if (grupo.marca) el.appendChild(marca);
       el.appendChild(badge);
 
-      if (item.disponivel) {
+      if (disponivel) {
         el.addEventListener('click', function(){
-          toggleEquip(this.dataset.id, this.dataset.cat, this.dataset.patrimonio);
+          toggleEquipModelo(this, cat, modelo, disponiveis);
         });
       }
 
       grid.appendChild(el);
     });
 
-    wrap.appendChild(grid);
-    container.appendChild(wrap);
+    container.appendChild(grid);
   });
 
   if (!temItens) {
-    container.innerHTML = '<p class="msg-slots">Nenhum equipamento disponível.</p>';
+    container.innerHTML = '<p class="msg-slots">Nenhum equipamento disponível para esta data.</p>';
   }
 }
 
 function vincularKitCamera(selecionando) {
-  // Categorias do kit obrigatório
   var kit = ['Lente','Cartão de Memória','Bateria','Carregador'];
   kit.forEach(function(cat) {
-    // Encontrar primeiro disponível dessa categoria
     var item = inventario.find(function(i){
       return i.categoria === cat && i.disponivel &&
         !equipSelecionados.some(function(s){ return s.id === i.id; });
     });
     if (selecionando && item) {
-      equipSelecionados.push({id:item.id, cat:cat, patrimonio:item.patrimonio||''});
+      equipSelecionados.push({id:item.id, cat:cat, descricao:item.descricao, patrimonio:item.patrimonio||''});
     } else if (!selecionando) {
-      // Remover itens do kit ao desselecionar câmera
       var idx2 = equipSelecionados.findIndex(function(s){ return s.cat === cat; });
       if (idx2 >= 0) equipSelecionados.splice(idx2, 1);
     }
   });
 }
 
+function toggleEquipModelo(el, cat, modelo, disponiveis) {
+  // Verificar se já selecionou esse modelo
+  var jaIdx = equipSelecionados.findIndex(function(s){ return s.modelo === modelo && s.cat === cat; });
+
+  if (jaIdx >= 0) {
+    // Desselecionar
+    equipSelecionados.splice(jaIdx, 1);
+    el.classList.remove('selecionado');
+    if (cat === 'Câmera') vincularKitCamera(false);
+  } else {
+    // Selecionar — pegar primeiro disponível do modelo
+    var item = disponiveis[0];
+    equipSelecionados.push({id:item.id, cat:cat, modelo:modelo, descricao:item.descricao, patrimonio:item.patrimonio||''});
+    el.classList.add('selecionado');
+    if (cat === 'Câmera') vincularKitCamera(true);
+  }
+
+  // Atualizar campos hidden
+  var nomes = [];
+  var pats = [];
+  equipSelecionados.forEach(function(s){
+    if (s.cat === 'Câmera') nomes.push('Câmera ' + s.descricao + ' + Kit (Lente, Cartão de Memória, Bateria, Carregador)');
+    else nomes.push(s.descricao || s.cat);
+    if (s.patrimonio) pats.push(s.patrimonio);
+  });
+  document.getElementById('equipSelecionadosHidden').value = nomes.join(', ');
+  var hPat = document.getElementById('equipPatrimoniosHidden');
+  if (hPat) hPat.value = pats.join(', ');
+}
+
 function toggleEquip(id, cat, patrimonio) {
+  // Mantido para compatibilidade com estúdio
   var el = document.getElementById('equip-' + id);
   if (!el || el.dataset.disponivel === '0') return;
   var idx = -1;
@@ -654,131 +689,39 @@ function toggleEquip(id, cat, patrimonio) {
     el.classList.add('selecionado');
     if (cat === 'Câmera') vincularKitCamera(true);
   }
-  var nomes = equipSelecionados.map(function(e){ return e.cat === 'Câmera' ? 'Câmera + Kit (Lente, Cartão, Bateria, Carregador)' : e.cat; });
-  var unicos = nomes.filter(function(v,i){ return nomes.indexOf(v) === i; });
-  document.getElementById('equipSelecionadosHidden').value = unicos.join(', ');
-  document.getElementById('equipPatrimoniosHidden') && (document.getElementById('equipPatrimoniosHidden').value = equipSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', '));
+  document.getElementById('equipSelecionadosHidden').value =
+    equipSelecionados.map(function(e){ return e.descricao || e.cat; }).join(', ');
 }
 
-document.getElementById('formEquip').addEventListener('submit', function(ev){
-  ev.preventDefault();
-  var btn = document.getElementById('btnEquip');
-  var fb = document.getElementById('feedbackEquip');
-  var dataRet = document.getElementById('dataRetirada').value;
-  var emailEquip = fd.get('emailE') || '';
-  if (!emailEquip.endsWith('@alunos.unigrancapital.com.br')) {
-    alert('Apenas e-mails acadêmicos são aceitos.\nUse seu e-mail @alunos.unigrancapital.com.br.');
-    return;
+function toggleEquipEstudioModelo(el, cat, modelo, disponiveis) {
+  var jaIdx = equipEstudioSelecionados.findIndex(function(s){ return s.modelo === modelo && s.cat === cat; });
+  if (jaIdx >= 0) {
+    equipEstudioSelecionados.splice(jaIdx, 1);
+    el.classList.remove('selecionado');
+  } else {
+    var item = disponiveis[0];
+    equipEstudioSelecionados.push({id:item.id, cat:cat, modelo:modelo, descricao:item.descricao, patrimonio:item.patrimonio||''});
+    el.classList.add('selecionado');
   }
-  if (!dataRet) { alert('Selecione uma data de retirada.'); return; }
-  if (equipSelecionados.length === 0) { alert('Selecione ao menos um equipamento.'); return; }
-  btn.disabled = true; btn.textContent = 'Enviando...'; fb.style.display = 'none';
-  var fd = new FormData(ev.target);
-  var dados = {
-    nome:fd.get('nomeE'), rgm:fd.get('rgmE'), semestre:fd.get('semestreE'),
-    whatsapp:fd.get('whatsappE'), email:fd.get('emailE'),
-    finalidade:fd.get('finalidadeE'), descricao:fd.get('descricaoE'),
-    equipamentos:equipSelecionados.map(function(e){ return e.cat; }).join(', '),
-    patrimonios:equipSelecionados.map(function(e){ return e.patrimonio; }).join(', '),
-    dataRetirada:dataRet
-  };
-  fetch(SCRIPT_URL + '?acao=equipamento', {method:'POST', body:JSON.stringify(dados)})
-    .then(function(r){ return r.json(); })
-    .then(function(res){
-      if (res.ok) {
-        document.getElementById('formEquip').style.display = 'none';
-        fb.className = 'feedback'; fb.style.display = 'block';
-        fb.innerHTML = '<strong>Uhul! 🎉</strong>Solicitação enviada! A Coordenação vai analisar e você receberá o termo por e-mail após a aprovação.';
-      } else { throw new Error(res.erro || 'Erro desconhecido'); }
-    })
-    .catch(function(err){
-      btn.disabled = false; btn.textContent = 'Enviar solicitação';
-      fb.className = 'feedback erro'; fb.style.display = 'block';
-      fb.innerHTML = 'Erro ao enviar: ' + err.message + '. Tente novamente.';
-    });
-});
-
-// Inicializar
-gerarDias('diasGridEstudio', selecionarDiaEstudio);
-carregarInventario();
-
-var equipEstudioSelecionados = [];
-
-function renderEquipEstudio(itens) {
-  var container = document.getElementById('listaEquipEstudio');
-  if (!container) return;
-  if (!itens || itens.length === 0) {
-    container.innerHTML = '<p class="msg-slots">Nenhum equipamento disponível para esta data.</p>';
-    return;
-  }
-  var catsOcultasEst = ['Lente','Cartão de Memória','Bateria','Carregador'];
-  var cats = {};
-  itens.forEach(function(item){
-    if (catsOcultasEst.indexOf(item.categoria) >= 0) return;
-    if (!cats[item.categoria]) cats[item.categoria] = [];
-    cats[item.categoria].push(item);
-  });
-  container.innerHTML = '';
-  Object.keys(cats).sort().forEach(function(cat){
-    var titulo = document.createElement('p');
-    titulo.style.cssText = 'font-size:12px;font-weight:700;color:#4a1270;text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;margin-top:14px';
-    titulo.textContent = cat;
-    container.appendChild(titulo);
-    var grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:8px';
-    cats[cat].forEach(function(item){
-      var el = document.createElement('div');
-      el.className = 'equip-item' + (item.disponivel ? '' : ' indisponivel');
-      el.style.cssText = 'padding:10px 12px;flex-direction:column;align-items:flex-start;gap:3px';
-      el.id = 'equip-est-' + item.id;
-      el.dataset.id = item.id;
-      el.dataset.cat = cat;
-      el.dataset.patrimonio = item.patrimonio;
-      el.dataset.disponivel = item.disponivel ? '1' : '0';
-      var nome = document.createElement('div');
-      nome.className = 'equip-nome';
-      nome.style.fontSize = '13px';
-      nome.textContent = item.descricao;
-      var marca = document.createElement('div');
-      marca.className = 'equip-det';
-      marca.style.fontSize = '11px';
-      marca.textContent = item.marca;
-      var badge = document.createElement('span');
-      badge.className = 'equip-badge' + (item.disponivel ? '' : ' indisponivel');
-      badge.style.marginTop = '6px';
-      badge.textContent = item.disponivel ? 'Disponivel' : 'Indisponivel';
-      el.appendChild(nome);
-      el.appendChild(marca);
-      el.appendChild(badge);
-      if (item.disponivel) {
-        el.addEventListener('click', function(){
-          toggleEquipEstudio(this.dataset.id, this.dataset.cat, this.dataset.patrimonio);
-        });
-      }
-      grid.appendChild(el);
-    });
-    container.appendChild(grid);
-  });
+  document.getElementById('equipEstudioHidden').value =
+    equipEstudioSelecionados.map(function(e){ return e.descricao || e.cat; }).join(', ') || 'Nenhum';
+  document.getElementById('patrimoniosEstudioHidden').value =
+    equipEstudioSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', ');
 }
 
 function toggleEquipEstudio(id, cat, patrimonio) {
+  // compatibilidade
   var el = document.getElementById('equip-est-' + id);
   if (!el || el.dataset.disponivel === '0') return;
   var found = -1;
   for (var i = 0; i < equipEstudioSelecionados.length; i++) {
     if (equipEstudioSelecionados[i].id === id) { found = i; break; }
   }
-  if (found >= 0) {
-    equipEstudioSelecionados.splice(found, 1);
-    el.classList.remove('selecionado');
-  } else {
-    equipEstudioSelecionados.push({id:id, cat:cat, patrimonio:patrimonio});
-    el.classList.add('selecionado');
-  }
-  document.getElementById('equipEstudioHidden').value = equipEstudioSelecionados.map(function(e){ return e.cat; }).join(', ') || 'Nenhum';
-  document.getElementById('patrimoniosEstudioHidden').value = equipEstudioSelecionados.map(function(e){ return e.patrimonio; }).join(', ');
+  if (found >= 0) { equipEstudioSelecionados.splice(found, 1); el.classList.remove('selecionado'); }
+  else { equipEstudioSelecionados.push({id:id, cat:cat, patrimonio:patrimonio}); el.classList.add('selecionado'); }
+  document.getElementById('equipEstudioHidden').value =
+    equipEstudioSelecionados.map(function(e){ return e.descricao || e.cat; }).join(', ') || 'Nenhum';
+  document.getElementById('patrimoniosEstudioHidden').value =
+    equipEstudioSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', ');
 }
-</script>
-<div class="adm-link" style="width:100%;text-align:center;margin-top:24px;padding-bottom:20px"><a href="adm.html" target="_blank">Acesso restrito</a></div>
-</body>
-</html>
+>
