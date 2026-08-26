@@ -489,6 +489,23 @@ async function deletarItem(id) {
 }
 
 // ── POPULAR FIRESTORE COM INVENTÁRIO INICIAL ──────────────
+window.unificarCameras = async function() {
+  // Atualizar EOS 2000D para o mesmo nome unificado
+  const snap = await getDocs(collection(db, "patrimonio"));
+  const batch = writeBatch(db);
+  snap.forEach(d => {
+    const data = d.data();
+    if (data.descricao === "EOS 2000D") {
+      batch.update(doc(db, "patrimonio", d.id), {descricao: "EOS Rebel T7/2000D"});
+    }
+    if (data.descricao === "EOS Rebel T7") {
+      batch.update(doc(db, "patrimonio", d.id), {descricao: "EOS Rebel T7/2000D"});
+    }
+  });
+  await batch.commit();
+  alert("Câmeras unificadas! A EOS 2000D (UC-9120) permanece como última na alocação.");
+};
+
 window.popularInventario = async function() {
   const itens = [
     {categoria:"Câmera",descricao:"EOS Rebel T7",marca:"Canon",patrimonio:"UC-9059",status:"Disponivel"},
