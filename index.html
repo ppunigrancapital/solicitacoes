@@ -547,8 +547,10 @@ function renderEquipamentosDisponiveis(dataRetirada) {
 }
 
 function renderLista(data) {
+  var catsOcultas = ['Lente','Cartão de Memória','Bateria','Carregador'];
   var cats = {};
   inventario.forEach(function(item){
+    if (catsOcultas.indexOf(item.categoria) >= 0) return;
     if (!cats[item.categoria]) cats[item.categoria] = [];
     cats[item.categoria].push(item);
   });
@@ -617,6 +619,25 @@ function renderLista(data) {
   }
 }
 
+function vincularKitCamera(selecionando) {
+  // Categorias do kit obrigatório
+  var kit = ['Lente','Cartão de Memória','Bateria','Carregador'];
+  kit.forEach(function(cat) {
+    // Encontrar primeiro disponível dessa categoria
+    var item = inventario.find(function(i){
+      return i.categoria === cat && i.disponivel &&
+        !equipSelecionados.some(function(s){ return s.id === i.id; });
+    });
+    if (selecionando && item) {
+      equipSelecionados.push({id:item.id, cat:cat, patrimonio:item.patrimonio||''});
+    } else if (!selecionando) {
+      // Remover itens do kit ao desselecionar câmera
+      var idx2 = equipSelecionados.findIndex(function(s){ return s.cat === cat; });
+      if (idx2 >= 0) equipSelecionados.splice(idx2, 1);
+    }
+  });
+}
+
 function toggleEquip(id, cat, patrimonio) {
   var el = document.getElementById('equip-' + id);
   if (!el || el.dataset.disponivel === '0') return;
@@ -627,11 +648,16 @@ function toggleEquip(id, cat, patrimonio) {
   if (idx >= 0) {
     equipSelecionados.splice(idx, 1);
     el.classList.remove('selecionado');
+    if (cat === 'Câmera') vincularKitCamera(false);
   } else {
     equipSelecionados.push({id:id, cat:cat, patrimonio:patrimonio});
     el.classList.add('selecionado');
+    if (cat === 'Câmera') vincularKitCamera(true);
   }
-  document.getElementById('equipSelecionadosHidden').value = equipSelecionados.map(function(e){ return e.cat; }).join(', ');
+  var nomes = equipSelecionados.map(function(e){ return e.cat === 'Câmera' ? 'Câmera + Kit (Lente, Cartão, Bateria, Carregador)' : e.cat; });
+  var unicos = nomes.filter(function(v,i){ return nomes.indexOf(v) === i; });
+  document.getElementById('equipSelecionadosHidden').value = unicos.join(', ');
+  document.getElementById('equipPatrimoniosHidden') && (document.getElementById('equipPatrimoniosHidden').value = equipSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', '));
 }
 
 document.getElementById('formEquip').addEventListener('submit', function(ev){
@@ -685,8 +711,10 @@ function renderEquipEstudio(itens) {
     container.innerHTML = '<p class="msg-slots">Nenhum equipamento disponível para esta data.</p>';
     return;
   }
+  var catsOcultasEst = ['Lente','Cartão de Memória','Bateria','Carregador'];
   var cats = {};
   itens.forEach(function(item){
+    if (catsOcultasEst.indexOf(item.categoria) >= 0) return;
     if (!cats[item.categoria]) cats[item.categoria] = [];
     cats[item.categoria].push(item);
   });
