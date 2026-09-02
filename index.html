@@ -302,6 +302,23 @@ var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_
 var diasSemana = ["Dom","Seg","Ter","Qua","Qui","Sex","Sáb"];
 var diaSelecionadoEstudio = null, horarioSelecionado = null;
 var inventario = [];
+var rgmsAutorizados4sem = [];
+
+// Carregar RGMs autorizados do Firestore
+(function() {
+  var fbApp2;
+  try { fbApp2 = firebase.app('pp-rgm'); } catch(e) {
+    fbApp2 = firebase.initializeApp({
+  apiKey: "AIzaSyD2JmP33idYRN6MBsdRzDM65TTZsYBV050",
+  authDomain: "ppuncapital-solicitacoes.firebaseapp.com",
+  projectId: "ppuncapital-solicitacoes"
+}, 'pp-rgm');
+  }
+  firebase.firestore(fbApp2).collection('config').doc('rgms4sem').get()
+    .then(function(d) {
+      if (d.exists) rgmsAutorizados4sem = d.data().rgms || [];
+    }).catch(function(){});
+})();
 var equipSelecionados = [];
 
 // ====== ABAS ======
@@ -548,11 +565,14 @@ function renderEquipamentosDisponiveis(dataRetirada) {
 
 function renderLista(dataRetirada) {
   var catsOcultas = ['Lente','Cartão de Memória','Bateria','Carregador'];
+  var rgmAluno = (document.getElementById('rgmE') || document.getElementById('rgm') || {value:''}).value.trim();
 
   // Agrupar por categoria > modelo (descricao)
   var cats = {};
   inventario.forEach(function(item){
     if (catsOcultas.indexOf(item.categoria) >= 0) return;
+    // Verificar se item é restrito ao 4º semestre
+    if (item.restrito4sem && rgmsAutorizados4sem.indexOf(rgmAluno) < 0) return;
     if (!cats[item.categoria]) cats[item.categoria] = {};
     var key = item.descricao;
     if (!cats[item.categoria][key]) cats[item.categoria][key] = {descricao:item.descricao, marca:item.marca, itens:[]};
@@ -725,5 +745,6 @@ function toggleEquipEstudio(id, cat, patrimonio) {
     equipEstudioSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', ');
 }
 </script>
+<div class="adm-link"><a href="adm.html">Acesso restrito</a></div>
 </body>
 </html>

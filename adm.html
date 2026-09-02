@@ -127,6 +127,13 @@ header span{font-size:12px;opacity:.7}
         <option value="Manutencao">Manutenção</option>
       </select>
     </div>
+    <div class="campo">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--roxo2)">
+        <input type="checkbox" id="mRestrito" style="width:16px;height:16px;accent-color:var(--roxo)">
+        Restrito por RGM
+      </label>
+      <p style="font-size:11px;color:#6b6b6b;margin-top:4px">Visível apenas para alunos da lista de RGMs autorizados.</p>
+    </div>
     <div class="btns">
       <button class="btn broxo" id="bSalv">Salvar</button>
       <button class="btn bno" id="bCan">Cancelar</button>
@@ -361,6 +368,38 @@ function renderPatrimonio(docs) {
   const el = document.getElementById("patrimonio"); el.innerHTML = "";
 
   // Config disponibilidade
+  // Seção RGMs 4º semestre
+  const rgmBox = document.createElement("div"); rgmBox.className = "cfg";
+  rgmBox.innerHTML = "<h3>Câmeras de Vídeo — RGMs Autorizados (4º Semestre)</h3>" +
+    "<p style='font-size:12px;color:#6b6b6b;margin-bottom:12px'>Alunos nesta lista podem ver e solicitar câmeras de vídeo. Upload aceita planilha .xlsx com coluna RGM.</p>";
+  const rgmCount = document.createElement("p");
+  rgmCount.style.cssText = "font-size:12px;color:var(--roxo2);margin-bottom:10px;font-weight:600";
+  rgmCount.id = "rgmCount";
+  rgmBox.appendChild(rgmCount);
+  const rgmRow = document.createElement("div");
+  rgmRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px";
+  const rgmFile = document.createElement("input");
+  rgmFile.type = "file"; rgmFile.accept = ".xlsx";
+  rgmFile.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px";
+  const rgmUpBtn = document.createElement("button");
+  rgmUpBtn.className = "btn broxo"; rgmUpBtn.textContent = "Importar planilha";
+  rgmUpBtn.onclick = () => importarRGMs(rgmFile);
+  const rgmClearBtn = document.createElement("button");
+  rgmClearBtn.className = "btn bno"; rgmClearBtn.textContent = "Limpar lista";
+  rgmClearBtn.onclick = limparRGMs;
+  rgmRow.appendChild(rgmFile); rgmRow.appendChild(rgmUpBtn); rgmRow.appendChild(rgmClearBtn);
+  rgmBox.appendChild(rgmRow);
+  el.appendChild(rgmBox);
+  // Carregar contagem atual
+  getDoc(doc(db,"config","rgms4sem")).then(d => {
+    if (d.exists()) {
+      const lista = d.data().rgms || [];
+      document.getElementById("rgmCount").textContent = lista.length + " RGMs autorizados atualmente.";
+    } else {
+      document.getElementById("rgmCount").textContent = "Nenhum RGM cadastrado ainda.";
+    }
+  });
+
   const cfg = document.createElement("div"); cfg.className = "cfg";
   cfg.innerHTML = "<h3>Disponibilidade</h3>";
   const lEst = document.createElement("label"); lEst.className = "sw";
@@ -409,7 +448,7 @@ function renderPatrimonio(docs) {
     cats[cat].forEach(p => {
       const c = document.createElement("div"); c.className = "pcard";
       const sc = p.status === "Disponivel" ? "sdisp" : p.status === "Manutencao" ? "smanut" : "semp";
-      c.innerHTML = `<h3>${p.descricao}</h3><p>Marca: ${p.marca||"—"}</p><p>Patrimônio: <strong>${p.patrimonio||"—"}</strong></p><span class="${sc}">${p.status}</span>`;
+      c.innerHTML = `<h3>${p.descricao}</h3><p>Marca: ${p.marca||"—"}</p><p>Patrimônio: <strong>${p.patrimonio||"—"}</strong></p><span class="${sc}">${p.status}</span>${p.restrito4sem ? ' <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#e8d5f5;color:#4a1270;margin-top:8px;margin-left:4px">🔒 Restrito por RGM</span>' : ''}`;
       const bd = document.createElement("div"); bd.style = "display:flex;gap:6px;margin-top:10px;flex-wrap:wrap";
       const bE = document.createElement("button"); bE.className = "btn broxo"; bE.style = "font-size:12px;padding:5px 12px"; bE.textContent = "Editar";
       bE.onclick = (item => () => abrirModal(item))(p);
@@ -464,6 +503,7 @@ function abrirModal(item) {
   document.getElementById("mMarca").value  = item ? item.marca : "";
   document.getElementById("mPat").value    = item ? item.patrimonio : "";
   document.getElementById("mStatus").value = item ? item.status : "Disponivel";
+  document.getElementById("mRestrito").checked = item ? !!item.restrito4sem : false;
   document.getElementById("modal").classList.add("on");
 }
 
@@ -472,11 +512,12 @@ document.getElementById("bCan").onclick = () => document.getElementById("modal")
 document.getElementById("bSalv").onclick = async () => {
   const id = document.getElementById("mDocId").value;
   const data = {
-    categoria: document.getElementById("mCat").value,
-    descricao:  document.getElementById("mDesc").value,
-    marca:      document.getElementById("mMarca").value,
-    patrimonio: document.getElementById("mPat").value,
-    status:     document.getElementById("mStatus").value
+    categoria:   document.getElementById("mCat").value,
+    descricao:   document.getElementById("mDesc").value,
+    marca:       document.getElementById("mMarca").value,
+    patrimonio:  document.getElementById("mPat").value,
+    status:      document.getElementById("mStatus").value,
+    restrito4sem: document.getElementById("mRestrito").checked
   };
   if (id) await updateDoc(doc(db,"patrimonio",id), data);
   else    await addDoc(collection(db,"patrimonio"), data);
@@ -489,6 +530,12 @@ async function deletarItem(id) {
 }
 
 // ── POPULAR FIRESTORE COM INVENTÁRIO INICIAL ──────────────
+window.popularRGMs4sem = async function() {
+  const rgms = ["192.105","191.007","192.133","192.020","192.004","191.002","191.001","192.021","192.054","192.056","192.042","192.037","192.005","191.005","192.016","192.065","192.014","192.001","192.131","192.053","192.036","191.006","192.018","192.022","192.006","192.008","192.019","192.025","192.137","192.069","192.009","192.092","192.045","191.008","192.023","192.033","192.017","192.068","192.067"];
+  await setDoc(doc(db,"config","rgms4sem"), {rgms: rgms, atualizadoEm: new Date().toISOString()});
+  alert(rgms.length + " RGMs do 4º semestre cadastrados!");
+};
+
 window.unificarCameras = async function() {
   // Atualizar EOS 2000D para o mesmo nome unificado
   const snap = await getDocs(collection(db, "patrimonio"));
@@ -504,6 +551,44 @@ window.unificarCameras = async function() {
   });
   await batch.commit();
   alert("Câmeras unificadas! A EOS 2000D (UC-9120) permanece como última na alocação.");
+};
+
+window.importarRGMs = async function(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) { alert("Selecione um arquivo .xlsx"); return; }
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    try {
+      // Ler xlsx via SheetJS (carregado dinamicamente)
+      const script = document.createElement("script");
+      script.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+      script.onload = async function() {
+        const data = new Uint8Array(e.target.result);
+        const wb = XLSX.read(data, {type: "array"});
+        const ws = wb.Sheets[wb.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+        // Encontrar coluna RGM
+        const header = rows[0] || [];
+        const rgmCol = header.findIndex(h => String(h).toUpperCase().includes("RGM"));
+        if (rgmCol < 0) { alert("Coluna RGM não encontrada na planilha."); return; }
+        const rgms = rows.slice(1)
+          .map(r => String(r[rgmCol]||"").trim())
+          .filter(r => r && r !== "undefined");
+        await setDoc(doc(db,"config","rgms4sem"), {rgms: rgms, atualizadoEm: new Date().toISOString()});
+        document.getElementById("rgmCount").textContent = rgms.length + " RGMs autorizados importados.";
+        alert(rgms.length + " RGMs importados com sucesso!");
+      };
+      document.head.appendChild(script);
+    } catch(err) { alert("Erro ao ler planilha: " + err.message); }
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+window.limparRGMs = async function() {
+  if (!confirm("Remover todos os RGMs autorizados?")) return;
+  await setDoc(doc(db,"config","rgms4sem"), {rgms: [], atualizadoEm: new Date().toISOString()});
+  document.getElementById("rgmCount").textContent = "0 RGMs autorizados.";
+  alert("Lista limpa.");
 };
 
 window.popularInventario = async function() {
