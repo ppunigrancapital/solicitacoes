@@ -648,7 +648,7 @@ function renderListaAlunos(docs, container, filtro) {
       c.style.cssText = "border-left:4px solid " + (d.bloqueado ? "#c0392b" : "#2d7a2d");
       c.innerHTML = `<h3 style="font-size:13px">${d.nome}</h3>
         <p>RGM: <strong>${d.rgm}</strong></p>
-        <p>E-mail: ${d.rgm.replace(".","") + "@alunos.unigrancapital.com.br"}</p>
+        <p>E-mail: ${d.rgm + "@alunos.unigrancapital.com.br"}</p>
         <span class="${d.bloqueado ? 'semp' : 'sdisp'}">${d.bloqueado ? "🚫 Bloqueado" : "✅ Ativo"}</span>`;
       const bd = document.createElement("div"); bd.style = "display:flex;gap:6px;margin-top:10px";
       if (d.bloqueado) {
