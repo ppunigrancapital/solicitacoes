@@ -47,8 +47,8 @@ header span{font-size:12px;opacity:.7}
 .broxo{background:var(--roxo);color:#fff}
 .bverm{background:#c0392b;color:#fff}
 .vazio{text-align:center;color:#6b6b6b;padding:40px;font-size:13px}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;align-items:start}
-.pcard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px;max-height:400px;overflow-y:auto}
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px}
+.pcard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:0;cursor:pointer;transition:box-shadow .15s}.pcard:hover{box-shadow:0 2px 8px rgba(106,30,154,.12)}.pcard-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px}.pcard-head h3{font-size:13px;font-weight:600;margin:0}.pcard-head .pcard-meta{font-size:11px;color:#6b6b6b;margin-top:2px}.pcard-body{display:none;padding:0 16px 14px;border-top:1px solid var(--borda)}.pcard.aberto .pcard-body{display:block}.pcard-chevron{font-size:12px;color:#6b6b6b;transition:transform .2s}.pcard.aberto .pcard-chevron{transform:rotate(180deg)}
 .pcard h3{font-size:14px;font-weight:600;margin-bottom:4px}
 .pcard p{font-size:12px;color:#6b6b6b;margin-bottom:2px}
 .sdisp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#d4edda;color:#155724;margin-top:8px}
@@ -477,12 +477,19 @@ function renderPatrimonio(docs) {
 
       const c = document.createElement("div"); c.className = "pcard";
 
-      // Cabeçalho do modelo
-      const hdr = document.createElement("div"); hdr.style.cssText = "margin-bottom:10px";
-      hdr.innerHTML = `<h3 style="font-size:14px;margin-bottom:2px">${modelo.descricao}</h3>
-        <p style="font-size:12px;color:#6b6b6b">Marca: ${modelo.marca||"—"} · ${unidades.length} unidade(s)</p>
-        ${restrito ? '<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#e8d5f5;color:#4a1270;margin-top:4px">🔒 Restrito por RGM</span>' : ''}`;
-      c.appendChild(hdr);
+      // Cabeçalho colapsável
+      const head = document.createElement("div"); head.className = "pcard-head";
+      const headLeft = document.createElement("div");
+      headLeft.innerHTML = `<h3>${modelo.descricao}</h3>
+        <div class="pcard-meta">${modelo.marca||"—"} · ${unidades.length} un. ${restrito ? "· 🔒 Restrito" : ""}</div>`;
+      const chev = document.createElement("span"); chev.className = "pcard-chevron"; chev.textContent = "▼";
+      head.appendChild(headLeft); head.appendChild(chev);
+      head.onclick = () => c.classList.toggle("aberto");
+      c.appendChild(head);
+
+      // Corpo (oculto por padrão)
+      const body = document.createElement("div"); body.className = "pcard-body";
+      const hdr = body;
 
       // Lista de patrimônios editáveis
       const patsDiv = document.createElement("div"); patsDiv.style.cssText = "margin-bottom:10px";
@@ -518,7 +525,7 @@ function renderPatrimonio(docs) {
         row.appendChild(lbl); row.appendChild(inp); row.appendChild(badge); row.appendChild(bDel);
         patsDiv.appendChild(row);
       });
-      c.appendChild(patsDiv);
+      body.appendChild(patsDiv);
 
       // Botões do modelo
       const bd = document.createElement("div"); bd.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--borda);padding-top:10px";
@@ -530,7 +537,7 @@ function renderPatrimonio(docs) {
       const bEdit = document.createElement("button"); bEdit.className = "btn bno"; bEdit.style.cssText = "font-size:12px;padding:5px 12px"; bEdit.textContent = "✏️ Editar modelo";
       bEdit.onclick = () => abrirModal({...modelo, id: modelo.id});
       bd.appendChild(bAdd); bd.appendChild(bEdit);
-      c.appendChild(bd);
+      body.appendChild(bd); c.appendChild(body);
       g.appendChild(c);
     });
     el.appendChild(g);
