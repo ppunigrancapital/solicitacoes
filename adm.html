@@ -454,22 +454,85 @@ function renderPatrimonio(docs) {
   ab.onclick = () => abrirModal(null);
   el.appendChild(ab);
 
-  // Grid por categoria
+  // Grid por categoria > modelo (agrupado)
   const cats = {};
-  docs.forEach(p => { if (!cats[p.categoria]) cats[p.categoria] = []; cats[p.categoria].push(p); });
+  docs.forEach(p => {
+    if (!cats[p.categoria]) cats[p.categoria] = {};
+    const key = (p.descricao||"") + "||" + (p.marca||"");
+    if (!cats[p.categoria][key]) cats[p.categoria][key] = [];
+    cats[p.categoria][key].push(p);
+  });
+
   Object.keys(cats).sort().forEach(cat => {
-    const t = document.createElement("p"); t.className = "st"; t.textContent = `${cat} (${cats[cat].length})`; el.appendChild(t);
+    const totalCat = Object.values(cats[cat]).reduce((acc,arr)=>acc+arr.length,0);
+    const t = document.createElement("p"); t.className = "st";
+    t.textContent = `${cat} (${totalCat})`; el.appendChild(t);
+
     const g = document.createElement("div"); g.className = "pgrid";
-    cats[cat].forEach(p => {
+
+    Object.keys(cats[cat]).sort().forEach(key => {
+      const unidades = cats[cat][key];
+      const modelo = unidades[0];
+      const restrito = unidades.some(u => u.restrito4sem);
+
       const c = document.createElement("div"); c.className = "pcard";
-      const sc = p.status === "Disponivel" ? "sdisp" : p.status === "Manutencao" ? "smanut" : "semp";
-      c.innerHTML = `<h3>${p.descricao}</h3><p>Marca: ${p.marca||"—"}</p><p>Patrimônio: <strong>${p.patrimonio||"—"}</strong></p><span class="${sc}">${p.status}</span>${p.restrito4sem ? ' <span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#e8d5f5;color:#4a1270;margin-top:8px;margin-left:4px">🔒 Restrito por RGM</span>' : ''}`;
-      const bd = document.createElement("div"); bd.style = "display:flex;gap:6px;margin-top:10px;flex-wrap:wrap";
-      const bE = document.createElement("button"); bE.className = "btn broxo"; bE.style = "font-size:12px;padding:5px 12px"; bE.textContent = "Editar";
-      bE.onclick = (item => () => abrirModal(item))(p);
-      const bD = document.createElement("button"); bD.className = "btn bverm"; bD.style = "font-size:12px;padding:5px 12px"; bD.textContent = "Remover";
-      bD.onclick = (item => () => deletarItem(item.id))(p);
-      bd.appendChild(bE); bd.appendChild(bD); c.appendChild(bd); g.appendChild(c);
+      c.style.cssText = "grid-column: span 1";
+
+      // Cabeçalho do modelo
+      const hdr = document.createElement("div"); hdr.style.cssText = "margin-bottom:10px";
+      hdr.innerHTML = `<h3 style="font-size:14px;margin-bottom:2px">${modelo.descricao}</h3>
+        <p style="font-size:12px;color:#6b6b6b">Marca: ${modelo.marca||"—"} · ${unidades.length} unidade(s)</p>
+        ${restrito ? '<span style="display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#e8d5f5;color:#4a1270;margin-top:4px">🔒 Restrito por RGM</span>' : ''}`;
+      c.appendChild(hdr);
+
+      // Lista de patrimônios editáveis
+      const patsDiv = document.createElement("div"); patsDiv.style.cssText = "margin-bottom:10px";
+      unidades.forEach((u, idx) => {
+        const row = document.createElement("div"); row.style.cssText = "display:flex;align-items:center;gap:6px;margin-bottom:6px";
+        const lbl = document.createElement("span"); lbl.style.cssText = "font-size:11px;color:#4a1270;font-weight:600;min-width:16px"; lbl.textContent = (idx+1)+".";
+        const inp = document.createElement("input"); inp.type = "text";
+        inp.value = u.patrimonio||""; inp.placeholder = "Nº patrimônio";
+        inp.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:6px;padding:5px 8px;font-size:12px;outline:none;font-family:Inter,sans-serif";
+        inp.dataset.id = u.id;
+        inp.onblur = async function() {
+          if (this.value !== u.patrimonio) {
+            await updateDoc(doc(db,"patrimonio",this.dataset.id), {patrimonio: this.value});
+            u.patrimonio = this.value;
+          }
+        };
+        // Status badge pequeno
+        const sc = u.status === "Disponivel" ? "sdisp" : u.status === "Manutencao" ? "smanut" : "semp";
+        const badge = document.createElement("span"); badge.className = sc; badge.style.cssText = "font-size:10px;padding:1px 6px;margin:0;white-space:nowrap";
+        badge.textContent = u.status === "Disponivel" ? "OK" : u.status === "Manutencao" ? "Man." : "Emp.";
+        badge.style.cursor = "pointer"; badge.title = "Clique para alternar status";
+        badge.onclick = (function(item, badgeEl) { return async function() {
+          const proxStatus = item.status === "Disponivel" ? "Manutencao" : item.status === "Manutencao" ? "Emprestado" : "Disponivel";
+          await updateDoc(doc(db,"patrimonio",item.id), {status: proxStatus});
+          item.status = proxStatus;
+          badgeEl.className = proxStatus === "Disponivel" ? "sdisp" : proxStatus === "Manutencao" ? "smanut" : "semp";
+          badgeEl.style.cssText = "font-size:10px;padding:1px 6px;margin:0;white-space:nowrap;cursor:pointer";
+          badgeEl.textContent = proxStatus === "Disponivel" ? "OK" : proxStatus === "Manutencao" ? "Man." : "Emp.";
+        }; })(u, badge);
+        const bDel = document.createElement("button"); bDel.textContent = "×";
+        bDel.style.cssText = "background:#f8d7da;color:#c0392b;border:none;border-radius:4px;padding:2px 6px;cursor:pointer;font-size:13px;font-weight:700";
+        bDel.onclick = (function(item) { return function() { if(confirm("Remover esta unidade?")) deleteDoc(doc(db,"patrimonio",item.id)); }; })(u);
+        row.appendChild(lbl); row.appendChild(inp); row.appendChild(badge); row.appendChild(bDel);
+        patsDiv.appendChild(row);
+      });
+      c.appendChild(patsDiv);
+
+      // Botões do modelo
+      const bd = document.createElement("div"); bd.style.cssText = "display:flex;gap:6px;flex-wrap:wrap;border-top:1px solid var(--borda);padding-top:10px";
+      const bAdd = document.createElement("button"); bAdd.className = "btn broxo"; bAdd.style.cssText = "font-size:12px;padding:5px 12px"; bAdd.textContent = "+ Unidade";
+      bAdd.onclick = () => {
+        const novoItem = {categoria: modelo.categoria, descricao: modelo.descricao, marca: modelo.marca, patrimonio: "", status: "Disponivel", restrito4sem: restrito};
+        abrirModal(novoItem);
+      };
+      const bEdit = document.createElement("button"); bEdit.className = "btn bno"; bEdit.style.cssText = "font-size:12px;padding:5px 12px"; bEdit.textContent = "✏️ Editar modelo";
+      bEdit.onclick = () => abrirModal({...modelo, id: modelo.id});
+      bd.appendChild(bAdd); bd.appendChild(bEdit);
+      c.appendChild(bd);
+      g.appendChild(c);
     });
     el.appendChild(g);
   });
