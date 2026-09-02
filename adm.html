@@ -104,11 +104,13 @@ header span{font-size:12px;opacity:.7}
     <div class="tab on" data-aba="estudio">📷 Estúdio</div>
     <div class="tab" data-aba="equipamentos">🎥 Equipamentos</div>
     <div class="tab" data-aba="patrimonio">📦 Patrimônio</div>
+    <div class="tab" data-aba="alunos">🎓 Alunos</div>
   </div>
   <div class="painel">
     <div id="estudio"></div>
     <div id="equipamentos" style="display:none"></div>
     <div id="patrimonio" style="display:none"></div>
+    <div id="alunos" style="display:none"></div>
   </div>
 </div>
 
@@ -194,7 +196,7 @@ document.querySelectorAll(".tab").forEach(t => {
     ABA = this.dataset.aba;
     document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
     this.classList.add("on");
-    ["estudio","equipamentos","patrimonio"].forEach(id => {
+    ["estudio","equipamentos","patrimonio","alunos"].forEach(id => {
       document.getElementById(id).style.display = id === ABA ? "block" : "none";
     });
   };
@@ -219,6 +221,12 @@ function iniciar() {
     popularSelectCat();
     renderPatrimonio(docs);
   });
+  // Alunos
+  onSnapshot(collection(db,"alunos"), snap => {
+    const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
+    renderAlunos(docs);
+  });
+
   // Config status
   onSnapshot(doc(db,"config","status"), snap => {
     if (!snap.exists()) return;
@@ -295,7 +303,8 @@ function renderEstudio(docs) {
   ));
   renderSec("estudio","Agendados",apr, s => mkCard(
     `${s.nome} — ${s.semestre} sem.`, `RGM ${s.rgm}`, s.status,
-    [["Tipo",s.tipoEstudio],["Data",s.data],["Horário",s.horario]], null
+    [["Tipo",s.tipoEstudio],["Data",s.data],["Horário",s.horario]],
+    mkBtns([{label:"🖨️ Ver Termo", cls:"broxo", href:`${SU}?acao=termoEstudio&id=${s.firestoreId||s.id}`}])
   ));
   renderSec("estudio","Histórico",rec, s => mkCard(
     s.nome, `RGM ${s.rgm}`, s.status, [["Data",s.data],["Horário",s.horario]], null
@@ -480,6 +489,142 @@ async function removerCategoria(cat, docs) {
   CATS = CATS.filter(c => c !== cat); popularSelectCat();
 }
 
+function renderAlunos(docs) {
+  const el = document.getElementById("alunos"); el.innerHTML = "";
+
+  // Header com upload e stats
+  const header = document.createElement("div"); header.className = "cfg";
+  const total = docs.length;
+  const bloqueados = docs.filter(d => d.bloqueado).length;
+  header.innerHTML = `<h3>Gerenciar Alunos</h3>
+    <p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">${total} alunos cadastrados · ${bloqueados} bloqueados</p>`;
+
+  // Upload planilha
+  const uploadRow = document.createElement("div"); uploadRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px";
+  const fileIn = document.createElement("input"); fileIn.type = "file"; fileIn.accept = ".xlsx";
+  fileIn.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px";
+  const upBtn = document.createElement("button"); upBtn.className = "btn broxo"; upBtn.textContent = "Importar planilha";
+  upBtn.onclick = () => importarAlunos(fileIn);
+  uploadRow.appendChild(fileIn); uploadRow.appendChild(upBtn);
+  header.appendChild(uploadRow);
+
+  // Busca
+  const busca = document.createElement("input"); busca.type = "text"; busca.placeholder = "Buscar por nome ou RGM...";
+  busca.style.cssText = "width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 12px;font-size:13px;outline:none;margin-bottom:4px";
+  busca.oninput = function() { filtrarAlunos(docs, this.value); };
+  header.appendChild(busca);
+  el.appendChild(header);
+
+  // Lista
+  const lista = document.createElement("div"); lista.id = "listaAlunos";
+  renderListaAlunos(docs, lista, "");
+  el.appendChild(lista);
+}
+
+function renderListaAlunos(docs, container, filtro) {
+  container.innerHTML = "";
+  const f = filtro.toLowerCase();
+  const filtrados = docs.filter(d =>
+    !f || d.nome.toLowerCase().includes(f) || d.rgm.includes(f)
+  ).sort((a,b) => a.nome.localeCompare(b.nome));
+
+  if (!filtrados.length) {
+    container.innerHTML = "<div class='vazio'>Nenhum aluno encontrado.</div>"; return;
+  }
+
+  // Agrupar por semestre
+  const sems = {};
+  filtrados.forEach(d => {
+    const s = d.semestre || "?";
+    if (!sems[s]) sems[s] = [];
+    sems[s].push(d);
+  });
+
+  Object.keys(sems).sort().forEach(sem => {
+    const t = document.createElement("p"); t.className = "st";
+    t.textContent = sem + "º Semestre (" + sems[sem].length + ")";
+    container.appendChild(t);
+
+    const grid = document.createElement("div");
+    grid.style.cssText = "display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px;margin-bottom:16px";
+
+    sems[sem].forEach(d => {
+      const c = document.createElement("div"); c.className = "pcard";
+      c.style.cssText = "border-left:4px solid " + (d.bloqueado ? "#c0392b" : "#2d7a2d");
+      c.innerHTML = `<h3 style="font-size:13px">${d.nome}</h3>
+        <p>RGM: <strong>${d.rgm}</strong></p>
+        <p>E-mail: ${d.rgm.replace(".","") + "@alunos.unigrancapital.com.br"}</p>
+        <span class="${d.bloqueado ? 'semp' : 'sdisp'}">${d.bloqueado ? "🚫 Bloqueado" : "✅ Ativo"}</span>`;
+      const bd = document.createElement("div"); bd.style = "display:flex;gap:6px;margin-top:10px";
+      if (d.bloqueado) {
+        const bLib = document.createElement("button"); bLib.className = "btn bok"; bLib.style = "font-size:12px;padding:5px 12px"; bLib.textContent = "Liberar";
+        bLib.onclick = () => toggleBloqueio(d.id, false);
+        bd.appendChild(bLib);
+      } else {
+        const bBlk = document.createElement("button"); bBlk.className = "btn bverm"; bBlk.style = "font-size:12px;padding:5px 12px"; bBlk.textContent = "Bloquear";
+        bBlk.onclick = () => toggleBloqueio(d.id, true);
+        bd.appendChild(bBlk);
+      }
+      const bDel = document.createElement("button"); bDel.className = "btn bno"; bDel.style = "font-size:12px;padding:5px 12px"; bDel.textContent = "Remover";
+      bDel.onclick = () => { if(confirm("Remover " + d.nome + "?")) deleteDoc(doc(db,"alunos",d.id)); };
+      bd.appendChild(bDel);
+      c.appendChild(bd);
+      grid.appendChild(c);
+    });
+    container.appendChild(grid);
+  });
+}
+
+function filtrarAlunos(docs, filtro) {
+  const container = document.getElementById("listaAlunos");
+  if (container) renderListaAlunos(docs, container, filtro);
+}
+
+async function toggleBloqueio(id, bloquear) {
+  await updateDoc(doc(db,"alunos",id), {bloqueado: bloquear});
+}
+
+window.importarAlunos = async function(inputEl) {
+  const file = inputEl.files[0];
+  if (!file) { alert("Selecione um arquivo .xlsx"); return; }
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    // Carregar SheetJS
+    if (!window.XLSX) {
+      await new Promise((res, rej) => {
+        const s = document.createElement("script");
+        s.src = "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+        s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data, {type:"array"});
+    const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws, {header:1});
+    const header = rows[0] || [];
+    const rgmCol  = header.findIndex(h => String(h).toUpperCase().includes("RGM"));
+    const nomeCol = header.findIndex(h => String(h).toUpperCase().includes("NOME"));
+    const semCol  = header.findIndex(h => String(h).toUpperCase().includes("SEMESTRE"));
+    if (rgmCol < 0) { alert("Coluna RGM não encontrada."); return; }
+    const batch = writeBatch(db);
+    let count = 0;
+    rows.slice(1).forEach(row => {
+      const rgm = String(row[rgmCol]||"").trim();
+      if (!rgm) return;
+      const nome = nomeCol >= 0 ? String(row[nomeCol]||"").trim() : "";
+      const sem  = semCol  >= 0 ? String(row[semCol]||"").trim()  : "";
+      // Normalizar nome: Title Case
+      const nomeFormatado = nome.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
+      batch.set(doc(collection(db,"alunos")), {rgm, nome:nomeFormatado, semestre:sem, bloqueado:false});
+      count++;
+    });
+    await batch.commit();
+    alert(count + " alunos importados!");
+  };
+  reader.readAsArrayBuffer(file);
+};
+
 async function salvarStatus() {
   const ce = document.getElementById("ckEst");
   const cq = document.getElementById("ckEq");
@@ -530,6 +675,18 @@ async function deletarItem(id) {
 }
 
 // ── POPULAR FIRESTORE COM INVENTÁRIO INICIAL ──────────────
+window.popularAlunos = async function() {
+  const alunos = {"192.105": {"nome": "Ana Flávia Rezende Messias", "semestre": "4"}, "191.007": {"nome": "Bruna Eduarda Victor Capelaxio Ferreira", "semestre": "4"}, "192.133": {"nome": "Bruno Henryque Lourenço Souza", "semestre": "4"}, "192.020": {"nome": "Caio Luiz Lubacheski De Oliveira", "semestre": "4"}, "192.004": {"nome": "Débora Cristina Corrêa Da Silva", "semestre": "4"}, "191.002": {"nome": "Enzo Gabriel Marinho Pavão", "semestre": "4"}, "191.001": {"nome": "Fabiana Borges De Oliveira", "semestre": "4"}, "192.021": {"nome": "Felipe Miguel Dos Santos Bezerra", "semestre": "4"}, "192.054": {"nome": "Felipe Moreira Da Silva", "semestre": "4"}, "192.056": {"nome": "Heitor Vinícius Sampaio Moura", "semestre": "4"}, "192.042": {"nome": "Isadora De Oliveira Bassotto", "semestre": "4"}, "192.037": {"nome": "Isadora Pache Asseff", "semestre": "4"}, "192.005": {"nome": "Ivy Silva De Oliveira", "semestre": "4"}, "191.005": {"nome": "Jorge Luiz Munhoz Dutra", "semestre": "4"}, "192.016": {"nome": "João Pedro Dantas Poiquis", "semestre": "4"}, "192.065": {"nome": "João Victor Da Cruz Fernandes", "semestre": "4"}, "192.014": {"nome": "João Victor Ribeiro Alves", "semestre": "4"}, "192.001": {"nome": "Julia Raika Ferreira Maier", "semestre": "4"}, "192.131": {"nome": "Juliana Aristimunho Acosta", "semestre": "4"}, "192.053": {"nome": "Jéssica Laís Da Silva Viegas", "semestre": "4"}, "192.036": {"nome": "Kethellen Fraga Da Silva", "semestre": "4"}, "191.006": {"nome": "Laura Camile Arcanjo Neves Menezes", "semestre": "4"}, "192.018": {"nome": "Leandro Morinigo Alves", "semestre": "4"}, "192.022": {"nome": "Leonardo De Castro Matos", "semestre": "4"}, "192.006": {"nome": "Lívia Pereira Martins", "semestre": "4"}, "192.008": {"nome": "Maddison Yuri Silva Santos", "semestre": "4"}, "192.019": {"nome": "Marcio Chiarelli De Oliveira Branquinho", "semestre": "4"}, "192.025": {"nome": "Maria Eduarda De Souza Figueiredo", "semestre": "4"}, "192.137": {"nome": "Maria Fernanda Talini Diório", "semestre": "4"}, "192.069": {"nome": "Mariuá Coutinho Netto", "semestre": "4"}, "192.009": {"nome": "Mayla Arakaki Saito", "semestre": "4"}, "192.092": {"nome": "Nikolas Rocha Miranda", "semestre": "4"}, "192.045": {"nome": "Paola Kopes Nogueira", "semestre": "4"}, "191.008": {"nome": "Pedro Henrique Justino De Souza", "semestre": "4"}, "192.023": {"nome": "Pedro Lucca Magalhães Marangoni", "semestre": "4"}, "192.033": {"nome": "Raissa Arguelho Freixes", "semestre": "4"}, "192.017": {"nome": "Sarha Gabrielle Freitas De Oliveira", "semestre": "4"}, "192.068": {"nome": "Vitor Vieira Kramer", "semestre": "4"}, "192.067": {"nome": "Vitória Cassavara De Oliveira", "semestre": "4"}, "192.101": {"nome": "Adriano Santana Rui Da Silva", "semestre": "2"}, "192.090": {"nome": "Amanda Freitas De Souza Araujo", "semestre": "2"}, "192.071": {"nome": "Ana Júlia Kutter Pedra", "semestre": "2"}, "192.085": {"nome": "Ana Luisa Paim Marietti", "semestre": "2"}, "192.140": {"nome": "Ana Luiza Silva Freire", "semestre": "2"}, "192.139": {"nome": "Anna Clara Costa Santos", "semestre": "2"}, "192.135": {"nome": "Beatriz Jeronimo De Souza", "semestre": "2"}, "192.112": {"nome": "Clara Eyshila Morais Duarte", "semestre": "2"}, "192.110": {"nome": "Daniel Estevão Paiva Aranda", "semestre": "2"}, "192.094": {"nome": "Daniel Martins De Almeida", "semestre": "2"}, "192.077": {"nome": "Daniel Savale Coene", "semestre": "2"}, "192.132": {"nome": "Daniela Martines Da Silva Souza", "semestre": "2"}, "192.075": {"nome": "Daniela Martins De Souza", "semestre": "2"}, "192.080": {"nome": "Ester Felicio Ferreira", "semestre": "2"}, "192.098": {"nome": "Evandro Silva Viégas", "semestre": "2"}, "192.103": {"nome": "Filipe De Oliveira Kruki", "semestre": "2"}, "192.100": {"nome": "Gabriel Amaral Dos Santos Messa De Andrade", "semestre": "2"}, "192.126": {"nome": "Gabriel Henrique Viana Pimentel", "semestre": "2"}, "192.087": {"nome": "Gabriella Aparecida Da Silva Ferreira", "semestre": "2"}, "192.081": {"nome": "Geovana Apodaca Penha", "semestre": "2"}, "192.127": {"nome": "Gisele Figueiredo Ortiz", "semestre": "2"}, "192.120": {"nome": "Gustavo Soares Dos Santos", "semestre": "2"}, "192.078": {"nome": "Hagatta Cristy Gomes Silva", "semestre": "2"}, "192.076": {"nome": "Helen Eunice Do Espirito Santo Da Luz", "semestre": "2"}, "192.104": {"nome": "Heloísa Antunes De Oliveira", "semestre": "2"}, "192.141": {"nome": "Jefferson Nascimento De Freitas", "semestre": "2"}, "192.091": {"nome": "João Vitor Da Silva", "semestre": "2"}, "192.138": {"nome": "Julia Camargo Shiota", "semestre": "2"}, "192.125": {"nome": "Jéssica Franco Da Silva", "semestre": "2"}, "192.117": {"nome": "Júllia Borges De Andrade", "semestre": "2"}, "192.029": {"nome": "Kauanny Gabriella Costa Dos Santos", "semestre": "2"}, "192.109": {"nome": "Laise Naiessa Silveira", "semestre": "2"}, "192.095": {"nome": "Laura Souza Ribeiro", "semestre": "2"}, "192.096": {"nome": "Letícia Da Cruz Kohagura", "semestre": "2"}, "192.113": {"nome": "Luã Martins Estavaringo", "semestre": "2"}, "192.134": {"nome": "Mara Keyty Vitória Nunes Espindola", "semestre": "2"}, "192.124": {"nome": "Marcos Vinícius Da Silva", "semestre": "2"}, "192.073": {"nome": "Mariana Monte Teixeira", "semestre": "2"}, "192.111": {"nome": "Matheus Alencar Amaral Cruz Fenianos", "semestre": "2"}, "192.136": {"nome": "Matheus William Dobes", "semestre": "2"}, "192.106": {"nome": "Miguel Valdez Naji Rôa", "semestre": "2"}, "192.107": {"nome": "Murilo Arteaga Alves De Almeida", "semestre": "2"}, "192.108": {"nome": "Naiany Caroline Neves Martins", "semestre": "2"}, "192.099": {"nome": "Nicolle Gutierres Nascimento", "semestre": "2"}, "192.089": {"nome": "Raphaela Hurtado Targino", "semestre": "2"}, "192.086": {"nome": "Raul Lucas Pitaluga De Oliveira", "semestre": "2"}, "192.083": {"nome": "Tiago Velasques Exteca", "semestre": "2"}, "192.088": {"nome": "Victória Fernandes Moreira Espindola", "semestre": "2"}, "192.128": {"nome": "Yasmim Coradelo Barbosa", "semestre": "2"}, "192.143": {"nome": "Élton Umar Maior", "semestre": "2"}};
+  const batch = writeBatch(db);
+  Object.entries(alunos).forEach(([rgm, data]) => {
+    batch.set(doc(collection(db,"alunos")), {
+      rgm, nome: data.nome, semestre: data.semestre, bloqueado: false
+    });
+  });
+  await batch.commit();
+  alert(Object.keys(alunos).length + " alunos cadastrados!");
+};
+
 window.popularRGMs4sem = async function() {
   const rgms = ["192.105","191.007","192.133","192.020","192.004","191.002","191.001","192.021","192.054","192.056","192.042","192.037","192.005","191.005","192.016","192.065","192.014","192.001","192.131","192.053","192.036","191.006","192.018","192.022","192.006","192.008","192.019","192.025","192.137","192.069","192.009","192.092","192.045","191.008","192.023","192.033","192.017","192.068","192.067"];
   await setDoc(doc(db,"config","rgms4sem"), {rgms: rgms, atualizadoEm: new Date().toISOString()});
