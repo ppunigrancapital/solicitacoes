@@ -27,7 +27,7 @@ header span{font-size:12px;opacity:.7}
 .tab{padding:14px 20px;cursor:pointer;font-size:13px;font-weight:500;color:#6b6b6b;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
 .tab.on{color:var(--roxo);border-bottom-color:var(--roxo);font-weight:600}
 .painel{padding:24px;max-width:1100px;margin:0 auto}
-.st{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--roxo2);margin:24px 0 12px}
+.st{font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--roxo2);margin:24px 0 10px}
 .st:first-child{margin-top:0}
 .card{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:12px}
 .ctop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
@@ -38,8 +38,7 @@ header span{font-size:12px;opacity:.7}
 .aprovado{background:#d4edda;color:#155724}
 .recusado{background:#f8d7da;color:#721c24}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:14px}
-.det{font-size:12px}
-.det strong{display:block;color:var(--roxo2);font-size:11px;margin-bottom:2px}
+.det{font-size:12px}.det strong{display:block;color:var(--roxo2);font-size:11px;margin-bottom:2px}
 .btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .btn{padding:8px 18px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:Inter,sans-serif;text-decoration:none;display:inline-block}
 .bok{background:var(--verde);color:#fff}
@@ -47,27 +46,57 @@ header span{font-size:12px;opacity:.7}
 .broxo{background:var(--roxo);color:#fff}
 .bverm{background:#c0392b;color:#fff}
 .vazio{text-align:center;color:#6b6b6b;padding:40px;font-size:13px}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}.ecard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px 12px;text-align:center;cursor:pointer;transition:all .15s;position:relative}.ecard:hover{border-color:var(--roxo);box-shadow:0 2px 12px rgba(106,30,154,.15);transform:translateY(-2px)}.ecard-icon{font-size:32px;margin-bottom:8px;display:block}.ecard-nome{font-size:13px;font-weight:600;color:#1a1a1a;line-height:1.3;margin-bottom:4px}.ecard-info{font-size:11px;color:#6b6b6b}.ecard-badge{position:absolute;top:8px;right:8px;background:var(--roxo);color:#fff;border-radius:20px;padding:1px 7px;font-size:11px;font-weight:700}.ecard-restrito{position:absolute;top:8px;left:8px;font-size:12px}.emodal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px}.emodal.on{display:flex}.emodal-box{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto}.emodal-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}.emodal-icon{font-size:36px}.emodal-title{font-size:18px;font-weight:700;color:var(--roxo2)}.emodal-sub{font-size:12px;color:#6b6b6b}.pat-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}.pat-num{font-size:11px;color:var(--roxo2);font-weight:700;min-width:20px}.pat-inp{flex:1;border:1.5px solid var(--borda);border-radius:6px;padding:6px 10px;font-size:13px;outline:none;font-family:Inter,sans-serif}.pat-inp:focus{border-color:var(--roxo)}.pat-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;cursor:pointer;white-space:nowrap}.pat-del{background:#fde;color:#c0392b;border:none;border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700}
-
-.pcard h3{font-size:14px;font-weight:600;margin-bottom:4px}
-.pcard p{font-size:12px;color:#6b6b6b;margin-bottom:2px}
-.sdisp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#d4edda;color:#155724;margin-top:8px}
-.semp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24;margin-top:8px}
-.smanut{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404;margin-top:8px}
+/* Equipamentos - eCards */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
+.ecard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px 10px;text-align:center;cursor:pointer;transition:all .15s;position:relative}
+.ecard:hover{border-color:var(--roxo);box-shadow:0 2px 12px rgba(106,30,154,.15);transform:translateY(-2px)}
+.ecard-icon{font-size:30px;margin-bottom:8px;display:block}
+.ecard-nome{font-size:12px;font-weight:600;color:#1a1a1a;line-height:1.3;margin-bottom:3px}
+.ecard-info{font-size:11px;color:#6b6b6b}
+.ecard-badge{position:absolute;top:6px;right:6px;background:var(--roxo);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700}
+.ecard-restrito{position:absolute;top:6px;left:6px;font-size:11px}
+/* Modal equipamento */
+.emodal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px}
+.emodal.on{display:flex}
+.emodal-box{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto}
+.emodal-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
+.emodal-icon{font-size:36px}
+.emodal-title{font-size:17px;font-weight:700;color:var(--roxo2)}
+.emodal-sub{font-size:12px;color:#6b6b6b;margin-top:2px}
+.pat-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
+.pat-num{font-size:11px;color:var(--roxo2);font-weight:700;min-width:20px}
+.pat-inp{flex:1;border:1.5px solid var(--borda);border-radius:6px;padding:6px 10px;font-size:13px;outline:none;font-family:Inter,sans-serif}
+.pat-inp:focus{border-color:var(--roxo)}
+.pat-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;cursor:pointer;white-space:nowrap;border:none}
+.pat-del{background:#fde;color:#c0392b;border:none;border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;font-size:13px}
+/* Alunos */
+.agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
+.acard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:14px;border-left:4px solid var(--verde)}
+.acard.bloqueado{border-left-color:#c0392b}
+.acard h3{font-size:13px;font-weight:600;margin-bottom:4px}
+.acard p{font-size:12px;color:#6b6b6b;margin-bottom:2px}
+.acard .abtns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+/* Configurações */
 .cfg{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:20px}
 .cfg h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:14px;letter-spacing:.08em}
 .sw{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer}
 .sw input{width:16px;height:16px;accent-color:var(--roxo)}
 .cmsg{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;min-height:60px;resize:vertical;margin-bottom:10px;font-family:Inter,sans-serif}
-.abtn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:12px;font-family:Inter,sans-serif;margin-right:8px}
-.cats-box{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px;margin-bottom:20px}
+.abtn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;font-family:Inter,sans-serif;margin-right:8px}
+/* Categorias */
+.cats-box{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px;margin-bottom:16px}
 .cats-box h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:12px;letter-spacing:.08em}
-.cat-tag{display:inline-flex;align-items:center;gap:6px;background:#f4f1f8;border:1px solid var(--borda);border-radius:20px;padding:4px 10px;font-size:12px;margin:4px}
-.cat-tag button{background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px;line-height:1}.cat-tag .cat-del{color:#c0392b}.cat-tag .cat-edit{color:#4a1270}
+.cat-tag{display:inline-flex;align-items:center;gap:4px;background:#f4f1f8;border:1px solid var(--borda);border-radius:20px;padding:4px 10px;font-size:12px;margin:4px}
+.cat-tag button{background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px;line-height:1}
+.cat-tag .cat-del{color:#c0392b}.cat-tag .cat-edit{color:#4a1270}
 .cat-input-row{display:flex;gap:8px;margin-top:10px}
 .cat-input-row input{flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;outline:none;font-family:Inter,sans-serif}
-.cat-input-row input:focus{border-color:var(--roxo)}
-.cat-input-row button{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif}
+.cat-input-row button{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
+/* Status badges */
+.sdisp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#d4edda;color:#155724}
+.semp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24}
+.smanut{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404}
+/* Modal novo equipamento */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:16px}
 .modal.on{display:flex}
 .mbox{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
@@ -76,7 +105,9 @@ header span{font-size:12px;opacity:.7}
 .campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
 .campo input,.campo select{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .campo input:focus,.campo select:focus{border-color:var(--roxo)}
-@media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}}
+.rgm-search{display:flex;gap:8px;margin-bottom:12px}
+.rgm-search input{flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 12px;font-size:13px;outline:none;font-family:Inter,sans-serif}
+@media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}.pgrid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
 </style>
 </head>
 <body>
@@ -114,19 +145,7 @@ header span{font-size:12px;opacity:.7}
   </div>
 </div>
 
-<div class="emodal" id="emodal">
-  <div class="emodal-box">
-    <div class="emodal-header">
-      <span class="emodal-icon" id="emodalIcon"></span>
-      <div><div class="emodal-title" id="emodalTitle"></div><div class="emodal-sub" id="emodalSub"></div></div>
-      <button onclick="document.getElementById('emodal').classList.remove('on')" 
-        style="margin-left:auto;background:none;border:none;font-size:20px;cursor:pointer;color:#6b6b6b">×</button>
-    </div>
-    <div id="emodalPats"></div>
-    <div id="emodalBtns" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--borda);padding-top:16px"></div>
-  </div>
-</div>
-
+<!-- Modal novo/editar equipamento -->
 <div class="modal" id="modal">
   <div class="mbox">
     <h2 id="mTitulo">Equipamento</h2>
@@ -156,9 +175,26 @@ header span{font-size:12px;opacity:.7}
   </div>
 </div>
 
+<!-- Modal detalhes equipamento -->
+<div class="emodal" id="emodal">
+  <div class="emodal-box">
+    <div class="emodal-header">
+      <span class="emodal-icon" id="emodalIcon"></span>
+      <div style="flex:1">
+        <div class="emodal-title" id="emodalTitle"></div>
+        <div class="emodal-sub" id="emodalSub"></div>
+      </div>
+      <button onclick="document.getElementById('emodal').classList.remove('on')"
+        style="background:none;border:none;font-size:22px;cursor:pointer;color:#6b6b6b;padding:0 4px">×</button>
+    </div>
+    <div id="emodalPats"></div>
+    <div id="emodalBtns" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;border-top:1px solid var(--borda);padding-top:16px"></div>
+  </div>
+</div>
+
 <script type="module">
-import { initializeApp }          from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged }
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence }
   from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
 import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc,
          deleteDoc, setDoc, getDoc, query, orderBy, getDocs, writeBatch }
@@ -176,11 +212,17 @@ const SU  = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9C
 const app = initializeApp(FB);
 const auth = getAuth(app);
 const db   = getFirestore(app);
+console.log("Firebase inicializado:", app.name);
+
+const ICONES = {"Câmera":"📷","Câmera de Foto":"📷","Câmera de Vídeo":"🎬","Lente":"🔭",
+  "Iluminação":"💡","Microfone":"🎙️","Tripés/Estabilizadores":"🎯","Gimbal":"🎯",
+  "Tripé":"🎯","Cartão de Memória":"💾","Bateria":"🔋","Carregador":"🔌","Leitor de Cartão":"💿"};
 
 var ABA = "estudio";
 var CATS = [];
+var _todosAlunos = [];
 
-// ── AUTH ──────────────────────────────────────────────────
+// ── AUTH ──────────────────────────────────────────────────────────────
 onAuthStateChanged(auth, user => {
   if (user) {
     document.getElementById("login").style.display = "none";
@@ -193,17 +235,37 @@ onAuthStateChanged(auth, user => {
   }
 });
 
-document.getElementById("btnE").onclick = () => {
-  const email = document.getElementById("iEmail").value;
-  const senha = document.getElementById("iSenha").value;
-  document.getElementById("erro").style.display = "none";
-  signInWithEmailAndPassword(auth, email, senha)
-    .catch(() => { document.getElementById("erro").style.display = "block"; });
-};
-document.getElementById("iSenha").onkeydown = e => { if (e.key === "Enter") document.getElementById("btnE").click(); };
-document.getElementById("btnSair").onclick = () => signOut(auth);
+// Registrar eventos após DOM pronto
+function registrarEventos() {
+  const btnE = document.getElementById("btnE");
+  const iSenha = document.getElementById("iSenha");
+  const btnSair = document.getElementById("btnSair");
+  if (!btnE) { console.error("btnE não encontrado!"); return; }
+  console.log("Registrando eventos de login...");
+  btnE.addEventListener("click", function() {
+    const email = document.getElementById("iEmail").value;
+    const senha = document.getElementById("iSenha").value;
+    console.log("Login tentativa:", email);
+    document.getElementById("erro").style.display = "none";
+    setPersistence(auth, browserLocalPersistence)
+      .then(() => signInWithEmailAndPassword(auth, email, senha))
+      .catch((err) => {
+        console.error("Erro login:", err.code, err.message);
+        document.getElementById("erro").style.display = "block";
+        document.getElementById("erro").textContent = "Erro: " + err.code;
+      });
+  });
+  if (iSenha) iSenha.addEventListener("keydown", e => { if (e.key === "Enter") btnE.click(); });
+  if (btnSair) btnSair.addEventListener("click", () => signOut(auth));
+}
 
-// ── ABAS ──────────────────────────────────────────────────
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", registrarEventos);
+} else {
+  registrarEventos();
+}
+
+// ── ABAS ──────────────────────────────────────────────────────────────
 document.querySelectorAll(".tab").forEach(t => {
   t.onclick = function() {
     ABA = this.dataset.aba;
@@ -215,45 +277,38 @@ document.querySelectorAll(".tab").forEach(t => {
   };
 });
 
-// ── INICIAR LISTENERS ─────────────────────────────────────
+// ── LISTENERS ─────────────────────────────────────────────────────────
 function iniciar() {
-  // Solicitações estúdio
   onSnapshot(query(collection(db,"solicitacoes"), orderBy("enviadoEm","desc")), snap => {
     const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
     renderEstudio(docs);
   });
-  // Empréstimos
   onSnapshot(query(collection(db,"emprestimos"), orderBy("enviadoEm","desc")), snap => {
     const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
     renderEquipamentos(docs);
   });
-  // Patrimônio
   onSnapshot(collection(db,"patrimonio"), snap => {
     const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
     CATS = [...new Set(docs.map(d => d.categoria))].filter(Boolean).sort();
     popularSelectCat();
     renderPatrimonio(docs);
   });
-  // Alunos
   onSnapshot(collection(db,"alunos"), snap => {
     const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
+    _todosAlunos = docs;
     renderAlunos(docs);
   });
-
-  // Config status
   onSnapshot(doc(db,"config","status"), snap => {
     if (!snap.exists()) return;
     const d = snap.data();
-    ["ckEst","ckEq"].forEach(id => {
-      const el = document.getElementById(id);
-      if (el) el.checked = id === "ckEst" ? d.estudioAtivo !== false : d.equipAtivo !== false;
-    });
+    const ckEst = document.getElementById("ckEst"); if (ckEst) ckEst.checked = d.estudioAtivo !== false;
+    const ckEq  = document.getElementById("ckEq");  if (ckEq)  ckEq.checked  = d.equipAtivo  !== false;
     const me = document.getElementById("msgEst"); if (me) me.value = d.msgEstudio||"";
     const mq = document.getElementById("msgEq");  if (mq) mq.value = d.msgEquip||"";
   });
 }
 
-// ── HELPERS ───────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────────────
 function mkCard(nome, sub, status, dets, btnsEl) {
   const c = document.createElement("div"); c.className = "card";
   const top = document.createElement("div"); top.className = "ctop";
@@ -265,8 +320,7 @@ function mkCard(nome, sub, status, dets, btnsEl) {
   const g = document.createElement("div"); g.className = "cgrid";
   dets.forEach(([lbl, val]) => {
     const el = document.createElement("div"); el.className = "det";
-    el.innerHTML = `<strong>${lbl}</strong>${val||"—"}`;
-    g.appendChild(el);
+    el.innerHTML = `<strong>${lbl}</strong>${val||"—"}`; g.appendChild(el);
   });
   c.appendChild(g);
   if (btnsEl) c.appendChild(btnsEl);
@@ -296,16 +350,15 @@ function renderSec(cid, titulo, itens, mkFn) {
   itens.forEach(s => el.appendChild(mkFn(s)));
 }
 
-// ── ESTÚDIO ───────────────────────────────────────────────
+// ── ESTÚDIO ───────────────────────────────────────────────────────────
 function renderEstudio(docs) {
   const el = document.getElementById("estudio"); el.innerHTML = "";
   const pend = docs.filter(s => s.status === "Pendente");
   const apr  = docs.filter(s => s.status === "Aprovado");
   const rec  = docs.filter(s => s.status === "Recusado");
   renderSec("estudio","Pendentes",pend, s => mkCard(
-    `${s.nome} — ${s.semestre} sem.`,
-    `RGM ${s.rgm} · ${s.email} · ${s.whatsapp}`,
-    s.status,
+    `${s.nome||""} — ${s.semestre||""} sem.`,
+    `RGM ${s.rgm||""} · ${s.email||""} · ${s.whatsapp||""}`, s.status,
     [["Tipo",s.tipoEstudio],["Data",s.data],["Horário",s.horario],
      ["Finalidade",s.finalidade],["Descrição",s.descricao],
      ["Equipamentos",s.equipamentos],["Participantes",s.participantes]],
@@ -315,36 +368,35 @@ function renderEstudio(docs) {
     ])
   ));
   renderSec("estudio","Agendados",apr, s => mkCard(
-    `${s.nome} — ${s.semestre} sem.`, `RGM ${s.rgm}`, s.status,
+    `${s.nome||""} — ${s.semestre||""} sem.`, `RGM ${s.rgm||""}`, s.status,
     [["Tipo",s.tipoEstudio],["Data",s.data],["Horário",s.horario]],
     mkBtns([{label:"🖨️ Ver Termo", cls:"broxo", href:`${SU}?acao=termoEstudio&id=${s.firestoreId||s.id}`}])
   ));
   renderSec("estudio","Histórico",rec, s => mkCard(
-    s.nome, `RGM ${s.rgm}`, s.status, [["Data",s.data],["Horário",s.horario]], null
-  ));
+    s.nome||"", `RGM ${s.rgm||""}`, s.status, [["Data",s.data],["Horário",s.horario]], null));
 }
 
 async function aprovarEst(s) {
   if (!confirm(`Aprovar reserva de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"solicitacoes",s.id),{status:"Aprovado"});
+  await updateDoc(doc(db,"solicitacoes",s.id), {status:"Aprovado"});
   fetch(`${SU}?acao=aprovar&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
   alert("Aprovado! E-mail enviado ao aluno.");
 }
 async function recusarEst(s) {
   if (!confirm(`Recusar reserva de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"solicitacoes",s.id),{status:"Recusado"});
+  await updateDoc(doc(db,"solicitacoes",s.id), {status:"Recusado"});
   fetch(`${SU}?acao=recusar&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
   alert("Recusado. Aluno notificado.");
 }
 
-// ── EQUIPAMENTOS ──────────────────────────────────────────
+// ── EQUIPAMENTOS ──────────────────────────────────────────────────────
 function renderEquipamentos(docs) {
   const el = document.getElementById("equipamentos"); el.innerHTML = "";
   const pend = docs.filter(s => s.status === "Pendente");
   const apr  = docs.filter(s => s.status === "Aprovado");
   const rec  = docs.filter(s => s.status === "Recusado");
   renderSec("equipamentos","Pendentes",pend, s => mkCard(
-    s.nome, `RGM ${s.rgm} · ${s.email}`, s.status,
+    s.nome||"", `RGM ${s.rgm||""} · ${s.email||""}`, s.status,
     [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],
      ["Equipamentos",s.equipamentos],["Patrimônios",s.patrimonios]],
     mkBtns([
@@ -353,89 +405,65 @@ function renderEquipamentos(docs) {
     ])
   ));
   renderSec("equipamentos","Aprovados",apr, s => mkCard(
-    s.nome, `RGM ${s.rgm}`, s.status,
+    s.nome||"", `RGM ${s.rgm||""}`, s.status,
     [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],["Equipamentos",s.equipamentos]],
     mkBtns([{label:"🖨️ Ver Termo", cls:"broxo", href:`${SU}?acao=termo&id=${s.firestoreId||s.id}`}])
   ));
   renderSec("equipamentos","Histórico",rec, s => mkCard(
-    s.nome, `RGM ${s.rgm}`, s.status, [["Retirada",s.dataRetirada]], null
-  ));
+    s.nome||"", `RGM ${s.rgm||""}`, s.status, [["Retirada",s.dataRetirada]], null));
 }
 
 async function aprovarEq(s) {
   if (!confirm(`Aprovar empréstimo de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"emprestimos",s.id),{status:"Aprovado"});
+  await updateDoc(doc(db,"emprestimos",s.id), {status:"Aprovado"});
   fetch(`${SU}?acao=aprovarEquip&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
   alert("Aprovado! Termo enviado por e-mail.");
 }
 async function recusarEq(s) {
   if (!confirm(`Recusar empréstimo de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"emprestimos",s.id),{status:"Recusado"});
+  await updateDoc(doc(db,"emprestimos",s.id), {status:"Recusado"});
   fetch(`${SU}?acao=recusarEquip&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
   alert("Recusado. Aluno notificado.");
 }
 
-// ── PATRIMÔNIO ────────────────────────────────────────────
+// ── PATRIMÔNIO ────────────────────────────────────────────────────────
 function popularSelectCat() {
   const sel = document.getElementById("mCat");
-  const val = sel.value;
-  sel.innerHTML = "";
-  CATS.forEach(c => {
-    const o = document.createElement("option"); o.value = c; o.textContent = c; sel.appendChild(o);
-  });
-  if (val && CATS.includes(val)) sel.value = val;
+  const val = sel ? sel.value : "";
+  if (sel) { sel.innerHTML = ""; CATS.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; sel.appendChild(o); }); if (val && CATS.includes(val)) sel.value = val; }
 }
 
 function renderPatrimonio(docs) {
   const el = document.getElementById("patrimonio"); el.innerHTML = "";
 
   // Config disponibilidade
-  // Seção RGMs 4º semestre
-  const rgmBox = document.createElement("div"); rgmBox.className = "cfg";
-  rgmBox.innerHTML = "<h3>Câmeras de Vídeo — RGMs Autorizados (4º Semestre)</h3>" +
-    "<p style='font-size:12px;color:#6b6b6b;margin-bottom:12px'>Alunos nesta lista podem ver e solicitar câmeras de vídeo. Upload aceita planilha .xlsx com coluna RGM.</p>";
-  const rgmCount = document.createElement("p");
-  rgmCount.style.cssText = "font-size:12px;color:var(--roxo2);margin-bottom:10px;font-weight:600";
-  rgmCount.id = "rgmCount";
-  rgmBox.appendChild(rgmCount);
-  const rgmRow = document.createElement("div");
-  rgmRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px";
-  const rgmFile = document.createElement("input");
-  rgmFile.type = "file"; rgmFile.accept = ".xlsx";
-  rgmFile.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px";
-  const rgmUpBtn = document.createElement("button");
-  rgmUpBtn.className = "btn broxo"; rgmUpBtn.textContent = "Importar planilha";
-  rgmUpBtn.onclick = () => importarRGMs(rgmFile);
-  const rgmClearBtn = document.createElement("button");
-  rgmClearBtn.className = "btn bno"; rgmClearBtn.textContent = "Limpar lista";
-  rgmClearBtn.onclick = limparRGMs;
-  rgmRow.appendChild(rgmFile); rgmRow.appendChild(rgmUpBtn); rgmRow.appendChild(rgmClearBtn);
-  rgmBox.appendChild(rgmRow);
-  el.appendChild(rgmBox);
-  // Carregar contagem atual
-  getDoc(doc(db,"config","rgms4sem")).then(d => {
-    if (d.exists()) {
-      const lista = d.data().rgms || [];
-      document.getElementById("rgmCount").textContent = lista.length + " RGMs autorizados atualmente.";
-    } else {
-      document.getElementById("rgmCount").textContent = "Nenhum RGM cadastrado ainda.";
-    }
-  });
-
   const cfg = document.createElement("div"); cfg.className = "cfg";
   cfg.innerHTML = "<h3>Disponibilidade</h3>";
   const lEst = document.createElement("label"); lEst.className = "sw";
   lEst.innerHTML = "<input type='checkbox' id='ckEst'> Estúdios liberados para agendamento";
-  const mEst = document.createElement("textarea"); mEst.className = "cmsg"; mEst.id = "msgEst";
-  mEst.placeholder = "Mensagem quando bloqueado (ex: Em reforma)...";
-  const lEq = document.createElement("label"); lEq.className = "sw";
+  const mEst = document.createElement("textarea"); mEst.className = "cmsg"; mEst.id = "msgEst"; mEst.placeholder = "Mensagem quando bloqueado...";
+  const lEq  = document.createElement("label"); lEq.className = "sw";
   lEq.innerHTML = "<input type='checkbox' id='ckEq'> Equipamentos liberados para empréstimo";
-  const mEq = document.createElement("textarea"); mEq.className = "cmsg"; mEq.id = "msgEq";
-  mEq.placeholder = "Mensagem quando bloqueado...";
-  const bSv = document.createElement("button"); bSv.className = "btn broxo"; bSv.textContent = "Salvar disponibilidade";
-  bSv.onclick = salvarStatus;
+  const mEq  = document.createElement("textarea"); mEq.className = "cmsg"; mEq.id = "msgEq"; mEq.placeholder = "Mensagem quando bloqueado...";
+  const bSv  = document.createElement("button"); bSv.className = "btn broxo"; bSv.textContent = "Salvar disponibilidade"; bSv.onclick = salvarStatus;
   cfg.appendChild(lEst); cfg.appendChild(mEst); cfg.appendChild(lEq); cfg.appendChild(mEq); cfg.appendChild(bSv);
   el.appendChild(cfg);
+
+  // RGMs
+  const rgmBox = document.createElement("div"); rgmBox.className = "cfg";
+  rgmBox.innerHTML = "<h3>RGMs Autorizados (câmeras restritas)</h3><p style='font-size:12px;color:#6b6b6b;margin-bottom:12px'>Alunos nesta lista acessam equipamentos marcados como Restrito por RGM.</p>";
+  const rgmCount = document.createElement("p"); rgmCount.id = "rgmCount"; rgmCount.style.cssText = "font-size:12px;color:var(--roxo2);font-weight:600;margin-bottom:10px";
+  rgmBox.appendChild(rgmCount);
+  const rgmRow = document.createElement("div"); rgmRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap";
+  const rgmFile = document.createElement("input"); rgmFile.type = "file"; rgmFile.accept = ".xlsx"; rgmFile.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px";
+  const rgmUpBtn = document.createElement("button"); rgmUpBtn.className = "btn broxo"; rgmUpBtn.textContent = "Importar planilha"; rgmUpBtn.onclick = () => importarRGMs(rgmFile);
+  const rgmClrBtn = document.createElement("button"); rgmClrBtn.className = "btn bno"; rgmClrBtn.textContent = "Limpar lista"; rgmClrBtn.onclick = limparRGMs;
+  rgmRow.appendChild(rgmFile); rgmRow.appendChild(rgmUpBtn); rgmRow.appendChild(rgmClrBtn);
+  rgmBox.appendChild(rgmRow); el.appendChild(rgmBox);
+  getDoc(doc(db,"config","rgms4sem")).then(d => {
+    const count = d.exists() ? (d.data().rgms||[]).length : 0;
+    document.getElementById("rgmCount").textContent = count + " RGMs autorizados.";
+  });
 
   // Categorias
   const catsBox = document.createElement("div"); catsBox.className = "cats-box";
@@ -445,30 +473,21 @@ function renderPatrimonio(docs) {
     const tag = document.createElement("span"); tag.className = "cat-tag";
     tag.innerHTML = `${cat} <button class="cat-edit" title="Renomear">✏️</button><button class="cat-del" title="Remover">×</button>`;
     tag.querySelector(".cat-del").onclick = () => removerCategoria(cat, docs);
-    tag.querySelector(".cat-edit").onclick = () => {
-      const novoNome = prompt("Novo nome para a categoria:", cat);
-      if (novoNome && novoNome.trim() && novoNome.trim() !== cat) {
-        renomearCategoria(cat, novoNome.trim(), docs);
-      }
-    };
+    tag.querySelector(".cat-edit").onclick = () => { const n = prompt("Novo nome:", cat); if (n && n.trim() && n.trim()!==cat) renomearCategoria(cat,n.trim(),docs); };
     tagsDiv.appendChild(tag);
   });
   catsBox.appendChild(tagsDiv);
   const addRow = document.createElement("div"); addRow.className = "cat-input-row";
-  const catInput = document.createElement("input"); catInput.type = "text"; catInput.placeholder = "Nova categoria..."; catInput.id = "novaCat";
+  const catInp = document.createElement("input"); catInp.type = "text"; catInp.placeholder = "Nova categoria..."; catInp.id = "novaCat";
   const catBtn = document.createElement("button"); catBtn.textContent = "Adicionar";
-  catBtn.onclick = () => adicionarCategoria(catInput.value.trim());
-  addRow.appendChild(catInput); addRow.appendChild(catBtn);
-  catsBox.appendChild(addRow);
-  el.appendChild(catsBox);
+  catBtn.onclick = () => { const n = catInp.value.trim(); if (!n) return; if (!CATS.includes(n)) { CATS.push(n); CATS.sort(); popularSelectCat(); } catInp.value = ""; alert(`Categoria "${n}" disponível. Adicione equipamentos nela.`); };
+  addRow.appendChild(catInp); addRow.appendChild(catBtn); catsBox.appendChild(addRow); el.appendChild(catsBox);
 
-  // Botões adicionar
-  const ab = document.createElement("button"); ab.className = "abtn"; ab.textContent = "+ Adicionar equipamento";
-  ab.onclick = () => abrirModal(null);
+  // Botão adicionar
+  const ab = document.createElement("button"); ab.className = "abtn"; ab.textContent = "+ Adicionar equipamento"; ab.onclick = () => abrirModal(null);
   el.appendChild(ab);
 
-  // Grid por categoria > modelo (cards visuais)
-  const ICONES = {"Câmera": "📷", "Câmera de Foto": "📷", "Câmera de Vídeo": "🎬", "Lente": "🔭", "Iluminação": "💡", "Microfone": "🎙️", "Tripés/Estabilizadores": "🎯", "Gimbal": "🎯", "Tripé": "🎯", "Cartão de Memória": "💾", "Bateria": "🔋", "Carregador": "🔌", "Leitor de Cartão": "💿"};
+  // eCards por categoria
   const cats = {};
   docs.forEach(p => {
     if (!cats[p.categoria]) cats[p.categoria] = {};
@@ -478,29 +497,365 @@ function renderPatrimonio(docs) {
   });
 
   Object.keys(cats).sort().forEach(cat => {
-    const totalCat = Object.values(cats[cat]).reduce((acc,arr)=>acc+arr.length,0);
-    const t = document.createElement("p"); t.className = "st";
-    t.textContent = cat + " (" + totalCat + ")"; el.appendChild(t);
+    const totalCat = Object.values(cats[cat]).reduce((a,arr)=>a+arr.length,0);
+    const t = document.createElement("p"); t.className = "st"; t.textContent = `${cat} (${totalCat})`; el.appendChild(t);
     const g = document.createElement("div"); g.className = "pgrid";
-
     Object.keys(cats[cat]).sort().forEach(key => {
       const unidades = cats[cat][key];
       const modelo = unidades[0];
       const restrito = unidades.some(u => u.restrito4sem);
       const disponiveis = unidades.filter(u => u.status === "Disponivel").length;
       const icone = ICONES[cat] || ICONES[modelo.descricao] || "📦";
-
       const c = document.createElement("div"); c.className = "ecard";
       c.innerHTML =
         (restrito ? '<span class="ecard-restrito" title="Restrito por RGM">🔒</span>' : '') +
-        '<span class="ecard-badge">' + disponiveis + '/' + unidades.length + '</span>' +
-        '<span class="ecard-icon">' + icone + '</span>' +
-        '<div class="ecard-nome">' + modelo.descricao + '</div>' +
-        '<div class="ecard-info">' + (modelo.marca||"") + '</div>';
-
+        `<span class="ecard-badge">${disponiveis}/${unidades.length}</span>` +
+        `<span class="ecard-icon">${icone}</span>` +
+        `<div class="ecard-nome">${modelo.descricao}</div>` +
+        `<div class="ecard-info">${modelo.marca||""}</div>`;
       c.onclick = () => abrirEmodal(cat, modelo, unidades, restrito, icone);
       g.appendChild(c);
     });
     el.appendChild(g);
   });
->
+}
+
+function abrirEmodal(cat, modelo, unidades, restrito, icone) {
+  document.getElementById("emodalIcon").textContent = icone;
+  document.getElementById("emodalTitle").textContent = modelo.descricao;
+  document.getElementById("emodalSub").textContent = `${modelo.marca||""} · ${cat}${restrito?" · 🔒 Restrito por RGM":""}`;
+  const patsDiv = document.getElementById("emodalPats"); patsDiv.innerHTML = "";
+  unidades.forEach((u, idx) => {
+    const row = document.createElement("div"); row.className = "pat-row";
+    const num = document.createElement("span"); num.className = "pat-num"; num.textContent = (idx+1)+".";
+    const inp = document.createElement("input"); inp.className = "pat-inp"; inp.type = "text";
+    inp.value = u.patrimonio||""; inp.placeholder = "Nº patrimônio"; inp.dataset.id = u.id;
+    inp.onblur = async function() { if (this.value !== (u.patrimonio||"")) { await updateDoc(doc(db,"patrimonio",this.dataset.id),{patrimonio:this.value}); u.patrimonio = this.value; } };
+    const sc = u.status==="Disponivel"?"sdisp":u.status==="Manutencao"?"smanut":"semp";
+    const badge = document.createElement("span"); badge.className = "pat-status " + sc;
+    badge.textContent = u.status==="Disponivel"?"OK":u.status==="Manutencao"?"Manut.":"Emp.";
+    badge.onclick = async function() {
+      const prox = u.status==="Disponivel"?"Manutencao":u.status==="Manutencao"?"Emprestado":"Disponivel";
+      await updateDoc(doc(db,"patrimonio",u.id),{status:prox}); u.status = prox;
+      this.className = "pat-status "+(prox==="Disponivel"?"sdisp":prox==="Manutencao"?"smanut":"semp");
+      this.textContent = prox==="Disponivel"?"OK":prox==="Manutencao"?"Manut.":"Emp.";
+    };
+    const bDel = document.createElement("button"); bDel.className = "pat-del"; bDel.textContent = "×";
+    bDel.onclick = async () => { if(confirm("Remover?")) { await deleteDoc(doc(db,"patrimonio",u.id)); abrirEmodal(cat,modelo,unidades.filter(x=>x.id!==u.id),restrito,icone); } };
+    row.appendChild(num); row.appendChild(inp); row.appendChild(badge); row.appendChild(bDel);
+    patsDiv.appendChild(row);
+  });
+  const btnsDiv = document.getElementById("emodalBtns"); btnsDiv.innerHTML = "";
+  const bAdd = document.createElement("button"); bAdd.className = "btn broxo"; bAdd.textContent = "+ Adicionar unidade";
+  bAdd.onclick = () => { document.getElementById("emodal").classList.remove("on"); abrirModal({categoria:cat,descricao:modelo.descricao,marca:modelo.marca,patrimonio:"",status:"Disponivel",restrito4sem:restrito}); };
+  const bEdit = document.createElement("button"); bEdit.className = "btn bno"; bEdit.textContent = "✏️ Editar modelo";
+  bEdit.onclick = () => { document.getElementById("emodal").classList.remove("on"); abrirModal({...modelo}); };
+  btnsDiv.appendChild(bAdd); btnsDiv.appendChild(bEdit);
+  document.getElementById("emodal").classList.add("on");
+}
+
+async function salvarStatus() {
+  const ce=document.getElementById("ckEst"), cq=document.getElementById("ckEq");
+  const me=document.getElementById("msgEst"), mq=document.getElementById("msgEq");
+  await setDoc(doc(db,"config","status"),{estudioAtivo:ce?ce.checked:true,msgEstudio:me?me.value:"",equipAtivo:cq?cq.checked:true,msgEquip:mq?mq.value:""});
+  alert("Disponibilidade salva!");
+}
+
+async function renomearCategoria(antigo, novo, docs) {
+  if (!confirm(`Renomear "${antigo}" → "${novo}"?`)) return;
+  const batch = writeBatch(db);
+  docs.filter(d=>d.categoria===antigo).forEach(i=>batch.update(doc(db,"patrimonio",i.id),{categoria:novo}));
+  await batch.commit(); alert(`Categoria renomeada.`);
+}
+
+async function removerCategoria(cat, docs) {
+  const itens = docs.filter(d=>d.categoria===cat);
+  if (!confirm(`Remover categoria "${cat}"${itens.length?` e seus ${itens.length} equipamento(s)`:""}?`)) return;
+  const batch = writeBatch(db);
+  itens.forEach(i=>batch.delete(doc(db,"patrimonio",i.id)));
+  await batch.commit();
+}
+
+function abrirModal(item) {
+  document.getElementById("mTitulo").textContent = item?.id ? "Editar Equipamento" : "Novo Equipamento";
+  document.getElementById("mDocId").value  = item?.id || "";
+  document.getElementById("mCat").value    = item?.categoria || (CATS[0]||"");
+  document.getElementById("mDesc").value   = item?.descricao || "";
+  document.getElementById("mMarca").value  = item?.marca || "";
+  document.getElementById("mPat").value    = item?.patrimonio || "";
+  document.getElementById("mStatus").value = item?.status || "Disponivel";
+  document.getElementById("mRestrito").checked = !!item?.restrito4sem;
+  document.getElementById("modal").classList.add("on");
+}
+
+document.getElementById("bCan").onclick = () => document.getElementById("modal").classList.remove("on");
+document.getElementById("bSalv").onclick = async () => {
+  const id = document.getElementById("mDocId").value;
+  const data = {
+    categoria:   document.getElementById("mCat").value,
+    descricao:   document.getElementById("mDesc").value,
+    marca:       document.getElementById("mMarca").value,
+    patrimonio:  document.getElementById("mPat").value,
+    status:      document.getElementById("mStatus").value,
+    restrito4sem:document.getElementById("mRestrito").checked
+  };
+  if (id) await updateDoc(doc(db,"patrimonio",id),data);
+  else    await addDoc(collection(db,"patrimonio"),data);
+  document.getElementById("modal").classList.remove("on");
+};
+
+async function deletarItem(id) {
+  if (!confirm("Remover?")) return;
+  await deleteDoc(doc(db,"patrimonio",id));
+}
+
+// ── ALUNOS ────────────────────────────────────────────────────────────
+function renderAlunos(docs) {
+  const el = document.getElementById("alunos"); el.innerHTML = "";
+
+  const header = document.createElement("div"); header.className = "cfg";
+  const total = docs.length, bloq = docs.filter(d=>d.bloqueado).length;
+  header.innerHTML = `<h3>Gerenciar Alunos</h3><p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">${total} alunos · ${bloq} bloqueados</p>`;
+
+  // Upload
+  const upRow = document.createElement("div"); upRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px";
+  const fileIn = document.createElement("input"); fileIn.type = "file"; fileIn.accept = ".xlsx";
+  fileIn.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px";
+  const upBtn = document.createElement("button"); upBtn.className = "btn broxo"; upBtn.textContent = "Importar planilha";
+  upBtn.onclick = () => importarAlunos(fileIn);
+  upRow.appendChild(fileIn); upRow.appendChild(upBtn); header.appendChild(upRow);
+
+  // Ações em massa
+  const massRow = document.createElement("div"); massRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px";
+  const bLib = document.createElement("button"); bLib.className = "btn bok"; bLib.textContent = "✅ Liberar todos";
+  bLib.onclick = () => toggleTodos(docs, false);
+  const bBlkS = document.createElement("button"); bBlkS.className = "btn bverm"; bBlkS.textContent = "🚫 Bloquear semestre...";
+  bBlkS.onclick = () => { const s = prompt("Qual semestre bloquear? (ex: 4)"); if(s) toggleSemestre(docs,s.trim(),true); };
+  const bLibS = document.createElement("button"); bLibS.className = "btn bno"; bLibS.textContent = "Liberar semestre...";
+  bLibS.onclick = () => { const s = prompt("Qual semestre liberar?"); if(s) toggleSemestre(docs,s.trim(),false); };
+  massRow.appendChild(bLib); massRow.appendChild(bBlkS); massRow.appendChild(bLibS);
+  header.appendChild(massRow);
+
+  // Busca
+  const busca = document.createElement("input"); busca.type = "text"; busca.placeholder = "Buscar por nome ou RGM...";
+  busca.style.cssText = "width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 12px;font-size:13px;outline:none";
+  busca.oninput = function() { renderListaAlunos(docs, lista, this.value); };
+  header.appendChild(busca); el.appendChild(header);
+
+  const lista = document.createElement("div"); lista.id = "listaAlunos";
+  renderListaAlunos(docs, lista, ""); el.appendChild(lista);
+}
+
+function renderListaAlunos(docs, container, filtro) {
+  container.innerHTML = "";
+  const f = filtro.toLowerCase();
+  const filtrados = docs.filter(d => !f || (d.nome||"").toLowerCase().includes(f) || (d.rgm||"").includes(f))
+    .sort((a,b) => (a.nome||"").localeCompare(b.nome||""));
+  if (!filtrados.length) { container.innerHTML = "<div class='vazio'>Nenhum aluno encontrado.</div>"; return; }
+  const sems = {};
+  filtrados.forEach(d => { const s = d.semestre||"?"; if(!sems[s]) sems[s]=[]; sems[s].push(d); });
+  Object.keys(sems).sort().forEach(sem => {
+    const t = document.createElement("p"); t.className = "st";
+    t.textContent = `${sem}º Semestre (${sems[sem].length})`; container.appendChild(t);
+    const grid = document.createElement("div"); grid.className = "agrid";
+    sems[sem].forEach(d => {
+      const c = document.createElement("div");
+      c.className = "acard" + (d.bloqueado?" bloqueado":"");
+      c.innerHTML = `<h3>${d.nome||""}</h3><p>RGM: <strong>${d.rgm||""}</strong></p><p>E-mail: ${(d.rgm||"") + "@alunos.unigrancapital.com.br"}</p>`;
+      const badge = document.createElement("span"); badge.className = d.bloqueado?"semp":"sdisp";
+      badge.textContent = d.bloqueado?"🚫 Bloqueado":"✅ Ativo"; badge.style.marginTop="8px";
+      c.appendChild(badge);
+      const abtns = document.createElement("div"); abtns.className = "abtns";
+      if (d.bloqueado) {
+        const bL = document.createElement("button"); bL.className = "btn bok"; bL.style.cssText="font-size:12px;padding:5px 12px"; bL.textContent="Liberar";
+        bL.onclick = () => toggleBloqueio(d.id, false); abtns.appendChild(bL);
+      } else {
+        const bB = document.createElement("button"); bB.className = "btn bverm"; bB.style.cssText="font-size:12px;padding:5px 12px"; bB.textContent="Bloquear";
+        bB.onclick = () => toggleBloqueio(d.id, true); abtns.appendChild(bB);
+      }
+      const bDel = document.createElement("button"); bDel.className = "btn bno"; bDel.style.cssText="font-size:12px;padding:5px 12px"; bDel.textContent="Remover";
+      bDel.onclick = () => { if(confirm(`Remover ${d.nome}?`)) deleteDoc(doc(db,"alunos",d.id)); };
+      abtns.appendChild(bDel); c.appendChild(abtns); grid.appendChild(c);
+    });
+    container.appendChild(grid);
+  });
+}
+
+async function toggleBloqueio(id, bloquear) { await updateDoc(doc(db,"alunos",id),{bloqueado:bloquear}); }
+
+async function toggleTodos(docs, bloquear) {
+  if (!confirm(bloquear?"Bloquear TODOS?":"Liberar TODOS?")) return;
+  const batch = writeBatch(db);
+  docs.forEach(d => batch.update(doc(db,"alunos",d.id),{bloqueado:bloquear}));
+  await batch.commit(); alert("Feito!");
+}
+
+async function toggleSemestre(docs, sem, bloquear) {
+  const filtrados = docs.filter(d => String(d.semestre)===String(sem));
+  if (!filtrados.length) { alert(`Nenhum aluno no ${sem}º semestre.`); return; }
+  if (!confirm(`${bloquear?"Bloquear":"Liberar"} ${filtrados.length} alunos do ${sem}º semestre?`)) return;
+  const batch = writeBatch(db);
+  filtrados.forEach(d => batch.update(doc(db,"alunos",d.id),{bloqueado:bloquear}));
+  await batch.commit(); alert("Feito!");
+}
+
+// ── IMPORTAÇÕES ───────────────────────────────────────────────────────
+window.importarAlunos = async function(inputEl) {
+  const file = inputEl.files[0]; if (!file) { alert("Selecione um arquivo .xlsx"); return; }
+  if (!window.XLSX) await carregarXLSX();
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data,{type:"array"}); const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws,{header:1}); const header = rows[0]||[];
+    const rgmCol=header.findIndex(h=>String(h).toUpperCase().includes("RGM"));
+    const nomeCol=header.findIndex(h=>String(h).toUpperCase().includes("NOME"));
+    const semCol=header.findIndex(h=>String(h).toUpperCase().includes("SEMESTRE"));
+    if (rgmCol<0) { alert("Coluna RGM não encontrada."); return; }
+    const batch = writeBatch(db); let count=0;
+    rows.slice(1).forEach(row => {
+      const rgm=String(row[rgmCol]||"").trim(); if(!rgm) return;
+      const nome=(nomeCol>=0?String(row[nomeCol]||""):"").split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" ");
+      const sem=semCol>=0?String(row[semCol]||""):"";
+      batch.set(doc(collection(db,"alunos")),{rgm,nome,semestre:sem,bloqueado:false}); count++;
+    });
+    await batch.commit(); alert(count+" alunos importados!");
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+window.importarRGMs = async function(inputEl) {
+  const file = inputEl.files[0]; if (!file) { alert("Selecione um arquivo .xlsx"); return; }
+  if (!window.XLSX) await carregarXLSX();
+  const reader = new FileReader();
+  reader.onload = async function(e) {
+    const data = new Uint8Array(e.target.result);
+    const wb = XLSX.read(data,{type:"array"}); const ws = wb.Sheets[wb.SheetNames[0]];
+    const rows = XLSX.utils.sheet_to_json(ws,{header:1}); const header = rows[0]||[];
+    const rgmCol=header.findIndex(h=>String(h).toUpperCase().includes("RGM"));
+    if (rgmCol<0) { alert("Coluna RGM não encontrada."); return; }
+    const rgms=rows.slice(1).map(r=>String(r[rgmCol]||"").trim()).filter(r=>r);
+    await setDoc(doc(db,"config","rgms4sem"),{rgms,atualizadoEm:new Date().toISOString()});
+    document.getElementById("rgmCount").textContent = rgms.length+" RGMs autorizados.";
+    alert(rgms.length+" RGMs importados!");
+  };
+  reader.readAsArrayBuffer(file);
+};
+
+async function limparRGMs() {
+  if (!confirm("Remover todos os RGMs autorizados?")) return;
+  await setDoc(doc(db,"config","rgms4sem"),{rgms:[]});
+  document.getElementById("rgmCount").textContent = "0 RGMs autorizados.";
+  alert("Lista limpa.");
+}
+
+async function carregarXLSX() {
+  return new Promise((res,rej) => {
+    const s=document.createElement("script");
+    s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
+    s.onload=res; s.onerror=rej; document.head.appendChild(s);
+  });
+}
+
+// ── FUNÇÕES DE CONSOLE ────────────────────────────────────────────────
+window.popularAlunos = async function() {
+  const alunos = {"192.105": {"nome": "Ana Flávia Rezende Messias", "semestre": "4"}, "191.007": {"nome": "Bruna Eduarda Victor Capelaxio Ferreira", "semestre": "4"}, "192.133": {"nome": "Bruno Henryque Lourenço Souza", "semestre": "4"}, "192.020": {"nome": "Caio Luiz Lubacheski De Oliveira", "semestre": "4"}, "192.004": {"nome": "Débora Cristina Corrêa Da Silva", "semestre": "4"}, "191.002": {"nome": "Enzo Gabriel Marinho Pavão", "semestre": "4"}, "191.001": {"nome": "Fabiana Borges De Oliveira", "semestre": "4"}, "192.021": {"nome": "Felipe Miguel Dos Santos Bezerra", "semestre": "4"}, "192.054": {"nome": "Felipe Moreira Da Silva", "semestre": "4"}, "192.056": {"nome": "Heitor Vinícius Sampaio Moura", "semestre": "4"}, "192.042": {"nome": "Isadora De Oliveira Bassotto", "semestre": "4"}, "192.037": {"nome": "Isadora Pache Asseff", "semestre": "4"}, "192.005": {"nome": "Ivy Silva De Oliveira", "semestre": "4"}, "191.005": {"nome": "Jorge Luiz Munhoz Dutra", "semestre": "4"}, "192.016": {"nome": "João Pedro Dantas Poiquis", "semestre": "4"}, "192.065": {"nome": "João Victor Da Cruz Fernandes", "semestre": "4"}, "192.014": {"nome": "João Victor Ribeiro Alves", "semestre": "4"}, "192.001": {"nome": "Julia Raika Ferreira Maier", "semestre": "4"}, "192.131": {"nome": "Juliana Aristimunho Acosta", "semestre": "4"}, "192.053": {"nome": "Jéssica Laís Da Silva Viegas", "semestre": "4"}, "192.036": {"nome": "Kethellen Fraga Da Silva", "semestre": "4"}, "191.006": {"nome": "Laura Camile Arcanjo Neves Menezes", "semestre": "4"}, "192.018": {"nome": "Leandro Morinigo Alves", "semestre": "4"}, "192.022": {"nome": "Leonardo De Castro Matos", "semestre": "4"}, "192.006": {"nome": "Lívia Pereira Martins", "semestre": "4"}, "192.008": {"nome": "Maddison Yuri Silva Santos", "semestre": "4"}, "192.019": {"nome": "Marcio Chiarelli De Oliveira Branquinho", "semestre": "4"}, "192.025": {"nome": "Maria Eduarda De Souza Figueiredo", "semestre": "4"}, "192.137": {"nome": "Maria Fernanda Talini Diório", "semestre": "4"}, "192.069": {"nome": "Mariuá Coutinho Netto", "semestre": "4"}, "192.009": {"nome": "Mayla Arakaki Saito", "semestre": "4"}, "192.092": {"nome": "Nikolas Rocha Miranda", "semestre": "4"}, "192.045": {"nome": "Paola Kopes Nogueira", "semestre": "4"}, "191.008": {"nome": "Pedro Henrique Justino De Souza", "semestre": "4"}, "192.023": {"nome": "Pedro Lucca Magalhães Marangoni", "semestre": "4"}, "192.033": {"nome": "Raissa Arguelho Freixes", "semestre": "4"}, "192.017": {"nome": "Sarha Gabrielle Freitas De Oliveira", "semestre": "4"}, "192.068": {"nome": "Vitor Vieira Kramer", "semestre": "4"}, "192.067": {"nome": "Vitória Cassavara De Oliveira", "semestre": "4"}, "192.101": {"nome": "Adriano Santana Rui Da Silva", "semestre": "2"}, "192.090": {"nome": "Amanda Freitas De Souza Araujo", "semestre": "2"}, "192.071": {"nome": "Ana Júlia Kutter Pedra", "semestre": "2"}, "192.085": {"nome": "Ana Luisa Paim Marietti", "semestre": "2"}, "192.140": {"nome": "Ana Luiza Silva Freire", "semestre": "2"}, "192.139": {"nome": "Anna Clara Costa Santos", "semestre": "2"}, "192.135": {"nome": "Beatriz Jeronimo De Souza", "semestre": "2"}, "192.112": {"nome": "Clara Eyshila Morais Duarte", "semestre": "2"}, "192.110": {"nome": "Daniel Estevão Paiva Aranda", "semestre": "2"}, "192.094": {"nome": "Daniel Martins De Almeida", "semestre": "2"}, "192.077": {"nome": "Daniel Savale Coene", "semestre": "2"}, "192.132": {"nome": "Daniela Martines Da Silva Souza", "semestre": "2"}, "192.075": {"nome": "Daniela Martins De Souza", "semestre": "2"}, "192.080": {"nome": "Ester Felicio Ferreira", "semestre": "2"}, "192.098": {"nome": "Evandro Silva Viégas", "semestre": "2"}, "192.103": {"nome": "Filipe De Oliveira Kruki", "semestre": "2"}, "192.100": {"nome": "Gabriel Amaral Dos Santos Messa De Andrade", "semestre": "2"}, "192.126": {"nome": "Gabriel Henrique Viana Pimentel", "semestre": "2"}, "192.087": {"nome": "Gabriella Aparecida Da Silva Ferreira", "semestre": "2"}, "192.081": {"nome": "Geovana Apodaca Penha", "semestre": "2"}, "192.127": {"nome": "Gisele Figueiredo Ortiz", "semestre": "2"}, "192.120": {"nome": "Gustavo Soares Dos Santos", "semestre": "2"}, "192.078": {"nome": "Hagatta Cristy Gomes Silva", "semestre": "2"}, "192.076": {"nome": "Helen Eunice Do Espirito Santo Da Luz", "semestre": "2"}, "192.104": {"nome": "Heloísa Antunes De Oliveira", "semestre": "2"}, "192.141": {"nome": "Jefferson Nascimento De Freitas", "semestre": "2"}, "192.091": {"nome": "João Vitor Da Silva", "semestre": "2"}, "192.138": {"nome": "Julia Camargo Shiota", "semestre": "2"}, "192.125": {"nome": "Jéssica Franco Da Silva", "semestre": "2"}, "192.117": {"nome": "Júllia Borges De Andrade", "semestre": "2"}, "192.029": {"nome": "Kauanny Gabriella Costa Dos Santos", "semestre": "2"}, "192.109": {"nome": "Laise Naiessa Silveira", "semestre": "2"}, "192.095": {"nome": "Laura Souza Ribeiro", "semestre": "2"}, "192.096": {"nome": "Letícia Da Cruz Kohagura", "semestre": "2"}, "192.113": {"nome": "Luã Martins Estavaringo", "semestre": "2"}, "192.134": {"nome": "Mara Keyty Vitória Nunes Espindola", "semestre": "2"}, "192.124": {"nome": "Marcos Vinícius Da Silva", "semestre": "2"}, "192.073": {"nome": "Mariana Monte Teixeira", "semestre": "2"}, "192.111": {"nome": "Matheus Alencar Amaral Cruz Fenianos", "semestre": "2"}, "192.136": {"nome": "Matheus William Dobes", "semestre": "2"}, "192.106": {"nome": "Miguel Valdez Naji Rôa", "semestre": "2"}, "192.107": {"nome": "Murilo Arteaga Alves De Almeida", "semestre": "2"}, "192.108": {"nome": "Naiany Caroline Neves Martins", "semestre": "2"}, "192.099": {"nome": "Nicolle Gutierres Nascimento", "semestre": "2"}, "192.089": {"nome": "Raphaela Hurtado Targino", "semestre": "2"}, "192.086": {"nome": "Raul Lucas Pitaluga De Oliveira", "semestre": "2"}, "192.083": {"nome": "Tiago Velasques Exteca", "semestre": "2"}, "192.088": {"nome": "Victória Fernandes Moreira Espindola", "semestre": "2"}, "192.128": {"nome": "Yasmim Coradelo Barbosa", "semestre": "2"}, "192.143": {"nome": "Élton Umar Maior", "semestre": "2"}};
+  const batch = writeBatch(db);
+  Object.entries(alunos).forEach(([rgm, data]) => {
+    batch.set(doc(collection(db,"alunos")),{rgm,nome:data.nome,semestre:data.semestre,bloqueado:false});
+  });
+  await batch.commit(); alert(Object.keys(alunos).length+" alunos cadastrados!");
+};
+
+window.popularRGMs4sem = async function() {
+  const rgms = ["192.105", "191.007", "192.133", "192.020", "192.004", "191.002", "191.001", "192.021", "192.054", "192.056", "192.042", "192.037", "192.005", "191.005", "192.016", "192.065", "192.014", "192.001", "192.131", "192.053", "192.036", "191.006", "192.018", "192.022", "192.006", "192.008", "192.019", "192.025", "192.137", "192.069", "192.009", "192.092", "192.045", "191.008", "192.023", "192.033", "192.017", "192.068", "192.067"];
+  await setDoc(doc(db,"config","rgms4sem"),{rgms,atualizadoEm:new Date().toISOString()});
+  alert(rgms.length+" RGMs do 4º semestre cadastrados!");
+};
+
+window.liberarTodosConsole = async function() {
+  const snap = await getDocs(collection(db,"alunos"));
+  const batch = writeBatch(db);
+  snap.forEach(d => batch.update(doc(db,"alunos",d.id),{bloqueado:false}));
+  await batch.commit(); alert(snap.size+" alunos liberados!");
+};
+
+window.unificarCameras = async function() {
+  const snap = await getDocs(collection(db,"patrimonio"));
+  const batch = writeBatch(db);
+  snap.forEach(d => {
+    const desc = d.data().descricao;
+    if (desc==="EOS 2000D"||desc==="EOS Rebel T7") batch.update(doc(db,"patrimonio",d.id),{descricao:"EOS Rebel T7/2000D"});
+  });
+  await batch.commit(); alert("Câmeras unificadas!");
+};
+
+window.popularInventario = async function() {
+  const itens = [
+    {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9059",status:"Disponivel",restrito4sem:false},
+    {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9060",status:"Disponivel",restrito4sem:false},
+    {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9061",status:"Disponivel",restrito4sem:false},
+    {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9062",status:"Disponivel",restrito4sem:false},
+    {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9063",status:"Disponivel",restrito4sem:false},
+    {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9120",status:"Disponivel",restrito4sem:false},
+    {categoria:"Lente",descricao:"Lente 18-55mm",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Lente",descricao:"Lente 18-55mm",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Lente",descricao:"Lente 18-55mm",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Lente",descricao:"Lente 18-55mm",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Lente",descricao:"Lente 18-55mm",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Lente",descricao:"Lente 18-55mm",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Cartão de Memória",descricao:"Cartão SanDisk",marca:"SanDisk",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Cartão de Memória",descricao:"Cartão SanDisk",marca:"SanDisk",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Cartão de Memória",descricao:"Cartão SanDisk",marca:"SanDisk",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Cartão de Memória",descricao:"Cartão SanDisk",marca:"SanDisk",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Cartão de Memória",descricao:"Cartão SanDisk",marca:"SanDisk",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Cartão de Memória",descricao:"Cartão SanDisk",marca:"SanDisk",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Bateria",descricao:"Bateria LP-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Bateria",descricao:"Bateria LP-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Bateria",descricao:"Bateria LP-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Bateria",descricao:"Bateria LP-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Bateria",descricao:"Bateria LP-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Bateria",descricao:"Bateria LP-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26011",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26012",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26013",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26014",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26015",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26019",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26020",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26021",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26022",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26023",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26024",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26025",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26026",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26027",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26028",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26006",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26007",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26008",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26009",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26010",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26001",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26002",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26003",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26004",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26005",status:"Disponivel",restrito4sem:false},
+    {categoria:"Microfone",descricao:"Microfone Sem Fio 2 lapelas",marca:"Boya",patrimonio:"PP26016",status:"Disponivel",restrito4sem:false},
+    {categoria:"Microfone",descricao:"Microfone Sem Fio 2 lapelas",marca:"Boya",patrimonio:"PP26017",status:"Disponivel",restrito4sem:false},
+    {categoria:"Microfone",descricao:"Microfone Sem Fio 2 lapelas",marca:"Boya",patrimonio:"PP26018",status:"Disponivel",restrito4sem:false},
+    {categoria:"Leitor de Cartão",descricao:"Leitor de Cartão de Memória",marca:"",patrimonio:"",status:"Disponivel",restrito4sem:false}
+  ];
+  const batch = writeBatch(db);
+  itens.forEach(item => batch.set(doc(collection(db,"patrimonio")),item));
+  await batch.commit(); alert(itens.length+" equipamentos cadastrados!");
+};
+</script>
+</body>
+</html>
