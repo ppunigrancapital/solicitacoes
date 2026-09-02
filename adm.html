@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Painel ADM | PP UNIGRAN</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<!-- Firebase Compat -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 :root{--roxo:#6a1e9a;--roxo2:#4a1270;--fundo:#f4f1f8;--borda:#ddd0ea;--r:8px;--verde:#2d7a2d}
@@ -31,22 +35,15 @@ header span{font-size:12px;opacity:.7}
 .st:first-child{margin-top:0}
 .card{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:12px}
 .ctop{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap}
-.cnome{font-weight:600;font-size:15px}
-.csub{font-size:12px;color:#6b6b6b;margin-top:2px}
+.cnome{font-weight:600;font-size:15px}.csub{font-size:12px;color:#6b6b6b;margin-top:2px}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:700;text-transform:uppercase}
-.pendente{background:#fff3cd;color:#856404}
-.aprovado{background:#d4edda;color:#155724}
-.recusado{background:#f8d7da;color:#721c24}
+.pendente{background:#fff3cd;color:#856404}.aprovado{background:#d4edda;color:#155724}.recusado{background:#f8d7da;color:#721c24}
 .cgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:8px;margin-top:14px}
 .det{font-size:12px}.det strong{display:block;color:var(--roxo2);font-size:11px;margin-bottom:2px}
 .btns{display:flex;gap:8px;margin-top:14px;flex-wrap:wrap}
 .btn{padding:8px 18px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:Inter,sans-serif;text-decoration:none;display:inline-block}
-.bok{background:var(--verde);color:#fff}
-.bno{background:#eee;color:#333}
-.broxo{background:var(--roxo);color:#fff}
-.bverm{background:#c0392b;color:#fff}
+.bok{background:var(--verde);color:#fff}.bno{background:#eee;color:#333}.broxo{background:var(--roxo);color:#fff}.bverm{background:#c0392b;color:#fff}
 .vazio{text-align:center;color:#6b6b6b;padding:40px;font-size:13px}
-/* Equipamentos - eCards */
 .pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px}
 .ecard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px 10px;text-align:center;cursor:pointer;transition:all .15s;position:relative}
 .ecard:hover{border-color:var(--roxo);box-shadow:0 2px 12px rgba(106,30,154,.15);transform:translateY(-2px)}
@@ -55,58 +52,47 @@ header span{font-size:12px;opacity:.7}
 .ecard-info{font-size:11px;color:#6b6b6b}
 .ecard-badge{position:absolute;top:6px;right:6px;background:var(--roxo);color:#fff;border-radius:20px;padding:1px 7px;font-size:10px;font-weight:700}
 .ecard-restrito{position:absolute;top:6px;left:6px;font-size:11px}
-/* Modal equipamento */
 .emodal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px}
 .emodal.on{display:flex}
 .emodal-box{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:500px;max-height:85vh;overflow-y:auto}
 .emodal-header{display:flex;align-items:center;gap:12px;margin-bottom:20px}
-.emodal-icon{font-size:36px}
-.emodal-title{font-size:17px;font-weight:700;color:var(--roxo2)}
-.emodal-sub{font-size:12px;color:#6b6b6b;margin-top:2px}
+.emodal-icon{font-size:36px}.emodal-title{font-size:17px;font-weight:700;color:var(--roxo2)}.emodal-sub{font-size:12px;color:#6b6b6b;margin-top:2px}
 .pat-row{display:flex;align-items:center;gap:6px;margin-bottom:8px}
 .pat-num{font-size:11px;color:var(--roxo2);font-weight:700;min-width:20px}
 .pat-inp{flex:1;border:1.5px solid var(--borda);border-radius:6px;padding:6px 10px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .pat-inp:focus{border-color:var(--roxo)}
 .pat-status{font-size:11px;font-weight:700;padding:2px 8px;border-radius:12px;cursor:pointer;white-space:nowrap;border:none}
 .pat-del{background:#fde;color:#c0392b;border:none;border-radius:4px;padding:3px 8px;cursor:pointer;font-weight:700;font-size:13px}
-/* Alunos */
 .agrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:10px}
 .acard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:14px;border-left:4px solid var(--verde)}
 .acard.bloqueado{border-left-color:#c0392b}
 .acard h3{font-size:13px;font-weight:600;margin-bottom:4px}
 .acard p{font-size:12px;color:#6b6b6b;margin-bottom:2px}
 .acard .abtns{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
-/* Configurações */
 .cfg{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:20px;margin-bottom:20px}
 .cfg h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:14px;letter-spacing:.08em}
 .sw{display:flex;align-items:center;gap:8px;margin-bottom:8px;font-size:13px;cursor:pointer}
 .sw input{width:16px;height:16px;accent-color:var(--roxo)}
 .cmsg{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;min-height:60px;resize:vertical;margin-bottom:10px;font-family:Inter,sans-serif}
-.abtn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:20px;font-family:Inter,sans-serif;margin-right:8px}
-/* Categorias */
+.abtn{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px;font-family:Inter,sans-serif;margin-right:8px}
 .cats-box{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px;margin-bottom:16px}
 .cats-box h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:12px;letter-spacing:.08em}
 .cat-tag{display:inline-flex;align-items:center;gap:4px;background:#f4f1f8;border:1px solid var(--borda);border-radius:20px;padding:4px 10px;font-size:12px;margin:4px}
-.cat-tag button{background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px;line-height:1}
+.cat-tag button{background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px}
 .cat-tag .cat-del{color:#c0392b}.cat-tag .cat-edit{color:#4a1270}
 .cat-input-row{display:flex;gap:8px;margin-top:10px}
 .cat-input-row input{flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .cat-input-row button{background:var(--roxo);color:#fff;border:none;border-radius:var(--r);padding:8px 16px;font-size:13px;font-weight:600;cursor:pointer}
-/* Status badges */
 .sdisp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#d4edda;color:#155724}
 .semp{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#f8d7da;color:#721c24}
 .smanut{display:inline-block;padding:2px 8px;border-radius:12px;font-size:11px;font-weight:700;background:#fff3cd;color:#856404}
-/* Modal novo equipamento */
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:100;align-items:center;justify-content:center;padding:16px}
 .modal.on{display:flex}
 .mbox{background:#fff;border-radius:var(--r);padding:28px;width:100%;max-width:440px;max-height:90vh;overflow-y:auto}
 .mbox h2{font-size:16px;color:var(--roxo2);margin-bottom:20px}
-.campo{margin-bottom:14px}
-.campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
+.campo{margin-bottom:14px}.campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
 .campo input,.campo select{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .campo input:focus,.campo select:focus{border-color:var(--roxo)}
-.rgm-search{display:flex;gap:8px;margin-bottom:12px}
-.rgm-search input{flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 12px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 @media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}.pgrid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
 </style>
 </head>
@@ -118,8 +104,8 @@ header span{font-size:12px;opacity:.7}
     <p>Publicidade e Propaganda — UNIGRAN Capital</p>
     <input type="email" id="iEmail" placeholder="E-mail" autocomplete="email">
     <input type="password" id="iSenha" placeholder="Senha">
-    <button id="btnE">Entrar</button>
-    <p id="erro">E-mail ou senha incorretos.</p>
+    <button onclick="entrar()">Entrar</button>
+    <p id="erro"></p>
   </div>
 </div>
 
@@ -128,14 +114,14 @@ header span{font-size:12px;opacity:.7}
     <h1>Painel ADM — PP UNIGRAN Capital</h1>
     <div class="header-right">
       <span id="userEmail"></span>
-      <button class="btn-sair" id="btnSair">Sair</button>
+      <button class="btn-sair" onclick="firebase.auth().signOut()">Sair</button>
     </div>
   </header>
   <div class="tabs">
-    <div class="tab on" data-aba="estudio">📷 Estúdio</div>
-    <div class="tab" data-aba="equipamentos">🎥 Equipamentos</div>
-    <div class="tab" data-aba="patrimonio">📦 Patrimônio</div>
-    <div class="tab" data-aba="alunos">🎓 Alunos</div>
+    <div class="tab on" onclick="mudarAba('estudio',this)">📷 Estúdio</div>
+    <div class="tab" onclick="mudarAba('equipamentos',this)">🎥 Equipamentos</div>
+    <div class="tab" onclick="mudarAba('patrimonio',this)">📦 Patrimônio</div>
+    <div class="tab" onclick="mudarAba('alunos',this)">🎓 Alunos</div>
   </div>
   <div class="painel">
     <div id="estudio"></div>
@@ -145,7 +131,6 @@ header span{font-size:12px;opacity:.7}
   </div>
 </div>
 
-<!-- Modal novo/editar equipamento -->
 <div class="modal" id="modal">
   <div class="mbox">
     <h2 id="mTitulo">Equipamento</h2>
@@ -162,20 +147,18 @@ header span{font-size:12px;opacity:.7}
       </select>
     </div>
     <div class="campo">
-      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px;font-weight:500;color:var(--roxo2)">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;font-size:13px">
         <input type="checkbox" id="mRestrito" style="width:16px;height:16px;accent-color:var(--roxo)">
         Restrito por RGM
       </label>
-      <p style="font-size:11px;color:#6b6b6b;margin-top:4px">Visível apenas para alunos da lista de RGMs autorizados.</p>
     </div>
     <div class="btns">
-      <button class="btn broxo" id="bSalv">Salvar</button>
-      <button class="btn bno" id="bCan">Cancelar</button>
+      <button class="btn broxo" onclick="salvarEquip()">Salvar</button>
+      <button class="btn bno" onclick="fecharModal()">Cancelar</button>
     </div>
   </div>
 </div>
 
-<!-- Modal detalhes equipamento -->
 <div class="emodal" id="emodal">
   <div class="emodal-box">
     <div class="emodal-header">
@@ -192,328 +175,269 @@ header span{font-size:12px;opacity:.7}
   </div>
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.0/firebase-app.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, setPersistence, browserLocalPersistence }
-  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-auth.js";
-import { getFirestore, collection, onSnapshot, doc, updateDoc, addDoc,
-         deleteDoc, setDoc, getDoc, query, orderBy, getDocs, writeBatch }
-  from "https://www.gstatic.com/firebasejs/11.0.0/firebase-firestore.js";
-
-const FB  = {
-  apiKey: "AIzaSyD2JmP33idYRN6MBsdRzDM65TTZsYBV050",
-  authDomain: "ppuncapital-solicitacoes.firebaseapp.com",
-  projectId: "ppuncapital-solicitacoes",
-  storageBucket: "ppuncapital-solicitacoes.firebasestorage.app",
-  messagingSenderId: "317827844767",
-  appId: "1:317827844767:web:241de43cc89084232230aa"
-};
-const SU  = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec";
-const app = initializeApp(FB);
-const auth = getAuth(app);
-const db   = getFirestore(app);
-console.log("Firebase inicializado:", app.name);
-
-const ICONES = {"Câmera":"📷","Câmera de Foto":"📷","Câmera de Vídeo":"🎬","Lente":"🔭",
+<script>
+var SU = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec";
+var ICONES = {"Câmera":"📷","Câmera de Foto":"📷","Câmera de Vídeo":"🎬","Lente":"🔭",
   "Iluminação":"💡","Microfone":"🎙️","Tripés/Estabilizadores":"🎯","Gimbal":"🎯",
   "Tripé":"🎯","Cartão de Memória":"💾","Bateria":"🔋","Carregador":"🔌","Leitor de Cartão":"💿"};
-
-var ABA = "estudio";
 var CATS = [];
 var _todosAlunos = [];
+var _unsubscribers = [];
+var db, auth;
 
-// ── AUTH ──────────────────────────────────────────────────────────────
-onAuthStateChanged(auth, user => {
+// Init Firebase
+firebase.initializeApp({"apiKey":"AIzaSyD2JmP33idYRN6MBsdRzDM65TTZsYBV050","authDomain":"ppuncapital-solicitacoes.firebaseapp.com","projectId":"ppuncapital-solicitacoes","storageBucket":"ppuncapital-solicitacoes.firebasestorage.app","messagingSenderId":"317827844767","appId":"1:317827844767:web:241de43cc89084232230aa"});
+auth = firebase.auth();
+db   = firebase.firestore();
+
+// Auth state
+firebase.auth().onAuthStateChanged(function(user) {
   if (user) {
-    document.getElementById("login").style.display = "none";
-    document.getElementById("app").style.display = "block";
-    document.getElementById("userEmail").textContent = user.email;
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    document.getElementById('userEmail').textContent = user.email;
     iniciar();
   } else {
-    document.getElementById("login").style.display = "flex";
-    document.getElementById("app").style.display = "none";
+    document.getElementById('login').style.display = 'flex';
+    document.getElementById('app').style.display = 'none';
+    _unsubscribers.forEach(function(u){ u(); });
+    _unsubscribers = [];
   }
 });
 
-// Registrar eventos após DOM pronto
-function registrarEventos() {
-  const btnE = document.getElementById("btnE");
-  const iSenha = document.getElementById("iSenha");
-  const btnSair = document.getElementById("btnSair");
-  if (!btnE) { console.error("btnE não encontrado!"); return; }
-  console.log("Registrando eventos de login...");
-  btnE.addEventListener("click", function() {
-    const email = document.getElementById("iEmail").value;
-    const senha = document.getElementById("iSenha").value;
-    console.log("Login tentativa:", email);
-    document.getElementById("erro").style.display = "none";
-    setPersistence(auth, browserLocalPersistence)
-      .then(() => signInWithEmailAndPassword(auth, email, senha))
-      .catch((err) => {
-        console.error("Erro login:", err.code, err.message);
-        document.getElementById("erro").style.display = "block";
-        document.getElementById("erro").textContent = "Erro: " + err.code;
-      });
-  });
-  if (iSenha) iSenha.addEventListener("keydown", e => { if (e.key === "Enter") btnE.click(); });
-  if (btnSair) btnSair.addEventListener("click", () => signOut(auth));
-}
-
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", registrarEventos);
-} else {
-  registrarEventos();
-}
-
-// ── ABAS ──────────────────────────────────────────────────────────────
-document.querySelectorAll(".tab").forEach(t => {
-  t.onclick = function() {
-    ABA = this.dataset.aba;
-    document.querySelectorAll(".tab").forEach(x => x.classList.remove("on"));
-    this.classList.add("on");
-    ["estudio","equipamentos","patrimonio","alunos"].forEach(id => {
-      document.getElementById(id).style.display = id === ABA ? "block" : "none";
+function entrar() {
+  var email = document.getElementById('iEmail').value.trim();
+  var senha = document.getElementById('iSenha').value;
+  var erroEl = document.getElementById('erro');
+  erroEl.style.display = 'none';
+  if (!email || !senha) { erroEl.style.display='block'; erroEl.textContent='Preencha e-mail e senha.'; return; }
+  firebase.auth().signInWithEmailAndPassword(email, senha)
+    .catch(function(err) {
+      erroEl.style.display = 'block';
+      erroEl.textContent = err.code === 'auth/wrong-password' || err.code === 'auth/invalid-credential'
+        ? 'Senha incorreta.' : err.code === 'auth/user-not-found' ? 'E-mail não encontrado.' : 'Erro: ' + err.code;
     });
-  };
-});
+}
 
-// ── LISTENERS ─────────────────────────────────────────────────────────
+function mudarAba(aba, el) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  el.classList.add('on');
+  ['estudio','equipamentos','patrimonio','alunos'].forEach(function(id){
+    document.getElementById(id).style.display = id === aba ? 'block' : 'none';
+  });
+}
+
 function iniciar() {
-  onSnapshot(query(collection(db,"solicitacoes"), orderBy("enviadoEm","desc")), snap => {
-    const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
+  var u1 = db.collection('solicitacoes').orderBy('enviadoEm','desc').onSnapshot(function(snap) {
+    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
     renderEstudio(docs);
   });
-  onSnapshot(query(collection(db,"emprestimos"), orderBy("enviadoEm","desc")), snap => {
-    const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
+  var u2 = db.collection('emprestimos').orderBy('enviadoEm','desc').onSnapshot(function(snap) {
+    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
     renderEquipamentos(docs);
   });
-  onSnapshot(collection(db,"patrimonio"), snap => {
-    const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
-    CATS = [...new Set(docs.map(d => d.categoria))].filter(Boolean).sort();
+  var u3 = db.collection('patrimonio').onSnapshot(function(snap) {
+    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
+    CATS = [...new Set(docs.map(function(d){ return d.categoria; }))].filter(Boolean).sort();
     popularSelectCat();
     renderPatrimonio(docs);
   });
-  onSnapshot(collection(db,"alunos"), snap => {
-    const docs = []; snap.forEach(d => docs.push({id:d.id,...d.data()}));
+  var u4 = db.collection('alunos').onSnapshot(function(snap) {
+    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
     _todosAlunos = docs;
     renderAlunos(docs);
   });
-  onSnapshot(doc(db,"config","status"), snap => {
-    if (!snap.exists()) return;
-    const d = snap.data();
-    const ckEst = document.getElementById("ckEst"); if (ckEst) ckEst.checked = d.estudioAtivo !== false;
-    const ckEq  = document.getElementById("ckEq");  if (ckEq)  ckEq.checked  = d.equipAtivo  !== false;
-    const me = document.getElementById("msgEst"); if (me) me.value = d.msgEstudio||"";
-    const mq = document.getElementById("msgEq");  if (mq) mq.value = d.msgEquip||"";
+  var u5 = db.collection('config').doc('status').onSnapshot(function(snap) {
+    if (!snap.exists) return;
+    var d = snap.data();
+    var ckEst=document.getElementById('ckEst'); if(ckEst) ckEst.checked = d.estudioAtivo!==false;
+    var ckEq=document.getElementById('ckEq');   if(ckEq)  ckEq.checked  = d.equipAtivo!==false;
+    var me=document.getElementById('msgEst');   if(me) me.value = d.msgEstudio||'';
+    var mq=document.getElementById('msgEq');    if(mq) mq.value = d.msgEquip||'';
   });
+  _unsubscribers = [u1,u2,u3,u4,u5];
 }
 
-// ── HELPERS ───────────────────────────────────────────────────────────
+// ── HELPERS ──────────────────────────────────────────────────────────
 function mkCard(nome, sub, status, dets, btnsEl) {
-  const c = document.createElement("div"); c.className = "card";
-  const top = document.createElement("div"); top.className = "ctop";
-  const inf = document.createElement("div");
-  inf.innerHTML = `<div class="cnome">${nome}</div><div class="csub">${sub}</div>`;
-  const b = document.createElement("span");
-  b.className = "badge " + status.toLowerCase(); b.textContent = status;
+  var c = document.createElement('div'); c.className = 'card';
+  var top = document.createElement('div'); top.className = 'ctop';
+  var inf = document.createElement('div');
+  inf.innerHTML = '<div class="cnome">'+nome+'</div><div class="csub">'+sub+'</div>';
+  var b = document.createElement('span');
+  b.className = 'badge '+status.toLowerCase(); b.textContent = status;
   top.appendChild(inf); top.appendChild(b); c.appendChild(top);
-  const g = document.createElement("div"); g.className = "cgrid";
-  dets.forEach(([lbl, val]) => {
-    const el = document.createElement("div"); el.className = "det";
-    el.innerHTML = `<strong>${lbl}</strong>${val||"—"}`; g.appendChild(el);
+  var g = document.createElement('div'); g.className = 'cgrid';
+  dets.forEach(function(d){
+    var el = document.createElement('div'); el.className = 'det';
+    el.innerHTML = '<strong>'+d[0]+'</strong>'+(d[1]||'—'); g.appendChild(el);
   });
-  c.appendChild(g);
-  if (btnsEl) c.appendChild(btnsEl);
-  return c;
+  c.appendChild(g); if(btnsEl) c.appendChild(btnsEl); return c;
 }
 
 function mkBtns(lista) {
-  const d = document.createElement("div"); d.className = "btns";
-  lista.forEach(b => {
-    const el = document.createElement(b.href ? "a" : "button");
-    el.className = "btn " + b.cls; el.textContent = b.label;
-    if (b.href) { el.href = b.href; el.target = "_blank"; }
-    else el.onclick = b.fn;
+  var d = document.createElement('div'); d.className = 'btns';
+  lista.forEach(function(b){
+    var el = document.createElement(b.href?'a':'button');
+    el.className = 'btn '+b.cls; el.textContent = b.label;
+    if(b.href){ el.href=b.href; el.target='_blank'; } else el.onclick=b.fn;
     d.appendChild(el);
   });
   return d;
 }
 
 function renderSec(cid, titulo, itens, mkFn) {
-  const el = document.getElementById(cid);
-  const p = document.createElement("p"); p.className = "st";
-  p.textContent = `${titulo} (${itens.length})`; el.appendChild(p);
-  if (!itens.length) {
-    const v = document.createElement("div"); v.className = "vazio";
-    v.textContent = "Nenhum registro."; el.appendChild(v); return;
-  }
-  itens.forEach(s => el.appendChild(mkFn(s)));
+  var el = document.getElementById(cid);
+  var p = document.createElement('p'); p.className = 'st';
+  p.textContent = titulo+' ('+itens.length+')'; el.appendChild(p);
+  if (!itens.length) { var v=document.createElement('div'); v.className='vazio'; v.textContent='Nenhum registro.'; el.appendChild(v); return; }
+  itens.forEach(function(s){ el.appendChild(mkFn(s)); });
 }
 
-// ── ESTÚDIO ───────────────────────────────────────────────────────────
+// ── ESTÚDIO ──────────────────────────────────────────────────────────
 function renderEstudio(docs) {
-  const el = document.getElementById("estudio"); el.innerHTML = "";
-  const pend = docs.filter(s => s.status === "Pendente");
-  const apr  = docs.filter(s => s.status === "Aprovado");
-  const rec  = docs.filter(s => s.status === "Recusado");
-  renderSec("estudio","Pendentes",pend, s => mkCard(
-    `${s.nome||""} — ${s.semestre||""} sem.`,
-    `RGM ${s.rgm||""} · ${s.email||""} · ${s.whatsapp||""}`, s.status,
-    [["Tipo",s.tipoEstudio],["Data",s.data],["Horário",s.horario],
-     ["Finalidade",s.finalidade],["Descrição",s.descricao],
-     ["Equipamentos",s.equipamentos],["Participantes",s.participantes]],
-    mkBtns([
-      {label:"✅ Aprovar", cls:"bok", fn:()=>aprovarEst(s)},
-      {label:"❌ Recusar", cls:"bno", fn:()=>recusarEst(s)}
-    ])
-  ));
-  renderSec("estudio","Agendados",apr, s => mkCard(
-    `${s.nome||""} — ${s.semestre||""} sem.`, `RGM ${s.rgm||""}`, s.status,
-    [["Tipo",s.tipoEstudio],["Data",s.data],["Horário",s.horario]],
-    mkBtns([{label:"🖨️ Ver Termo", cls:"broxo", href:`${SU}?acao=termoEstudio&id=${s.firestoreId||s.id}`}])
-  ));
-  renderSec("estudio","Histórico",rec, s => mkCard(
-    s.nome||"", `RGM ${s.rgm||""}`, s.status, [["Data",s.data],["Horário",s.horario]], null));
+  var el = document.getElementById('estudio'); el.innerHTML = '';
+  var pend=docs.filter(function(s){return s.status==='Pendente';});
+  var apr=docs.filter(function(s){return s.status==='Aprovado';});
+  var rec=docs.filter(function(s){return s.status==='Recusado';});
+  renderSec('estudio','Pendentes',pend,function(s){ return mkCard(
+    (s.nome||'')+' — '+(s.semestre||'')+' sem.','RGM '+(s.rgm||'')+' · '+(s.email||'')+' · '+(s.whatsapp||''),s.status,
+    [['Tipo',s.tipoEstudio],['Data',s.data],['Horário',s.horario],['Finalidade',s.finalidade],['Descrição',s.descricao],['Equipamentos',s.equipamentos],['Participantes',s.participantes]],
+    mkBtns([{label:'✅ Aprovar',cls:'bok',fn:function(){aprovarEst(s);}},{label:'❌ Recusar',cls:'bno',fn:function(){recusarEst(s);}}]));
+  });
+  renderSec('estudio','Agendados',apr,function(s){ return mkCard(
+    (s.nome||'')+' — '+(s.semestre||'')+' sem.','RGM '+(s.rgm||''),s.status,
+    [['Tipo',s.tipoEstudio],['Data',s.data],['Horário',s.horario]],
+    mkBtns([{label:'🖨️ Ver Termo',cls:'broxo',href:SU+'?acao=termoEstudio&id='+(s.firestoreId||s.id)}]));
+  });
+  renderSec('estudio','Histórico',rec,function(s){ return mkCard(s.nome||'','RGM '+(s.rgm||''),s.status,[['Data',s.data],['Horário',s.horario]],null); });
+}
+function aprovarEst(s) {
+  if(!confirm('Aprovar reserva de '+s.nome+'?')) return;
+  db.collection('solicitacoes').doc(s.id).update({status:'Aprovado'});
+  fetch(SU+'?acao=aprovar&id='+encodeURIComponent(s.firestoreId||s.id)).catch(function(){});
+  alert('Aprovado!');
+}
+function recusarEst(s) {
+  if(!confirm('Recusar reserva de '+s.nome+'?')) return;
+  db.collection('solicitacoes').doc(s.id).update({status:'Recusado'});
+  fetch(SU+'?acao=recusar&id='+encodeURIComponent(s.firestoreId||s.id)).catch(function(){});
+  alert('Recusado.');
 }
 
-async function aprovarEst(s) {
-  if (!confirm(`Aprovar reserva de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"solicitacoes",s.id), {status:"Aprovado"});
-  fetch(`${SU}?acao=aprovar&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
-  alert("Aprovado! E-mail enviado ao aluno.");
-}
-async function recusarEst(s) {
-  if (!confirm(`Recusar reserva de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"solicitacoes",s.id), {status:"Recusado"});
-  fetch(`${SU}?acao=recusar&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
-  alert("Recusado. Aluno notificado.");
-}
-
-// ── EQUIPAMENTOS ──────────────────────────────────────────────────────
+// ── EQUIPAMENTOS ─────────────────────────────────────────────────────
 function renderEquipamentos(docs) {
-  const el = document.getElementById("equipamentos"); el.innerHTML = "";
-  const pend = docs.filter(s => s.status === "Pendente");
-  const apr  = docs.filter(s => s.status === "Aprovado");
-  const rec  = docs.filter(s => s.status === "Recusado");
-  renderSec("equipamentos","Pendentes",pend, s => mkCard(
-    s.nome||"", `RGM ${s.rgm||""} · ${s.email||""}`, s.status,
-    [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],
-     ["Equipamentos",s.equipamentos],["Patrimônios",s.patrimonios]],
-    mkBtns([
-      {label:"✅ Aprovar e enviar termo", cls:"bok", fn:()=>aprovarEq(s)},
-      {label:"❌ Recusar", cls:"bno", fn:()=>recusarEq(s)}
-    ])
-  ));
-  renderSec("equipamentos","Aprovados",apr, s => mkCard(
-    s.nome||"", `RGM ${s.rgm||""}`, s.status,
-    [["Retirada",s.dataRetirada],["Devolução",s.dataDevolucao],["Equipamentos",s.equipamentos]],
-    mkBtns([{label:"🖨️ Ver Termo", cls:"broxo", href:`${SU}?acao=termo&id=${s.firestoreId||s.id}`}])
-  ));
-  renderSec("equipamentos","Histórico",rec, s => mkCard(
-    s.nome||"", `RGM ${s.rgm||""}`, s.status, [["Retirada",s.dataRetirada]], null));
+  var el = document.getElementById('equipamentos'); el.innerHTML = '';
+  var pend=docs.filter(function(s){return s.status==='Pendente';});
+  var apr=docs.filter(function(s){return s.status==='Aprovado';});
+  var rec=docs.filter(function(s){return s.status==='Recusado';});
+  renderSec('equipamentos','Pendentes',pend,function(s){ return mkCard(
+    s.nome||'','RGM '+(s.rgm||'')+' · '+(s.email||''),s.status,
+    [['Retirada',s.dataRetirada],['Devolução',s.dataDevolucao],['Equipamentos',s.equipamentos],['Patrimônios',s.patrimonios]],
+    mkBtns([{label:'✅ Aprovar e enviar termo',cls:'bok',fn:function(){aprovarEq(s);}},{label:'❌ Recusar',cls:'bno',fn:function(){recusarEq(s);}}]));
+  });
+  renderSec('equipamentos','Aprovados',apr,function(s){ return mkCard(
+    s.nome||'','RGM '+(s.rgm||''),s.status,[['Retirada',s.dataRetirada],['Devolução',s.dataDevolucao],['Equipamentos',s.equipamentos]],
+    mkBtns([{label:'🖨️ Ver Termo',cls:'broxo',href:SU+'?acao=termo&id='+(s.firestoreId||s.id)}]));
+  });
+  renderSec('equipamentos','Histórico',rec,function(s){ return mkCard(s.nome||'','RGM '+(s.rgm||''),s.status,[['Retirada',s.dataRetirada]],null); });
+}
+function aprovarEq(s) {
+  if(!confirm('Aprovar empréstimo de '+s.nome+'?')) return;
+  db.collection('emprestimos').doc(s.id).update({status:'Aprovado'});
+  fetch(SU+'?acao=aprovarEquip&id='+encodeURIComponent(s.firestoreId||s.id)).catch(function(){});
+  alert('Aprovado! Termo enviado.');
+}
+function recusarEq(s) {
+  if(!confirm('Recusar empréstimo de '+s.nome+'?')) return;
+  db.collection('emprestimos').doc(s.id).update({status:'Recusado'});
+  fetch(SU+'?acao=recusarEquip&id='+encodeURIComponent(s.firestoreId||s.id)).catch(function(){});
+  alert('Recusado.');
 }
 
-async function aprovarEq(s) {
-  if (!confirm(`Aprovar empréstimo de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"emprestimos",s.id), {status:"Aprovado"});
-  fetch(`${SU}?acao=aprovarEquip&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
-  alert("Aprovado! Termo enviado por e-mail.");
-}
-async function recusarEq(s) {
-  if (!confirm(`Recusar empréstimo de ${s.nome}?`)) return;
-  await updateDoc(doc(db,"emprestimos",s.id), {status:"Recusado"});
-  fetch(`${SU}?acao=recusarEquip&id=${encodeURIComponent(s.firestoreId||s.id)}`).catch(()=>{});
-  alert("Recusado. Aluno notificado.");
-}
-
-// ── PATRIMÔNIO ────────────────────────────────────────────────────────
+// ── PATRIMÔNIO ───────────────────────────────────────────────────────
 function popularSelectCat() {
-  const sel = document.getElementById("mCat");
-  const val = sel ? sel.value : "";
-  if (sel) { sel.innerHTML = ""; CATS.forEach(c => { const o = document.createElement("option"); o.value = c; o.textContent = c; sel.appendChild(o); }); if (val && CATS.includes(val)) sel.value = val; }
+  var sel = document.getElementById('mCat'); if(!sel) return;
+  var val = sel.value; sel.innerHTML = '';
+  CATS.forEach(function(c){ var o=document.createElement('option'); o.value=c; o.textContent=c; sel.appendChild(o); });
+  if(val && CATS.includes(val)) sel.value = val;
 }
 
 function renderPatrimonio(docs) {
-  const el = document.getElementById("patrimonio"); el.innerHTML = "";
+  var el = document.getElementById('patrimonio'); el.innerHTML = '';
 
-  // Config disponibilidade
-  const cfg = document.createElement("div"); cfg.className = "cfg";
-  cfg.innerHTML = "<h3>Disponibilidade</h3>";
-  const lEst = document.createElement("label"); lEst.className = "sw";
-  lEst.innerHTML = "<input type='checkbox' id='ckEst'> Estúdios liberados para agendamento";
-  const mEst = document.createElement("textarea"); mEst.className = "cmsg"; mEst.id = "msgEst"; mEst.placeholder = "Mensagem quando bloqueado...";
-  const lEq  = document.createElement("label"); lEq.className = "sw";
-  lEq.innerHTML = "<input type='checkbox' id='ckEq'> Equipamentos liberados para empréstimo";
-  const mEq  = document.createElement("textarea"); mEq.className = "cmsg"; mEq.id = "msgEq"; mEq.placeholder = "Mensagem quando bloqueado...";
-  const bSv  = document.createElement("button"); bSv.className = "btn broxo"; bSv.textContent = "Salvar disponibilidade"; bSv.onclick = salvarStatus;
+  // Disponibilidade
+  var cfg = document.createElement('div'); cfg.className = 'cfg';
+  cfg.innerHTML = '<h3>Disponibilidade</h3>';
+  var lEst=document.createElement('label'); lEst.className='sw'; lEst.innerHTML="<input type='checkbox' id='ckEst'> Estúdios liberados";
+  var mEst=document.createElement('textarea'); mEst.className='cmsg'; mEst.id='msgEst'; mEst.placeholder='Mensagem quando bloqueado...';
+  var lEq=document.createElement('label'); lEq.className='sw'; lEq.innerHTML="<input type='checkbox' id='ckEq'> Equipamentos liberados";
+  var mEq=document.createElement('textarea'); mEq.className='cmsg'; mEq.id='msgEq'; mEq.placeholder='Mensagem quando bloqueado...';
+  var bSv=document.createElement('button'); bSv.className='btn broxo'; bSv.textContent='Salvar disponibilidade'; bSv.onclick=salvarStatus;
   cfg.appendChild(lEst); cfg.appendChild(mEst); cfg.appendChild(lEq); cfg.appendChild(mEq); cfg.appendChild(bSv);
   el.appendChild(cfg);
 
   // RGMs
-  const rgmBox = document.createElement("div"); rgmBox.className = "cfg";
-  rgmBox.innerHTML = "<h3>RGMs Autorizados (câmeras restritas)</h3><p style='font-size:12px;color:#6b6b6b;margin-bottom:12px'>Alunos nesta lista acessam equipamentos marcados como Restrito por RGM.</p>";
-  const rgmCount = document.createElement("p"); rgmCount.id = "rgmCount"; rgmCount.style.cssText = "font-size:12px;color:var(--roxo2);font-weight:600;margin-bottom:10px";
+  var rgmBox=document.createElement('div'); rgmBox.className='cfg';
+  rgmBox.innerHTML='<h3>RGMs Autorizados (equipamentos restritos)</h3><p style="font-size:12px;color:#6b6b6b;margin-bottom:12px">Alunos nesta lista acessam itens marcados como Restrito por RGM.</p>';
+  var rgmCount=document.createElement('p'); rgmCount.id='rgmCount'; rgmCount.style.cssText='font-size:12px;color:var(--roxo2);font-weight:600;margin-bottom:10px';
   rgmBox.appendChild(rgmCount);
-  const rgmRow = document.createElement("div"); rgmRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap";
-  const rgmFile = document.createElement("input"); rgmFile.type = "file"; rgmFile.accept = ".xlsx"; rgmFile.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px";
-  const rgmUpBtn = document.createElement("button"); rgmUpBtn.className = "btn broxo"; rgmUpBtn.textContent = "Importar planilha"; rgmUpBtn.onclick = () => importarRGMs(rgmFile);
-  const rgmClrBtn = document.createElement("button"); rgmClrBtn.className = "btn bno"; rgmClrBtn.textContent = "Limpar lista"; rgmClrBtn.onclick = limparRGMs;
+  var rgmRow=document.createElement('div'); rgmRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap';
+  var rgmFile=document.createElement('input'); rgmFile.type='file'; rgmFile.accept='.xlsx'; rgmFile.style.cssText='flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px';
+  var rgmUpBtn=document.createElement('button'); rgmUpBtn.className='btn broxo'; rgmUpBtn.textContent='Importar planilha'; rgmUpBtn.onclick=function(){ importarRGMs(rgmFile); };
+  var rgmClrBtn=document.createElement('button'); rgmClrBtn.className='btn bno'; rgmClrBtn.textContent='Limpar'; rgmClrBtn.onclick=limparRGMs;
   rgmRow.appendChild(rgmFile); rgmRow.appendChild(rgmUpBtn); rgmRow.appendChild(rgmClrBtn);
   rgmBox.appendChild(rgmRow); el.appendChild(rgmBox);
-  getDoc(doc(db,"config","rgms4sem")).then(d => {
-    const count = d.exists() ? (d.data().rgms||[]).length : 0;
-    document.getElementById("rgmCount").textContent = count + " RGMs autorizados.";
+  db.collection('config').doc('rgms4sem').get().then(function(d){
+    document.getElementById('rgmCount').textContent = (d.exists?(d.data().rgms||[]).length:0)+' RGMs autorizados.';
   });
 
   // Categorias
-  const catsBox = document.createElement("div"); catsBox.className = "cats-box";
-  catsBox.innerHTML = "<h3>Categorias</h3>";
-  const tagsDiv = document.createElement("div");
-  CATS.forEach(cat => {
-    const tag = document.createElement("span"); tag.className = "cat-tag";
-    tag.innerHTML = `${cat} <button class="cat-edit" title="Renomear">✏️</button><button class="cat-del" title="Remover">×</button>`;
-    tag.querySelector(".cat-del").onclick = () => removerCategoria(cat, docs);
-    tag.querySelector(".cat-edit").onclick = () => { const n = prompt("Novo nome:", cat); if (n && n.trim() && n.trim()!==cat) renomearCategoria(cat,n.trim(),docs); };
+  var catsBox=document.createElement('div'); catsBox.className='cats-box';
+  catsBox.innerHTML='<h3>Categorias</h3>';
+  var tagsDiv=document.createElement('div');
+  CATS.forEach(function(cat){
+    var tag=document.createElement('span'); tag.className='cat-tag';
+    tag.innerHTML=cat+' <button class="cat-edit" title="Renomear">✏️</button><button class="cat-del" title="Remover">×</button>';
+    tag.querySelector('.cat-del').onclick=function(){ removerCategoria(cat,docs); };
+    tag.querySelector('.cat-edit').onclick=function(){ var n=prompt('Novo nome:',cat); if(n&&n.trim()&&n.trim()!==cat) renomearCategoria(cat,n.trim(),docs); };
     tagsDiv.appendChild(tag);
   });
   catsBox.appendChild(tagsDiv);
-  const addRow = document.createElement("div"); addRow.className = "cat-input-row";
-  const catInp = document.createElement("input"); catInp.type = "text"; catInp.placeholder = "Nova categoria..."; catInp.id = "novaCat";
-  const catBtn = document.createElement("button"); catBtn.textContent = "Adicionar";
-  catBtn.onclick = () => { const n = catInp.value.trim(); if (!n) return; if (!CATS.includes(n)) { CATS.push(n); CATS.sort(); popularSelectCat(); } catInp.value = ""; alert(`Categoria "${n}" disponível. Adicione equipamentos nela.`); };
+  var addRow=document.createElement('div'); addRow.className='cat-input-row';
+  var catInp=document.createElement('input'); catInp.type='text'; catInp.placeholder='Nova categoria...'; catInp.id='novaCat';
+  var catBtn=document.createElement('button'); catBtn.textContent='Adicionar';
+  catBtn.onclick=function(){ var n=catInp.value.trim(); if(!n) return; if(!CATS.includes(n)){CATS.push(n);CATS.sort();popularSelectCat();} catInp.value=''; alert('"'+n+'" disponível.'); };
   addRow.appendChild(catInp); addRow.appendChild(catBtn); catsBox.appendChild(addRow); el.appendChild(catsBox);
 
   // Botão adicionar
-  const ab = document.createElement("button"); ab.className = "abtn"; ab.textContent = "+ Adicionar equipamento"; ab.onclick = () => abrirModal(null);
+  var ab=document.createElement('button'); ab.className='abtn'; ab.textContent='+ Adicionar equipamento'; ab.onclick=function(){abrirModal(null);};
   el.appendChild(ab);
 
-  // eCards por categoria
-  const cats = {};
-  docs.forEach(p => {
-    if (!cats[p.categoria]) cats[p.categoria] = {};
-    const key = (p.descricao||"") + "||" + (p.marca||"");
-    if (!cats[p.categoria][key]) cats[p.categoria][key] = [];
+  // eCards
+  var cats={};
+  docs.forEach(function(p){
+    if(!cats[p.categoria]) cats[p.categoria]={};
+    var key=(p.descricao||'')+'||'+(p.marca||'');
+    if(!cats[p.categoria][key]) cats[p.categoria][key]=[];
     cats[p.categoria][key].push(p);
   });
-
-  Object.keys(cats).sort().forEach(cat => {
-    const totalCat = Object.values(cats[cat]).reduce((a,arr)=>a+arr.length,0);
-    const t = document.createElement("p"); t.className = "st"; t.textContent = `${cat} (${totalCat})`; el.appendChild(t);
-    const g = document.createElement("div"); g.className = "pgrid";
-    Object.keys(cats[cat]).sort().forEach(key => {
-      const unidades = cats[cat][key];
-      const modelo = unidades[0];
-      const restrito = unidades.some(u => u.restrito4sem);
-      const disponiveis = unidades.filter(u => u.status === "Disponivel").length;
-      const icone = ICONES[cat] || ICONES[modelo.descricao] || "📦";
-      const c = document.createElement("div"); c.className = "ecard";
-      c.innerHTML =
-        (restrito ? '<span class="ecard-restrito" title="Restrito por RGM">🔒</span>' : '') +
-        `<span class="ecard-badge">${disponiveis}/${unidades.length}</span>` +
-        `<span class="ecard-icon">${icone}</span>` +
-        `<div class="ecard-nome">${modelo.descricao}</div>` +
-        `<div class="ecard-info">${modelo.marca||""}</div>`;
-      c.onclick = () => abrirEmodal(cat, modelo, unidades, restrito, icone);
+  Object.keys(cats).sort().forEach(function(cat){
+    var totalCat=Object.values(cats[cat]).reduce(function(a,arr){return a+arr.length;},0);
+    var t=document.createElement('p'); t.className='st'; t.textContent=cat+' ('+totalCat+')'; el.appendChild(t);
+    var g=document.createElement('div'); g.className='pgrid';
+    Object.keys(cats[cat]).sort().forEach(function(key){
+      var unidades=cats[cat][key], modelo=unidades[0];
+      var restrito=unidades.some(function(u){return u.restrito4sem;});
+      var disponiveis=unidades.filter(function(u){return u.status==='Disponivel';}).length;
+      var icone=ICONES[cat]||ICONES[modelo.descricao]||'📦';
+      var c=document.createElement('div'); c.className='ecard';
+      c.innerHTML=(restrito?'<span class="ecard-restrito" title="Restrito por RGM">🔒</span>':'')+
+        '<span class="ecard-badge">'+disponiveis+'/'+unidades.length+'</span>'+
+        '<span class="ecard-icon">'+icone+'</span>'+
+        '<div class="ecard-nome">'+modelo.descricao+'</div>'+
+        '<div class="ecard-info">'+(modelo.marca||'')+'</div>';
+      c.onclick=(function(cat,modelo,unidades,restrito,icone){ return function(){ abrirEmodal(cat,modelo,unidades,restrito,icone); }; })(cat,modelo,unidades,restrito,icone);
       g.appendChild(c);
     });
     el.appendChild(g);
@@ -521,277 +445,237 @@ function renderPatrimonio(docs) {
 }
 
 function abrirEmodal(cat, modelo, unidades, restrito, icone) {
-  document.getElementById("emodalIcon").textContent = icone;
-  document.getElementById("emodalTitle").textContent = modelo.descricao;
-  document.getElementById("emodalSub").textContent = `${modelo.marca||""} · ${cat}${restrito?" · 🔒 Restrito por RGM":""}`;
-  const patsDiv = document.getElementById("emodalPats"); patsDiv.innerHTML = "";
-  unidades.forEach((u, idx) => {
-    const row = document.createElement("div"); row.className = "pat-row";
-    const num = document.createElement("span"); num.className = "pat-num"; num.textContent = (idx+1)+".";
-    const inp = document.createElement("input"); inp.className = "pat-inp"; inp.type = "text";
-    inp.value = u.patrimonio||""; inp.placeholder = "Nº patrimônio"; inp.dataset.id = u.id;
-    inp.onblur = async function() { if (this.value !== (u.patrimonio||"")) { await updateDoc(doc(db,"patrimonio",this.dataset.id),{patrimonio:this.value}); u.patrimonio = this.value; } };
-    const sc = u.status==="Disponivel"?"sdisp":u.status==="Manutencao"?"smanut":"semp";
-    const badge = document.createElement("span"); badge.className = "pat-status " + sc;
-    badge.textContent = u.status==="Disponivel"?"OK":u.status==="Manutencao"?"Manut.":"Emp.";
-    badge.onclick = async function() {
-      const prox = u.status==="Disponivel"?"Manutencao":u.status==="Manutencao"?"Emprestado":"Disponivel";
-      await updateDoc(doc(db,"patrimonio",u.id),{status:prox}); u.status = prox;
-      this.className = "pat-status "+(prox==="Disponivel"?"sdisp":prox==="Manutencao"?"smanut":"semp");
-      this.textContent = prox==="Disponivel"?"OK":prox==="Manutencao"?"Manut.":"Emp.";
-    };
-    const bDel = document.createElement("button"); bDel.className = "pat-del"; bDel.textContent = "×";
-    bDel.onclick = async () => { if(confirm("Remover?")) { await deleteDoc(doc(db,"patrimonio",u.id)); abrirEmodal(cat,modelo,unidades.filter(x=>x.id!==u.id),restrito,icone); } };
+  document.getElementById('emodalIcon').textContent = icone;
+  document.getElementById('emodalTitle').textContent = modelo.descricao;
+  document.getElementById('emodalSub').textContent = (modelo.marca||'')+' · '+cat+(restrito?' · 🔒 Restrito por RGM':'');
+  var patsDiv=document.getElementById('emodalPats'); patsDiv.innerHTML='';
+  unidades.forEach(function(u,idx){
+    var row=document.createElement('div'); row.className='pat-row';
+    var num=document.createElement('span'); num.className='pat-num'; num.textContent=(idx+1)+'.';
+    var inp=document.createElement('input'); inp.className='pat-inp'; inp.type='text';
+    inp.value=u.patrimonio||''; inp.placeholder='Nº patrimônio'; inp.dataset.id=u.id;
+    inp.onblur=function(){ if(this.value!==(u.patrimonio||'')){ db.collection('patrimonio').doc(this.dataset.id).update({patrimonio:this.value}); u.patrimonio=this.value; } };
+    var sc=u.status==='Disponivel'?'sdisp':u.status==='Manutencao'?'smanut':'semp';
+    var badge=document.createElement('span'); badge.className='pat-status '+sc;
+    badge.textContent=u.status==='Disponivel'?'OK':u.status==='Manutencao'?'Manut.':'Emp.';
+    badge.onclick=(function(u,badge){ return function(){
+      var prox=u.status==='Disponivel'?'Manutencao':u.status==='Manutencao'?'Emprestado':'Disponivel';
+      db.collection('patrimonio').doc(u.id).update({status:prox}); u.status=prox;
+      badge.className='pat-status '+(prox==='Disponivel'?'sdisp':prox==='Manutencao'?'smanut':'semp');
+      badge.textContent=prox==='Disponivel'?'OK':prox==='Manutencao'?'Manut.':'Emp.';
+    }; })(u,badge);
+    var bDel=document.createElement('button'); bDel.className='pat-del'; bDel.textContent='×';
+    bDel.onclick=(function(u,unidades,cat,modelo,restrito,icone){ return function(){
+      if(confirm('Remover?')){ db.collection('patrimonio').doc(u.id).delete(); abrirEmodal(cat,modelo,unidades.filter(function(x){return x.id!==u.id;}),restrito,icone); }
+    }; })(u,unidades,cat,modelo,restrito,icone);
     row.appendChild(num); row.appendChild(inp); row.appendChild(badge); row.appendChild(bDel);
     patsDiv.appendChild(row);
   });
-  const btnsDiv = document.getElementById("emodalBtns"); btnsDiv.innerHTML = "";
-  const bAdd = document.createElement("button"); bAdd.className = "btn broxo"; bAdd.textContent = "+ Adicionar unidade";
-  bAdd.onclick = () => { document.getElementById("emodal").classList.remove("on"); abrirModal({categoria:cat,descricao:modelo.descricao,marca:modelo.marca,patrimonio:"",status:"Disponivel",restrito4sem:restrito}); };
-  const bEdit = document.createElement("button"); bEdit.className = "btn bno"; bEdit.textContent = "✏️ Editar modelo";
-  bEdit.onclick = () => { document.getElementById("emodal").classList.remove("on"); abrirModal({...modelo}); };
+  var btnsDiv=document.getElementById('emodalBtns'); btnsDiv.innerHTML='';
+  var bAdd=document.createElement('button'); bAdd.className='btn broxo'; bAdd.textContent='+ Adicionar unidade';
+  bAdd.onclick=function(){ document.getElementById('emodal').classList.remove('on'); abrirModal({categoria:cat,descricao:modelo.descricao,marca:modelo.marca,patrimonio:'',status:'Disponivel',restrito4sem:restrito}); };
+  var bEdit=document.createElement('button'); bEdit.className='btn bno'; bEdit.textContent='✏️ Editar modelo';
+  bEdit.onclick=function(){ document.getElementById('emodal').classList.remove('on'); abrirModal(Object.assign({},modelo)); };
   btnsDiv.appendChild(bAdd); btnsDiv.appendChild(bEdit);
-  document.getElementById("emodal").classList.add("on");
+  document.getElementById('emodal').classList.add('on');
 }
 
-async function salvarStatus() {
-  const ce=document.getElementById("ckEst"), cq=document.getElementById("ckEq");
-  const me=document.getElementById("msgEst"), mq=document.getElementById("msgEq");
-  await setDoc(doc(db,"config","status"),{estudioAtivo:ce?ce.checked:true,msgEstudio:me?me.value:"",equipAtivo:cq?cq.checked:true,msgEquip:mq?mq.value:""});
-  alert("Disponibilidade salva!");
+function salvarStatus() {
+  var ce=document.getElementById('ckEst'), cq=document.getElementById('ckEq');
+  var me=document.getElementById('msgEst'), mq=document.getElementById('msgEq');
+  db.collection('config').doc('status').set({estudioAtivo:ce?ce.checked:true,msgEstudio:me?me.value:'',equipAtivo:cq?cq.checked:true,msgEquip:mq?mq.value:''});
+  alert('Disponibilidade salva!');
 }
 
-async function renomearCategoria(antigo, novo, docs) {
-  if (!confirm(`Renomear "${antigo}" → "${novo}"?`)) return;
-  const batch = writeBatch(db);
-  docs.filter(d=>d.categoria===antigo).forEach(i=>batch.update(doc(db,"patrimonio",i.id),{categoria:novo}));
-  await batch.commit(); alert(`Categoria renomeada.`);
+function renomearCategoria(antigo, novo, docs) {
+  if(!confirm('Renomear "'+antigo+'" → "'+novo+'"?')) return;
+  var batch=db.batch();
+  docs.filter(function(d){return d.categoria===antigo;}).forEach(function(i){ batch.update(db.collection('patrimonio').doc(i.id),{categoria:novo}); });
+  batch.commit().then(function(){ alert('Renomeado.'); });
 }
 
-async function removerCategoria(cat, docs) {
-  const itens = docs.filter(d=>d.categoria===cat);
-  if (!confirm(`Remover categoria "${cat}"${itens.length?` e seus ${itens.length} equipamento(s)`:""}?`)) return;
-  const batch = writeBatch(db);
-  itens.forEach(i=>batch.delete(doc(db,"patrimonio",i.id)));
-  await batch.commit();
+function removerCategoria(cat, docs) {
+  var itens=docs.filter(function(d){return d.categoria===cat;});
+  if(!confirm('Remover "'+cat+'"'+(itens.length?' e seus '+itens.length+' equipamento(s)':'')+' ?')) return;
+  var batch=db.batch();
+  itens.forEach(function(i){ batch.delete(db.collection('patrimonio').doc(i.id)); });
+  batch.commit();
 }
 
 function abrirModal(item) {
-  document.getElementById("mTitulo").textContent = item?.id ? "Editar Equipamento" : "Novo Equipamento";
-  document.getElementById("mDocId").value  = item?.id || "";
-  document.getElementById("mCat").value    = item?.categoria || (CATS[0]||"");
-  document.getElementById("mDesc").value   = item?.descricao || "";
-  document.getElementById("mMarca").value  = item?.marca || "";
-  document.getElementById("mPat").value    = item?.patrimonio || "";
-  document.getElementById("mStatus").value = item?.status || "Disponivel";
-  document.getElementById("mRestrito").checked = !!item?.restrito4sem;
-  document.getElementById("modal").classList.add("on");
+  document.getElementById('mTitulo').textContent = item&&item.id ? 'Editar Equipamento' : 'Novo Equipamento';
+  document.getElementById('mDocId').value  = item&&item.id ? item.id : '';
+  document.getElementById('mCat').value    = item ? (item.categoria||(CATS[0]||'')) : (CATS[0]||'');
+  document.getElementById('mDesc').value   = item ? (item.descricao||'') : '';
+  document.getElementById('mMarca').value  = item ? (item.marca||'') : '';
+  document.getElementById('mPat').value    = item ? (item.patrimonio||'') : '';
+  document.getElementById('mStatus').value = item ? (item.status||'Disponivel') : 'Disponivel';
+  document.getElementById('mRestrito').checked = item ? !!item.restrito4sem : false;
+  document.getElementById('modal').classList.add('on');
 }
 
-document.getElementById("bCan").onclick = () => document.getElementById("modal").classList.remove("on");
-document.getElementById("bSalv").onclick = async () => {
-  const id = document.getElementById("mDocId").value;
-  const data = {
-    categoria:   document.getElementById("mCat").value,
-    descricao:   document.getElementById("mDesc").value,
-    marca:       document.getElementById("mMarca").value,
-    patrimonio:  document.getElementById("mPat").value,
-    status:      document.getElementById("mStatus").value,
-    restrito4sem:document.getElementById("mRestrito").checked
-  };
-  if (id) await updateDoc(doc(db,"patrimonio",id),data);
-  else    await addDoc(collection(db,"patrimonio"),data);
-  document.getElementById("modal").classList.remove("on");
-};
+function fecharModal() { document.getElementById('modal').classList.remove('on'); }
 
-async function deletarItem(id) {
-  if (!confirm("Remover?")) return;
-  await deleteDoc(doc(db,"patrimonio",id));
+function salvarEquip() {
+  var id=document.getElementById('mDocId').value;
+  var data={categoria:document.getElementById('mCat').value,descricao:document.getElementById('mDesc').value,
+    marca:document.getElementById('mMarca').value,patrimonio:document.getElementById('mPat').value,
+    status:document.getElementById('mStatus').value,restrito4sem:document.getElementById('mRestrito').checked};
+  if(id) db.collection('patrimonio').doc(id).update(data);
+  else   db.collection('patrimonio').add(data);
+  fecharModal();
 }
 
-// ── ALUNOS ────────────────────────────────────────────────────────────
+// ── ALUNOS ───────────────────────────────────────────────────────────
 function renderAlunos(docs) {
-  const el = document.getElementById("alunos"); el.innerHTML = "";
-
-  const header = document.createElement("div"); header.className = "cfg";
-  const total = docs.length, bloq = docs.filter(d=>d.bloqueado).length;
-  header.innerHTML = `<h3>Gerenciar Alunos</h3><p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">${total} alunos · ${bloq} bloqueados</p>`;
-
-  // Upload
-  const upRow = document.createElement("div"); upRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px";
-  const fileIn = document.createElement("input"); fileIn.type = "file"; fileIn.accept = ".xlsx";
-  fileIn.style.cssText = "flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px";
-  const upBtn = document.createElement("button"); upBtn.className = "btn broxo"; upBtn.textContent = "Importar planilha";
-  upBtn.onclick = () => importarAlunos(fileIn);
+  var el=document.getElementById('alunos'); el.innerHTML='';
+  var total=docs.length, bloq=docs.filter(function(d){return d.bloqueado;}).length;
+  var header=document.createElement('div'); header.className='cfg';
+  header.innerHTML='<h3>Gerenciar Alunos</h3><p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">'+total+' alunos · '+bloq+' bloqueados</p>';
+  var upRow=document.createElement('div'); upRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px';
+  var fileIn=document.createElement('input'); fileIn.type='file'; fileIn.accept='.xlsx'; fileIn.style.cssText='flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px;font-size:13px';
+  var upBtn=document.createElement('button'); upBtn.className='btn broxo'; upBtn.textContent='Importar planilha'; upBtn.onclick=function(){importarAlunos(fileIn);};
   upRow.appendChild(fileIn); upRow.appendChild(upBtn); header.appendChild(upRow);
-
-  // Ações em massa
-  const massRow = document.createElement("div"); massRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px";
-  const bLib = document.createElement("button"); bLib.className = "btn bok"; bLib.textContent = "✅ Liberar todos";
-  bLib.onclick = () => toggleTodos(docs, false);
-  const bBlkS = document.createElement("button"); bBlkS.className = "btn bverm"; bBlkS.textContent = "🚫 Bloquear semestre...";
-  bBlkS.onclick = () => { const s = prompt("Qual semestre bloquear? (ex: 4)"); if(s) toggleSemestre(docs,s.trim(),true); };
-  const bLibS = document.createElement("button"); bLibS.className = "btn bno"; bLibS.textContent = "Liberar semestre...";
-  bLibS.onclick = () => { const s = prompt("Qual semestre liberar?"); if(s) toggleSemestre(docs,s.trim(),false); };
-  massRow.appendChild(bLib); massRow.appendChild(bBlkS); massRow.appendChild(bLibS);
-  header.appendChild(massRow);
-
-  // Busca
-  const busca = document.createElement("input"); busca.type = "text"; busca.placeholder = "Buscar por nome ou RGM...";
-  busca.style.cssText = "width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 12px;font-size:13px;outline:none";
-  busca.oninput = function() { renderListaAlunos(docs, lista, this.value); };
+  var massRow=document.createElement('div'); massRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;margin-bottom:10px';
+  var bLib=document.createElement('button'); bLib.className='btn bok'; bLib.textContent='✅ Liberar todos'; bLib.onclick=function(){toggleTodos(docs,false);};
+  var bBlkS=document.createElement('button'); bBlkS.className='btn bverm'; bBlkS.textContent='🚫 Bloquear semestre...'; bBlkS.onclick=function(){var s=prompt('Qual semestre bloquear?'); if(s) toggleSemestre(docs,s.trim(),true);};
+  var bLibS=document.createElement('button'); bLibS.className='btn bno'; bLibS.textContent='Liberar semestre...'; bLibS.onclick=function(){var s=prompt('Qual semestre liberar?'); if(s) toggleSemestre(docs,s.trim(),false);};
+  massRow.appendChild(bLib); massRow.appendChild(bBlkS); massRow.appendChild(bLibS); header.appendChild(massRow);
+  var busca=document.createElement('input'); busca.type='text'; busca.placeholder='Buscar por nome ou RGM...';
+  busca.style.cssText='width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 12px;font-size:13px;outline:none';
+  var lista=document.createElement('div'); lista.id='listaAlunos';
+  busca.oninput=function(){renderListaAlunos(docs,lista,this.value);};
   header.appendChild(busca); el.appendChild(header);
-
-  const lista = document.createElement("div"); lista.id = "listaAlunos";
-  renderListaAlunos(docs, lista, ""); el.appendChild(lista);
+  renderListaAlunos(docs,lista,''); el.appendChild(lista);
 }
 
 function renderListaAlunos(docs, container, filtro) {
-  container.innerHTML = "";
-  const f = filtro.toLowerCase();
-  const filtrados = docs.filter(d => !f || (d.nome||"").toLowerCase().includes(f) || (d.rgm||"").includes(f))
-    .sort((a,b) => (a.nome||"").localeCompare(b.nome||""));
-  if (!filtrados.length) { container.innerHTML = "<div class='vazio'>Nenhum aluno encontrado.</div>"; return; }
-  const sems = {};
-  filtrados.forEach(d => { const s = d.semestre||"?"; if(!sems[s]) sems[s]=[]; sems[s].push(d); });
-  Object.keys(sems).sort().forEach(sem => {
-    const t = document.createElement("p"); t.className = "st";
-    t.textContent = `${sem}º Semestre (${sems[sem].length})`; container.appendChild(t);
-    const grid = document.createElement("div"); grid.className = "agrid";
-    sems[sem].forEach(d => {
-      const c = document.createElement("div");
-      c.className = "acard" + (d.bloqueado?" bloqueado":"");
-      c.innerHTML = `<h3>${d.nome||""}</h3><p>RGM: <strong>${d.rgm||""}</strong></p><p>E-mail: ${(d.rgm||"") + "@alunos.unigrancapital.com.br"}</p>`;
-      const badge = document.createElement("span"); badge.className = d.bloqueado?"semp":"sdisp";
-      badge.textContent = d.bloqueado?"🚫 Bloqueado":"✅ Ativo"; badge.style.marginTop="8px";
+  container.innerHTML='';
+  var f=filtro.toLowerCase();
+  var filtrados=docs.filter(function(d){return !f||((d.nome||'').toLowerCase().includes(f))||(d.rgm||'').includes(f);})
+    .sort(function(a,b){return (a.nome||'').localeCompare(b.nome||'');});
+  if(!filtrados.length){container.innerHTML="<div class='vazio'>Nenhum aluno encontrado.</div>";return;}
+  var sems={};
+  filtrados.forEach(function(d){var s=d.semestre||'?'; if(!sems[s]) sems[s]=[]; sems[s].push(d);});
+  Object.keys(sems).sort().forEach(function(sem){
+    var t=document.createElement('p'); t.className='st'; t.textContent=sem+'º Semestre ('+sems[sem].length+')'; container.appendChild(t);
+    var grid=document.createElement('div'); grid.className='agrid';
+    sems[sem].forEach(function(d){
+      var c=document.createElement('div'); c.className='acard'+(d.bloqueado?' bloqueado':'');
+      c.innerHTML='<h3>'+(d.nome||'')+'</h3><p>RGM: <strong>'+(d.rgm||'')+'</strong></p><p>E-mail: '+(d.rgm||'')+'@alunos.unigrancapital.com.br</p>';
+      var badge=document.createElement('span'); badge.className=d.bloqueado?'semp':'sdisp';
+      badge.textContent=d.bloqueado?'🚫 Bloqueado':'✅ Ativo'; badge.style.marginTop='8px'; badge.style.display='inline-block';
       c.appendChild(badge);
-      const abtns = document.createElement("div"); abtns.className = "abtns";
-      if (d.bloqueado) {
-        const bL = document.createElement("button"); bL.className = "btn bok"; bL.style.cssText="font-size:12px;padding:5px 12px"; bL.textContent="Liberar";
-        bL.onclick = () => toggleBloqueio(d.id, false); abtns.appendChild(bL);
-      } else {
-        const bB = document.createElement("button"); bB.className = "btn bverm"; bB.style.cssText="font-size:12px;padding:5px 12px"; bB.textContent="Bloquear";
-        bB.onclick = () => toggleBloqueio(d.id, true); abtns.appendChild(bB);
-      }
-      const bDel = document.createElement("button"); bDel.className = "btn bno"; bDel.style.cssText="font-size:12px;padding:5px 12px"; bDel.textContent="Remover";
-      bDel.onclick = () => { if(confirm(`Remover ${d.nome}?`)) deleteDoc(doc(db,"alunos",d.id)); };
+      var abtns=document.createElement('div'); abtns.className='abtns';
+      if(d.bloqueado){var bL=document.createElement('button');bL.className='btn bok';bL.style.cssText='font-size:12px;padding:5px 12px';bL.textContent='Liberar';bL.onclick=(function(d){return function(){db.collection('alunos').doc(d.id).update({bloqueado:false});};})(d);abtns.appendChild(bL);}
+      else{var bB=document.createElement('button');bB.className='btn bverm';bB.style.cssText='font-size:12px;padding:5px 12px';bB.textContent='Bloquear';bB.onclick=(function(d){return function(){db.collection('alunos').doc(d.id).update({bloqueado:true});};})(d);abtns.appendChild(bB);}
+      var bDel=document.createElement('button');bDel.className='btn bno';bDel.style.cssText='font-size:12px;padding:5px 12px';bDel.textContent='Remover';
+      bDel.onclick=(function(d){return function(){if(confirm('Remover '+d.nome+'?')) db.collection('alunos').doc(d.id).delete();};})(d);
       abtns.appendChild(bDel); c.appendChild(abtns); grid.appendChild(c);
     });
     container.appendChild(grid);
   });
 }
 
-async function toggleBloqueio(id, bloquear) { await updateDoc(doc(db,"alunos",id),{bloqueado:bloquear}); }
-
-async function toggleTodos(docs, bloquear) {
-  if (!confirm(bloquear?"Bloquear TODOS?":"Liberar TODOS?")) return;
-  const batch = writeBatch(db);
-  docs.forEach(d => batch.update(doc(db,"alunos",d.id),{bloqueado:bloquear}));
-  await batch.commit(); alert("Feito!");
+function toggleTodos(docs, bloquear) {
+  if(!confirm(bloquear?'Bloquear TODOS?':'Liberar TODOS?')) return;
+  var batch=db.batch();
+  docs.forEach(function(d){batch.update(db.collection('alunos').doc(d.id),{bloqueado:bloquear});});
+  batch.commit().then(function(){alert('Feito!');});
 }
 
-async function toggleSemestre(docs, sem, bloquear) {
-  const filtrados = docs.filter(d => String(d.semestre)===String(sem));
-  if (!filtrados.length) { alert(`Nenhum aluno no ${sem}º semestre.`); return; }
-  if (!confirm(`${bloquear?"Bloquear":"Liberar"} ${filtrados.length} alunos do ${sem}º semestre?`)) return;
-  const batch = writeBatch(db);
-  filtrados.forEach(d => batch.update(doc(db,"alunos",d.id),{bloqueado:bloquear}));
-  await batch.commit(); alert("Feito!");
+function toggleSemestre(docs, sem, bloquear) {
+  var filtrados=docs.filter(function(d){return String(d.semestre)===String(sem);});
+  if(!filtrados.length){alert('Nenhum aluno no '+sem+'º semestre.');return;}
+  if(!confirm((bloquear?'Bloquear':'Liberar')+' '+filtrados.length+' alunos do '+sem+'º semestre?')) return;
+  var batch=db.batch();
+  filtrados.forEach(function(d){batch.update(db.collection('alunos').doc(d.id),{bloqueado:bloquear});});
+  batch.commit().then(function(){alert('Feito!');});
 }
 
-// ── IMPORTAÇÕES ───────────────────────────────────────────────────────
-window.importarAlunos = async function(inputEl) {
-  const file = inputEl.files[0]; if (!file) { alert("Selecione um arquivo .xlsx"); return; }
-  if (!window.XLSX) await carregarXLSX();
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data,{type:"array"}); const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws,{header:1}); const header = rows[0]||[];
-    const rgmCol=header.findIndex(h=>String(h).toUpperCase().includes("RGM"));
-    const nomeCol=header.findIndex(h=>String(h).toUpperCase().includes("NOME"));
-    const semCol=header.findIndex(h=>String(h).toUpperCase().includes("SEMESTRE"));
-    if (rgmCol<0) { alert("Coluna RGM não encontrada."); return; }
-    const batch = writeBatch(db); let count=0;
-    rows.slice(1).forEach(row => {
-      const rgm=String(row[rgmCol]||"").trim(); if(!rgm) return;
-      const nome=(nomeCol>=0?String(row[nomeCol]||""):"").split(" ").map(w=>w.charAt(0).toUpperCase()+w.slice(1).toLowerCase()).join(" ");
-      const sem=semCol>=0?String(row[semCol]||""):"";
-      batch.set(doc(collection(db,"alunos")),{rgm,nome,semestre:sem,bloqueado:false}); count++;
-    });
-    await batch.commit(); alert(count+" alunos importados!");
-  };
-  reader.readAsArrayBuffer(file);
-};
-
-window.importarRGMs = async function(inputEl) {
-  const file = inputEl.files[0]; if (!file) { alert("Selecione um arquivo .xlsx"); return; }
-  if (!window.XLSX) await carregarXLSX();
-  const reader = new FileReader();
-  reader.onload = async function(e) {
-    const data = new Uint8Array(e.target.result);
-    const wb = XLSX.read(data,{type:"array"}); const ws = wb.Sheets[wb.SheetNames[0]];
-    const rows = XLSX.utils.sheet_to_json(ws,{header:1}); const header = rows[0]||[];
-    const rgmCol=header.findIndex(h=>String(h).toUpperCase().includes("RGM"));
-    if (rgmCol<0) { alert("Coluna RGM não encontrada."); return; }
-    const rgms=rows.slice(1).map(r=>String(r[rgmCol]||"").trim()).filter(r=>r);
-    await setDoc(doc(db,"config","rgms4sem"),{rgms,atualizadoEm:new Date().toISOString()});
-    document.getElementById("rgmCount").textContent = rgms.length+" RGMs autorizados.";
-    alert(rgms.length+" RGMs importados!");
-  };
-  reader.readAsArrayBuffer(file);
-};
-
-async function limparRGMs() {
-  if (!confirm("Remover todos os RGMs autorizados?")) return;
-  await setDoc(doc(db,"config","rgms4sem"),{rgms:[]});
-  document.getElementById("rgmCount").textContent = "0 RGMs autorizados.";
-  alert("Lista limpa.");
+// ── IMPORTAÇÕES ──────────────────────────────────────────────────────
+function carregarXLSX(cb) {
+  if(window.XLSX){cb();return;}
+  var s=document.createElement('script'); s.src='https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
+  s.onload=cb; document.head.appendChild(s);
 }
 
-async function carregarXLSX() {
-  return new Promise((res,rej) => {
-    const s=document.createElement("script");
-    s.src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js";
-    s.onload=res; s.onerror=rej; document.head.appendChild(s);
+function importarAlunos(inputEl) {
+  var file=inputEl.files[0]; if(!file){alert('Selecione um arquivo .xlsx');return;}
+  carregarXLSX(function(){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var data=new Uint8Array(e.target.result);
+      var wb=XLSX.read(data,{type:'array'}); var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1}); var header=rows[0]||[];
+      var rgmCol=header.findIndex(function(h){return String(h).toUpperCase().includes('RGM');});
+      var nomeCol=header.findIndex(function(h){return String(h).toUpperCase().includes('NOME');});
+      var semCol=header.findIndex(function(h){return String(h).toUpperCase().includes('SEMESTRE');});
+      if(rgmCol<0){alert('Coluna RGM não encontrada.');return;}
+      var batch=db.batch(); var count=0;
+      rows.slice(1).forEach(function(row){
+        var rgm=String(row[rgmCol]||'').trim(); if(!rgm) return;
+        var nome=(nomeCol>=0?String(row[nomeCol]||''):'').split(' ').map(function(w){return w.charAt(0).toUpperCase()+w.slice(1).toLowerCase();}).join(' ');
+        var sem=semCol>=0?String(row[semCol]||''):'';
+        batch.set(db.collection('alunos').doc(),{rgm:rgm,nome:nome,semestre:sem,bloqueado:false}); count++;
+      });
+      batch.commit().then(function(){alert(count+' alunos importados!');});
+    };
+    reader.readAsArrayBuffer(file);
   });
 }
 
-// ── FUNÇÕES DE CONSOLE ────────────────────────────────────────────────
-window.popularAlunos = async function() {
-  const alunos = {"192.105": {"nome": "Ana Flávia Rezende Messias", "semestre": "4"}, "191.007": {"nome": "Bruna Eduarda Victor Capelaxio Ferreira", "semestre": "4"}, "192.133": {"nome": "Bruno Henryque Lourenço Souza", "semestre": "4"}, "192.020": {"nome": "Caio Luiz Lubacheski De Oliveira", "semestre": "4"}, "192.004": {"nome": "Débora Cristina Corrêa Da Silva", "semestre": "4"}, "191.002": {"nome": "Enzo Gabriel Marinho Pavão", "semestre": "4"}, "191.001": {"nome": "Fabiana Borges De Oliveira", "semestre": "4"}, "192.021": {"nome": "Felipe Miguel Dos Santos Bezerra", "semestre": "4"}, "192.054": {"nome": "Felipe Moreira Da Silva", "semestre": "4"}, "192.056": {"nome": "Heitor Vinícius Sampaio Moura", "semestre": "4"}, "192.042": {"nome": "Isadora De Oliveira Bassotto", "semestre": "4"}, "192.037": {"nome": "Isadora Pache Asseff", "semestre": "4"}, "192.005": {"nome": "Ivy Silva De Oliveira", "semestre": "4"}, "191.005": {"nome": "Jorge Luiz Munhoz Dutra", "semestre": "4"}, "192.016": {"nome": "João Pedro Dantas Poiquis", "semestre": "4"}, "192.065": {"nome": "João Victor Da Cruz Fernandes", "semestre": "4"}, "192.014": {"nome": "João Victor Ribeiro Alves", "semestre": "4"}, "192.001": {"nome": "Julia Raika Ferreira Maier", "semestre": "4"}, "192.131": {"nome": "Juliana Aristimunho Acosta", "semestre": "4"}, "192.053": {"nome": "Jéssica Laís Da Silva Viegas", "semestre": "4"}, "192.036": {"nome": "Kethellen Fraga Da Silva", "semestre": "4"}, "191.006": {"nome": "Laura Camile Arcanjo Neves Menezes", "semestre": "4"}, "192.018": {"nome": "Leandro Morinigo Alves", "semestre": "4"}, "192.022": {"nome": "Leonardo De Castro Matos", "semestre": "4"}, "192.006": {"nome": "Lívia Pereira Martins", "semestre": "4"}, "192.008": {"nome": "Maddison Yuri Silva Santos", "semestre": "4"}, "192.019": {"nome": "Marcio Chiarelli De Oliveira Branquinho", "semestre": "4"}, "192.025": {"nome": "Maria Eduarda De Souza Figueiredo", "semestre": "4"}, "192.137": {"nome": "Maria Fernanda Talini Diório", "semestre": "4"}, "192.069": {"nome": "Mariuá Coutinho Netto", "semestre": "4"}, "192.009": {"nome": "Mayla Arakaki Saito", "semestre": "4"}, "192.092": {"nome": "Nikolas Rocha Miranda", "semestre": "4"}, "192.045": {"nome": "Paola Kopes Nogueira", "semestre": "4"}, "191.008": {"nome": "Pedro Henrique Justino De Souza", "semestre": "4"}, "192.023": {"nome": "Pedro Lucca Magalhães Marangoni", "semestre": "4"}, "192.033": {"nome": "Raissa Arguelho Freixes", "semestre": "4"}, "192.017": {"nome": "Sarha Gabrielle Freitas De Oliveira", "semestre": "4"}, "192.068": {"nome": "Vitor Vieira Kramer", "semestre": "4"}, "192.067": {"nome": "Vitória Cassavara De Oliveira", "semestre": "4"}, "192.101": {"nome": "Adriano Santana Rui Da Silva", "semestre": "2"}, "192.090": {"nome": "Amanda Freitas De Souza Araujo", "semestre": "2"}, "192.071": {"nome": "Ana Júlia Kutter Pedra", "semestre": "2"}, "192.085": {"nome": "Ana Luisa Paim Marietti", "semestre": "2"}, "192.140": {"nome": "Ana Luiza Silva Freire", "semestre": "2"}, "192.139": {"nome": "Anna Clara Costa Santos", "semestre": "2"}, "192.135": {"nome": "Beatriz Jeronimo De Souza", "semestre": "2"}, "192.112": {"nome": "Clara Eyshila Morais Duarte", "semestre": "2"}, "192.110": {"nome": "Daniel Estevão Paiva Aranda", "semestre": "2"}, "192.094": {"nome": "Daniel Martins De Almeida", "semestre": "2"}, "192.077": {"nome": "Daniel Savale Coene", "semestre": "2"}, "192.132": {"nome": "Daniela Martines Da Silva Souza", "semestre": "2"}, "192.075": {"nome": "Daniela Martins De Souza", "semestre": "2"}, "192.080": {"nome": "Ester Felicio Ferreira", "semestre": "2"}, "192.098": {"nome": "Evandro Silva Viégas", "semestre": "2"}, "192.103": {"nome": "Filipe De Oliveira Kruki", "semestre": "2"}, "192.100": {"nome": "Gabriel Amaral Dos Santos Messa De Andrade", "semestre": "2"}, "192.126": {"nome": "Gabriel Henrique Viana Pimentel", "semestre": "2"}, "192.087": {"nome": "Gabriella Aparecida Da Silva Ferreira", "semestre": "2"}, "192.081": {"nome": "Geovana Apodaca Penha", "semestre": "2"}, "192.127": {"nome": "Gisele Figueiredo Ortiz", "semestre": "2"}, "192.120": {"nome": "Gustavo Soares Dos Santos", "semestre": "2"}, "192.078": {"nome": "Hagatta Cristy Gomes Silva", "semestre": "2"}, "192.076": {"nome": "Helen Eunice Do Espirito Santo Da Luz", "semestre": "2"}, "192.104": {"nome": "Heloísa Antunes De Oliveira", "semestre": "2"}, "192.141": {"nome": "Jefferson Nascimento De Freitas", "semestre": "2"}, "192.091": {"nome": "João Vitor Da Silva", "semestre": "2"}, "192.138": {"nome": "Julia Camargo Shiota", "semestre": "2"}, "192.125": {"nome": "Jéssica Franco Da Silva", "semestre": "2"}, "192.117": {"nome": "Júllia Borges De Andrade", "semestre": "2"}, "192.029": {"nome": "Kauanny Gabriella Costa Dos Santos", "semestre": "2"}, "192.109": {"nome": "Laise Naiessa Silveira", "semestre": "2"}, "192.095": {"nome": "Laura Souza Ribeiro", "semestre": "2"}, "192.096": {"nome": "Letícia Da Cruz Kohagura", "semestre": "2"}, "192.113": {"nome": "Luã Martins Estavaringo", "semestre": "2"}, "192.134": {"nome": "Mara Keyty Vitória Nunes Espindola", "semestre": "2"}, "192.124": {"nome": "Marcos Vinícius Da Silva", "semestre": "2"}, "192.073": {"nome": "Mariana Monte Teixeira", "semestre": "2"}, "192.111": {"nome": "Matheus Alencar Amaral Cruz Fenianos", "semestre": "2"}, "192.136": {"nome": "Matheus William Dobes", "semestre": "2"}, "192.106": {"nome": "Miguel Valdez Naji Rôa", "semestre": "2"}, "192.107": {"nome": "Murilo Arteaga Alves De Almeida", "semestre": "2"}, "192.108": {"nome": "Naiany Caroline Neves Martins", "semestre": "2"}, "192.099": {"nome": "Nicolle Gutierres Nascimento", "semestre": "2"}, "192.089": {"nome": "Raphaela Hurtado Targino", "semestre": "2"}, "192.086": {"nome": "Raul Lucas Pitaluga De Oliveira", "semestre": "2"}, "192.083": {"nome": "Tiago Velasques Exteca", "semestre": "2"}, "192.088": {"nome": "Victória Fernandes Moreira Espindola", "semestre": "2"}, "192.128": {"nome": "Yasmim Coradelo Barbosa", "semestre": "2"}, "192.143": {"nome": "Élton Umar Maior", "semestre": "2"}};
-  const batch = writeBatch(db);
-  Object.entries(alunos).forEach(([rgm, data]) => {
-    batch.set(doc(collection(db,"alunos")),{rgm,nome:data.nome,semestre:data.semestre,bloqueado:false});
+function importarRGMs(inputEl) {
+  var file=inputEl.files[0]; if(!file){alert('Selecione um arquivo .xlsx');return;}
+  carregarXLSX(function(){
+    var reader=new FileReader();
+    reader.onload=function(e){
+      var data=new Uint8Array(e.target.result);
+      var wb=XLSX.read(data,{type:'array'}); var ws=wb.Sheets[wb.SheetNames[0]];
+      var rows=XLSX.utils.sheet_to_json(ws,{header:1}); var header=rows[0]||[];
+      var rgmCol=header.findIndex(function(h){return String(h).toUpperCase().includes('RGM');});
+      if(rgmCol<0){alert('Coluna RGM não encontrada.');return;}
+      var rgms=rows.slice(1).map(function(r){return String(r[rgmCol]||'').trim();}).filter(function(r){return r;});
+      db.collection('config').doc('rgms4sem').set({rgms:rgms,atualizadoEm:new Date().toISOString()}).then(function(){
+        document.getElementById('rgmCount').textContent=rgms.length+' RGMs autorizados.';
+        alert(rgms.length+' RGMs importados!');
+      });
+    };
+    reader.readAsArrayBuffer(file);
   });
-  await batch.commit(); alert(Object.keys(alunos).length+" alunos cadastrados!");
-};
+}
 
-window.popularRGMs4sem = async function() {
-  const rgms = ["192.105", "191.007", "192.133", "192.020", "192.004", "191.002", "191.001", "192.021", "192.054", "192.056", "192.042", "192.037", "192.005", "191.005", "192.016", "192.065", "192.014", "192.001", "192.131", "192.053", "192.036", "191.006", "192.018", "192.022", "192.006", "192.008", "192.019", "192.025", "192.137", "192.069", "192.009", "192.092", "192.045", "191.008", "192.023", "192.033", "192.017", "192.068", "192.067"];
-  await setDoc(doc(db,"config","rgms4sem"),{rgms,atualizadoEm:new Date().toISOString()});
-  alert(rgms.length+" RGMs do 4º semestre cadastrados!");
-};
-
-window.liberarTodosConsole = async function() {
-  const snap = await getDocs(collection(db,"alunos"));
-  const batch = writeBatch(db);
-  snap.forEach(d => batch.update(doc(db,"alunos",d.id),{bloqueado:false}));
-  await batch.commit(); alert(snap.size+" alunos liberados!");
-};
-
-window.unificarCameras = async function() {
-  const snap = await getDocs(collection(db,"patrimonio"));
-  const batch = writeBatch(db);
-  snap.forEach(d => {
-    const desc = d.data().descricao;
-    if (desc==="EOS 2000D"||desc==="EOS Rebel T7") batch.update(doc(db,"patrimonio",d.id),{descricao:"EOS Rebel T7/2000D"});
+function limparRGMs() {
+  if(!confirm('Remover todos os RGMs autorizados?')) return;
+  db.collection('config').doc('rgms4sem').set({rgms:[]}).then(function(){
+    document.getElementById('rgmCount').textContent='0 RGMs autorizados.'; alert('Lista limpa.');
   });
-  await batch.commit(); alert("Câmeras unificadas!");
-};
+}
 
-window.popularInventario = async function() {
-  const itens = [
+// ── FUNÇÕES DE CONSOLE ───────────────────────────────────────────────
+function popularAlunos() {
+  var alunos = {"192.105": {"nome": "Ana Flávia Rezende Messias", "semestre": "4"}, "191.007": {"nome": "Bruna Eduarda Victor Capelaxio Ferreira", "semestre": "4"}, "192.133": {"nome": "Bruno Henryque Lourenço Souza", "semestre": "4"}, "192.020": {"nome": "Caio Luiz Lubacheski De Oliveira", "semestre": "4"}, "192.004": {"nome": "Débora Cristina Corrêa Da Silva", "semestre": "4"}, "191.002": {"nome": "Enzo Gabriel Marinho Pavão", "semestre": "4"}, "191.001": {"nome": "Fabiana Borges De Oliveira", "semestre": "4"}, "192.021": {"nome": "Felipe Miguel Dos Santos Bezerra", "semestre": "4"}, "192.054": {"nome": "Felipe Moreira Da Silva", "semestre": "4"}, "192.056": {"nome": "Heitor Vinícius Sampaio Moura", "semestre": "4"}, "192.042": {"nome": "Isadora De Oliveira Bassotto", "semestre": "4"}, "192.037": {"nome": "Isadora Pache Asseff", "semestre": "4"}, "192.005": {"nome": "Ivy Silva De Oliveira", "semestre": "4"}, "191.005": {"nome": "Jorge Luiz Munhoz Dutra", "semestre": "4"}, "192.016": {"nome": "João Pedro Dantas Poiquis", "semestre": "4"}, "192.065": {"nome": "João Victor Da Cruz Fernandes", "semestre": "4"}, "192.014": {"nome": "João Victor Ribeiro Alves", "semestre": "4"}, "192.001": {"nome": "Julia Raika Ferreira Maier", "semestre": "4"}, "192.131": {"nome": "Juliana Aristimunho Acosta", "semestre": "4"}, "192.053": {"nome": "Jéssica Laís Da Silva Viegas", "semestre": "4"}, "192.036": {"nome": "Kethellen Fraga Da Silva", "semestre": "4"}, "191.006": {"nome": "Laura Camile Arcanjo Neves Menezes", "semestre": "4"}, "192.018": {"nome": "Leandro Morinigo Alves", "semestre": "4"}, "192.022": {"nome": "Leonardo De Castro Matos", "semestre": "4"}, "192.006": {"nome": "Lívia Pereira Martins", "semestre": "4"}, "192.008": {"nome": "Maddison Yuri Silva Santos", "semestre": "4"}, "192.019": {"nome": "Marcio Chiarelli De Oliveira Branquinho", "semestre": "4"}, "192.025": {"nome": "Maria Eduarda De Souza Figueiredo", "semestre": "4"}, "192.137": {"nome": "Maria Fernanda Talini Diório", "semestre": "4"}, "192.069": {"nome": "Mariuá Coutinho Netto", "semestre": "4"}, "192.009": {"nome": "Mayla Arakaki Saito", "semestre": "4"}, "192.092": {"nome": "Nikolas Rocha Miranda", "semestre": "4"}, "192.045": {"nome": "Paola Kopes Nogueira", "semestre": "4"}, "191.008": {"nome": "Pedro Henrique Justino De Souza", "semestre": "4"}, "192.023": {"nome": "Pedro Lucca Magalhães Marangoni", "semestre": "4"}, "192.033": {"nome": "Raissa Arguelho Freixes", "semestre": "4"}, "192.017": {"nome": "Sarha Gabrielle Freitas De Oliveira", "semestre": "4"}, "192.068": {"nome": "Vitor Vieira Kramer", "semestre": "4"}, "192.067": {"nome": "Vitória Cassavara De Oliveira", "semestre": "4"}, "192.101": {"nome": "Adriano Santana Rui Da Silva", "semestre": "2"}, "192.090": {"nome": "Amanda Freitas De Souza Araujo", "semestre": "2"}, "192.071": {"nome": "Ana Júlia Kutter Pedra", "semestre": "2"}, "192.085": {"nome": "Ana Luisa Paim Marietti", "semestre": "2"}, "192.140": {"nome": "Ana Luiza Silva Freire", "semestre": "2"}, "192.139": {"nome": "Anna Clara Costa Santos", "semestre": "2"}, "192.135": {"nome": "Beatriz Jeronimo De Souza", "semestre": "2"}, "192.112": {"nome": "Clara Eyshila Morais Duarte", "semestre": "2"}, "192.110": {"nome": "Daniel Estevão Paiva Aranda", "semestre": "2"}, "192.094": {"nome": "Daniel Martins De Almeida", "semestre": "2"}, "192.077": {"nome": "Daniel Savale Coene", "semestre": "2"}, "192.132": {"nome": "Daniela Martines Da Silva Souza", "semestre": "2"}, "192.075": {"nome": "Daniela Martins De Souza", "semestre": "2"}, "192.080": {"nome": "Ester Felicio Ferreira", "semestre": "2"}, "192.098": {"nome": "Evandro Silva Viégas", "semestre": "2"}, "192.103": {"nome": "Filipe De Oliveira Kruki", "semestre": "2"}, "192.100": {"nome": "Gabriel Amaral Dos Santos Messa De Andrade", "semestre": "2"}, "192.126": {"nome": "Gabriel Henrique Viana Pimentel", "semestre": "2"}, "192.087": {"nome": "Gabriella Aparecida Da Silva Ferreira", "semestre": "2"}, "192.081": {"nome": "Geovana Apodaca Penha", "semestre": "2"}, "192.127": {"nome": "Gisele Figueiredo Ortiz", "semestre": "2"}, "192.120": {"nome": "Gustavo Soares Dos Santos", "semestre": "2"}, "192.078": {"nome": "Hagatta Cristy Gomes Silva", "semestre": "2"}, "192.076": {"nome": "Helen Eunice Do Espirito Santo Da Luz", "semestre": "2"}, "192.104": {"nome": "Heloísa Antunes De Oliveira", "semestre": "2"}, "192.141": {"nome": "Jefferson Nascimento De Freitas", "semestre": "2"}, "192.091": {"nome": "João Vitor Da Silva", "semestre": "2"}, "192.138": {"nome": "Julia Camargo Shiota", "semestre": "2"}, "192.125": {"nome": "Jéssica Franco Da Silva", "semestre": "2"}, "192.117": {"nome": "Júllia Borges De Andrade", "semestre": "2"}, "192.029": {"nome": "Kauanny Gabriella Costa Dos Santos", "semestre": "2"}, "192.109": {"nome": "Laise Naiessa Silveira", "semestre": "2"}, "192.095": {"nome": "Laura Souza Ribeiro", "semestre": "2"}, "192.096": {"nome": "Letícia Da Cruz Kohagura", "semestre": "2"}, "192.113": {"nome": "Luã Martins Estavaringo", "semestre": "2"}, "192.134": {"nome": "Mara Keyty Vitória Nunes Espindola", "semestre": "2"}, "192.124": {"nome": "Marcos Vinícius Da Silva", "semestre": "2"}, "192.073": {"nome": "Mariana Monte Teixeira", "semestre": "2"}, "192.111": {"nome": "Matheus Alencar Amaral Cruz Fenianos", "semestre": "2"}, "192.136": {"nome": "Matheus William Dobes", "semestre": "2"}, "192.106": {"nome": "Miguel Valdez Naji Rôa", "semestre": "2"}, "192.107": {"nome": "Murilo Arteaga Alves De Almeida", "semestre": "2"}, "192.108": {"nome": "Naiany Caroline Neves Martins", "semestre": "2"}, "192.099": {"nome": "Nicolle Gutierres Nascimento", "semestre": "2"}, "192.089": {"nome": "Raphaela Hurtado Targino", "semestre": "2"}, "192.086": {"nome": "Raul Lucas Pitaluga De Oliveira", "semestre": "2"}, "192.083": {"nome": "Tiago Velasques Exteca", "semestre": "2"}, "192.088": {"nome": "Victória Fernandes Moreira Espindola", "semestre": "2"}, "192.128": {"nome": "Yasmim Coradelo Barbosa", "semestre": "2"}, "192.143": {"nome": "Élton Umar Maior", "semestre": "2"}};
+  var batch=db.batch();
+  Object.entries(alunos).forEach(function(entry){ var rgm=entry[0],data=entry[1];
+    batch.set(db.collection('alunos').doc(),{rgm:rgm,nome:data.nome,semestre:data.semestre,bloqueado:false});
+  });
+  batch.commit().then(function(){alert(Object.keys(alunos).length+' alunos cadastrados!');});
+}
+
+function popularRGMs4sem() {
+  var rgms=["192.105", "191.007", "192.133", "192.020", "192.004", "191.002", "191.001", "192.021", "192.054", "192.056", "192.042", "192.037", "192.005", "191.005", "192.016", "192.065", "192.014", "192.001", "192.131", "192.053", "192.036", "191.006", "192.018", "192.022", "192.006", "192.008", "192.019", "192.025", "192.137", "192.069", "192.009", "192.092", "192.045", "191.008", "192.023", "192.033", "192.017", "192.068", "192.067"];
+  db.collection('config').doc('rgms4sem').set({rgms:rgms,atualizadoEm:new Date().toISOString()}).then(function(){alert(rgms.length+' RGMs cadastrados!');});
+}
+
+function liberarTodosConsole() {
+  db.collection('alunos').get().then(function(snap){
+    var batch=db.batch(); snap.forEach(function(d){batch.update(d.ref,{bloqueado:false});});
+    batch.commit().then(function(){alert(snap.size+' alunos liberados!');});
+  });
+}
+
+function popularInventario() {
+  var itens=[
     {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9059",status:"Disponivel",restrito4sem:false},
     {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9060",status:"Disponivel",restrito4sem:false},
     {categoria:"Câmera de Foto",descricao:"EOS Rebel T7/2000D",marca:"Canon",patrimonio:"UC-9061",status:"Disponivel",restrito4sem:false},
@@ -822,11 +706,11 @@ window.popularInventario = async function() {
     {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
     {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
     {categoria:"Carregador",descricao:"Carregador LC-E10",marca:"Canon",patrimonio:"",status:"Disponivel",restrito4sem:false},
-    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26011",status:"Disponivel",restrito4sem:false},
-    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26012",status:"Disponivel",restrito4sem:false},
-    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26013",status:"Disponivel",restrito4sem:false},
-    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26014",status:"Disponivel",restrito4sem:false},
-    {categoria:"Iluminação",descricao:"Bastão LED RGB com Controle Remoto",marca:"New Ion",patrimonio:"PP26015",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB",marca:"New Ion",patrimonio:"PP26011",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB",marca:"New Ion",patrimonio:"PP26012",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB",marca:"New Ion",patrimonio:"PP26013",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB",marca:"New Ion",patrimonio:"PP26014",status:"Disponivel",restrito4sem:false},
+    {categoria:"Iluminação",descricao:"Bastão LED RGB",marca:"New Ion",patrimonio:"PP26015",status:"Disponivel",restrito4sem:false},
     {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26019",status:"Disponivel",restrito4sem:false},
     {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26020",status:"Disponivel",restrito4sem:false},
     {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26021",status:"Disponivel",restrito4sem:false},
@@ -837,11 +721,11 @@ window.popularInventario = async function() {
     {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26026",status:"Disponivel",restrito4sem:false},
     {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26027",status:"Disponivel",restrito4sem:false},
     {categoria:"Iluminação",descricao:"Ring Light Selfie DC/B3A",marca:"Brasimpex",patrimonio:"PP26028",status:"Disponivel",restrito4sem:false},
-    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26006",status:"Disponivel",restrito4sem:false},
-    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26007",status:"Disponivel",restrito4sem:false},
-    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26008",status:"Disponivel",restrito4sem:false},
-    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26009",status:"Disponivel",restrito4sem:false},
-    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80 Bastão Giratório",marca:"P180",patrimonio:"PP26010",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80m Bastão Giratório",marca:"P180",patrimonio:"PP26006",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80m Bastão Giratório",marca:"P180",patrimonio:"PP26007",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80m Bastão Giratório",marca:"P180",patrimonio:"PP26008",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80m Bastão Giratório",marca:"P180",patrimonio:"PP26009",status:"Disponivel",restrito4sem:false},
+    {categoria:"Tripés/Estabilizadores",descricao:"Tripé 1,80m Bastão Giratório",marca:"P180",patrimonio:"PP26010",status:"Disponivel",restrito4sem:false},
     {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26001",status:"Disponivel",restrito4sem:false},
     {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26002",status:"Disponivel",restrito4sem:false},
     {categoria:"Tripés/Estabilizadores",descricao:"Gimbal M01 3-Axis",marca:"Tokqi",patrimonio:"PP26003",status:"Disponivel",restrito4sem:false},
@@ -852,10 +736,10 @@ window.popularInventario = async function() {
     {categoria:"Microfone",descricao:"Microfone Sem Fio 2 lapelas",marca:"Boya",patrimonio:"PP26018",status:"Disponivel",restrito4sem:false},
     {categoria:"Leitor de Cartão",descricao:"Leitor de Cartão de Memória",marca:"",patrimonio:"",status:"Disponivel",restrito4sem:false}
   ];
-  const batch = writeBatch(db);
-  itens.forEach(item => batch.set(doc(collection(db,"patrimonio")),item));
-  await batch.commit(); alert(itens.length+" equipamentos cadastrados!");
-};
+  var batch=db.batch();
+  itens.forEach(function(item){batch.set(db.collection('patrimonio').doc(),item);});
+  batch.commit().then(function(){alert(itens.length+' equipamentos cadastrados!');});
+}
 </script>
 </body>
 </html>
