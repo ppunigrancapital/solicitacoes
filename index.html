@@ -803,7 +803,7 @@ function verificarRgm(rgm, tipo) {
     if (semEl) semEl.value = aluno.semestre;
     // Preencher e-mail automaticamente (RGM sem ponto + domínio)
     var emailEl = document.getElementById(tipo === 'equip' ? 'emailE' : 'emailEst');
-    var emailAuto = rgm.replace('.','') + '@alunos.unigrancapital.com.br';
+    var emailAuto = rgm + '@alunos.unigrancapital.com.br';
     if (emailEl) emailEl.value = emailAuto;
     if (statusEl) { statusEl.style.color = '#2d7a2d'; statusEl.textContent = '✅ Aluno identificado: ' + aluno.nome; }
     // Atualizar RGMs autorizados para câmera de vídeo

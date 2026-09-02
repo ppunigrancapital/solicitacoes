@@ -63,7 +63,7 @@ header span{font-size:12px;opacity:.7}
 .cats-box{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px;margin-bottom:20px}
 .cats-box h3{font-size:11px;font-weight:700;text-transform:uppercase;color:var(--roxo2);margin-bottom:12px;letter-spacing:.08em}
 .cat-tag{display:inline-flex;align-items:center;gap:6px;background:#f4f1f8;border:1px solid var(--borda);border-radius:20px;padding:4px 10px;font-size:12px;margin:4px}
-.cat-tag button{background:none;border:none;cursor:pointer;color:#c0392b;font-size:14px;padding:0;line-height:1}
+.cat-tag button{background:none;border:none;cursor:pointer;font-size:12px;padding:0 2px;line-height:1}.cat-tag .cat-del{color:#c0392b}.cat-tag .cat-edit{color:#4a1270}
 .cat-input-row{display:flex;gap:8px;margin-top:10px}
 .cat-input-row input{flex:1;border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 10px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .cat-input-row input:focus{border-color:var(--roxo)}
@@ -430,8 +430,14 @@ function renderPatrimonio(docs) {
   const tagsDiv = document.createElement("div");
   CATS.forEach(cat => {
     const tag = document.createElement("span"); tag.className = "cat-tag";
-    tag.innerHTML = `${cat} <button title="Remover categoria">×</button>`;
-    tag.querySelector("button").onclick = () => removerCategoria(cat, docs);
+    tag.innerHTML = `${cat} <button class="cat-edit" title="Renomear">✏️</button><button class="cat-del" title="Remover">×</button>`;
+    tag.querySelector(".cat-del").onclick = () => removerCategoria(cat, docs);
+    tag.querySelector(".cat-edit").onclick = () => {
+      const novoNome = prompt("Novo nome para a categoria:", cat);
+      if (novoNome && novoNome.trim() && novoNome.trim() !== cat) {
+        renomearCategoria(cat, novoNome.trim(), docs);
+      }
+    };
     tagsDiv.appendChild(tag);
   });
   catsBox.appendChild(tagsDiv);
@@ -478,6 +484,15 @@ async function adicionarCategoria(nome) {
   alert(`Categoria "${nome}" criada. Adicione equipamentos nela.`);
 }
 
+async function renomearCategoria(catAntiga, catNova, docs) {
+  const itens = docs.filter(d => d.categoria === catAntiga);
+  if (!confirm(`Renomear "${catAntiga}" para "${catNova}"? (${itens.length} equipamento(s))`)) return;
+  const batch = writeBatch(db);
+  itens.forEach(i => batch.update(doc(db,"patrimonio",i.id), {categoria: catNova}));
+  await batch.commit();
+  alert(`Categoria renomeada para "${catNova}".`);
+}
+
 async function removerCategoria(cat, docs) {
   const itens = docs.filter(d => d.categoria === cat);
   if (itens.length > 0) {
@@ -507,6 +522,23 @@ function renderAlunos(docs) {
   upBtn.onclick = () => importarAlunos(fileIn);
   uploadRow.appendChild(fileIn); uploadRow.appendChild(upBtn);
   header.appendChild(uploadRow);
+
+  // Botões em massa
+  const massRow = document.createElement("div"); massRow.style.cssText = "display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px";
+  const bLibAll = document.createElement("button"); bLibAll.className = "btn bok"; bLibAll.textContent = "✅ Liberar todos";
+  bLibAll.onclick = () => toggleTodos(docs, false);
+  const bBlkSem = document.createElement("button"); bBlkSem.className = "btn bverm"; bBlkSem.textContent = "🚫 Bloquear por semestre...";
+  bBlkSem.onclick = () => {
+    const sem = prompt("Qual semestre bloquear? (ex: 4)");
+    if (sem) toggleSemestre(docs, sem.trim(), true);
+  };
+  const bLibSem = document.createElement("button"); bLibSem.className = "btn bno"; bLibSem.textContent = "Liberar semestre...";
+  bLibSem.onclick = () => {
+    const sem = prompt("Qual semestre liberar? (ex: 4)");
+    if (sem) toggleSemestre(docs, sem.trim(), false);
+  };
+  massRow.appendChild(bLibAll); massRow.appendChild(bBlkSem); massRow.appendChild(bLibSem);
+  header.appendChild(massRow);
 
   // Busca
   const busca = document.createElement("input"); busca.type = "text"; busca.placeholder = "Buscar por nome ou RGM...";
@@ -584,6 +616,26 @@ async function toggleBloqueio(id, bloquear) {
   await updateDoc(doc(db,"alunos",id), {bloqueado: bloquear});
 }
 
+async function toggleTodos(docs, bloquear) {
+  const msg = bloquear ? "Bloquear TODOS os alunos?" : "Liberar TODOS os alunos?";
+  if (!confirm(msg)) return;
+  const batch = writeBatch(db);
+  docs.forEach(d => batch.update(doc(db,"alunos",d.id), {bloqueado: bloquear}));
+  await batch.commit();
+  alert("Feito!");
+}
+
+async function toggleSemestre(docs, sem, bloquear) {
+  const filtrados = docs.filter(d => String(d.semestre) === String(sem));
+  if (!filtrados.length) { alert("Nenhum aluno encontrado no " + sem + "º semestre."); return; }
+  const msg = (bloquear ? "Bloquear" : "Liberar") + " " + filtrados.length + " alunos do " + sem + "º semestre?";
+  if (!confirm(msg)) return;
+  const batch = writeBatch(db);
+  filtrados.forEach(d => batch.update(doc(db,"alunos",d.id), {bloqueado: bloquear}));
+  await batch.commit();
+  alert("Feito! " + filtrados.length + " alunos " + (bloquear ? "bloqueados" : "liberados") + ".");
+}
+
 window.importarAlunos = async function(inputEl) {
   const file = inputEl.files[0];
   if (!file) { alert("Selecione um arquivo .xlsx"); return; }
@@ -616,7 +668,7 @@ window.importarAlunos = async function(inputEl) {
       const sem  = semCol  >= 0 ? String(row[semCol]||"").trim()  : "";
       // Normalizar nome: Title Case
       const nomeFormatado = nome.split(" ").map(w => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase()).join(" ");
-      batch.set(doc(collection(db,"alunos")), {rgm, nome:nomeFormatado, semestre:sem, bloqueado:false});
+      batch.set(doc(collection(db,"alunos")), {rgm, nome:nomeFormatado, semestre:sem, bloqueado:false, ativo:true});
       count++;
     });
     await batch.commit();
@@ -680,11 +732,19 @@ window.popularAlunos = async function() {
   const batch = writeBatch(db);
   Object.entries(alunos).forEach(([rgm, data]) => {
     batch.set(doc(collection(db,"alunos")), {
-      rgm, nome: data.nome, semestre: data.semestre, bloqueado: false
+      rgm, nome: data.nome, semestre: data.semestre, bloqueado: false, ativo: true
     });
   });
   await batch.commit();
-  alert(Object.keys(alunos).length + " alunos cadastrados!");
+  alert(Object.keys(alunos).length + " alunos cadastrados com status ATIVO!");
+};
+
+window.liberarTodosConsole = async function() {
+  const snap = await getDocs(collection(db,"alunos"));
+  const batch = writeBatch(db);
+  snap.forEach(d => batch.update(doc(db,"alunos",d.id), {bloqueado: false}));
+  await batch.commit();
+  alert(snap.size + " alunos liberados!");
 };
 
 window.popularRGMs4sem = async function() {
