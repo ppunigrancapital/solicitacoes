@@ -130,7 +130,7 @@ textarea{resize:vertical;min-height:80px}
     <div class="campo"><label>RGM <span class="obrig">*</span></label><input type="text" name="rgm" id="rgmEst" placeholder="Ex: 192.000" required oninput="mascaraRgm(this);onRgmInput(this,'estudio')" maxlength="7" placeholder="Ex: 192.020"><p id="rgmStatusEstudio" style="font-size:12px;margin-top:6px;display:none"></p></div>
     <div class="campo"><label>Nome completo <span class="obrig">*</span></label><input type="text" name="nome" id="nomeEst" placeholder="Carregando..." readonly required></div>
     <div class="campo"><label>Semestre <span class="obrig">*</span></label>
-      <select name="semestre" required><option value="">Selecione</option><option value="1º">1º</option><option value="3º">3º</option></select></div>
+      <select name="semestre" id="semestreEst" required><option value="">Selecione</option><option value="1">1º</option><option value="2">2º</option><option value="3">3º</option><option value="4">4º</option><option value="5">5º</option><option value="6">6º</option></select></div>
     <div class="campo"><label>WhatsApp <span class="obrig">*</span></label><input type="tel" name="whatsapp" required></div>
     <div class="campo"><label>Data de Nascimento <span class="obrig">*</span></label><input type="date" name="nascimento" required></div>
     <div class="campo">
@@ -206,7 +206,7 @@ textarea{resize:vertical;min-height:80px}
     <div class="campo"><label>RGM <span class="obrig">*</span></label><input type="text" name="rgmE" id="rgmE" placeholder="Ex: 192.000" required oninput="mascaraRgm(this);onRgmInput(this,'equip')" maxlength="7" placeholder="Ex: 192.020"><p id="rgmStatusEquip" style="font-size:12px;margin-top:6px;display:none"></p></div>
     <div class="campo"><label>Nome completo <span class="obrig">*</span></label><input type="text" name="nomeE" id="nomeE" placeholder="Carregando..." readonly required></div>
     <div class="campo"><label>Semestre <span class="obrig">*</span></label>
-      <select name="semestreE" required><option value="">Selecione</option><option value="1º">1º</option><option value="3º">3º</option></select></div>
+      <select name="semestreE" id="semestreE" required><option value="">Selecione</option><option value="1">1º</option><option value="2">2º</option><option value="3">3º</option><option value="4">4º</option><option value="5">5º</option><option value="6">6º</option></select></div>
     <div class="campo"><label>WhatsApp <span class="obrig">*</span></label><input type="tel" name="whatsappE" required></div>
     <div class="campo"><label>Data de Nascimento <span class="obrig">*</span></label><input type="date" name="nascimentoE" required></div>
     <div class="campo">
@@ -841,7 +841,7 @@ function verificarRgm(rgm, tipo) {
     if (nomeEl) nomeEl.value = aluno.nome;
     // Preencher semestre automaticamente
     var semEl = document.getElementById(tipo === 'equip' ? 'semestreE' : 'semestreEst');
-    if (semEl) semEl.value = aluno.semestre;
+    if (semEl && aluno.semestre) semEl.value = String(aluno.semestre);
     // Preencher e-mail automaticamente
     var emailEl = document.getElementById(tipo === 'equip' ? 'emailE' : 'emailEst');
     var emailAuto = rgm + '@alunos.unigrancapital.com.br';
