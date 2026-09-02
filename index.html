@@ -307,26 +307,50 @@ var inventario = [];
 var rgmsAutorizados4sem = [];
 var alunoLogado = null; // {rgm, nome, semestre, bloqueado}
 
-// Carregar dados dos alunos do Firestore ao iniciar
+// Cache local de alunos carregado do Firestore
+var _cacheAlunos = null;
+var _loadingAlunos = false;
+var _callbacksAlunos = [];
+
 (function() {
   var fbAppAlunos;
   try { fbAppAlunos = firebase.app('pp-alunos'); } catch(e) {
     fbAppAlunos = firebase.initializeApp({
-  apiKey: "AIzaSyD2JmP33idYRN6MBsdRzDM65TTZsYBV050",
-  authDomain: "ppuncapital-solicitacoes.firebaseapp.com",
-  projectId: "ppuncapital-solicitacoes"
-}, 'pp-alunos');
+      apiKey: "AIzaSyD2JmP33idYRN6MBsdRzDM65TTZsYBV050",
+      authDomain: "ppuncapital-solicitacoes.firebaseapp.com",
+      projectId: "ppuncapital-solicitacoes"
+    }, 'pp-alunos');
   }
   window._dbAlunos = firebase.firestore(fbAppAlunos);
+  // Pré-carregar todos os alunos em cache
+  _loadingAlunos = true;
+  window._dbAlunos.collection('alunos').get()
+    .then(function(snap) {
+      _cacheAlunos = {};
+      snap.forEach(function(d) {
+        var data = d.data();
+        if (data.rgm) _cacheAlunos[data.rgm] = data;
+      });
+      _loadingAlunos = false;
+      _callbacksAlunos.forEach(function(cb) { cb(); });
+      _callbacksAlunos = [];
+    }).catch(function(err) {
+      console.error('Erro ao carregar alunos:', err);
+      _cacheAlunos = {};
+      _loadingAlunos = false;
+    });
 })();
 
 function buscarAluno(rgm, callback) {
-  window._dbAlunos.collection('alunos').where('rgm', '==', rgm).limit(1).get()
-    .then(function(snap) {
-      if (snap.empty) { callback(null); return; }
-      var d = snap.docs[0].data();
-      callback(d);
-    }).catch(function() { callback(null); });
+  if (_cacheAlunos !== null) {
+    var aluno = _cacheAlunos[rgm] || null;
+    callback(aluno);
+    return;
+  }
+  // Aguardar carregamento
+  _callbacksAlunos.push(function() {
+    callback(_cacheAlunos[rgm] || null);
+  });
 }
 
 // Carregar RGMs autorizados do Firestore
