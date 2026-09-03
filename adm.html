@@ -44,7 +44,7 @@ header span{font-size:12px;opacity:.7}
 .btn{padding:8px 18px;border-radius:var(--r);border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:Inter,sans-serif;text-decoration:none;display:inline-block}
 .bok{background:var(--verde);color:#fff}.bno{background:#eee;color:#333}.broxo{background:var(--roxo);color:#fff}.bverm{background:#c0392b;color:#fff}
 .vazio{text-align:center;color:#6b6b6b;padding:40px;font-size:13px}
-.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,130px));gap:12px;justify-content:start}
+.pgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
 .ecard{background:#fff;border:1px solid var(--borda);border-radius:var(--r);padding:16px 10px;text-align:center;cursor:pointer;transition:all .15s;position:relative}
 .ecard:hover{border-color:var(--roxo);box-shadow:0 2px 12px rgba(106,30,154,.15);transform:translateY(-2px)}
 .ecard-icon{font-size:30px;margin-bottom:8px;display:block}
@@ -93,7 +93,7 @@ header span{font-size:12px;opacity:.7}
 .campo{margin-bottom:14px}.campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
 .campo input,.campo select{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .campo input:focus,.campo select:focus{border-color:var(--roxo)}
-@media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}.pgrid{grid-template-columns:repeat(auto-fill,minmax(120px,1fr))}}
+@media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}.pgrid{grid-template-columns:repeat(3,1fr)}}
 </style>
 </head>
 <body>
@@ -411,6 +411,22 @@ function renderPatrimonio(docs) {
   addRow.appendChild(catInp); addRow.appendChild(catBtn); catsBox.appendChild(addRow); el.appendChild(catsBox);
 
   // Botão adicionar
+  // Box bloqueio geral de equipamentos para turmas
+  var bloqBox=document.createElement('div'); bloqBox.className='cfg';
+  bloqBox.innerHTML='<h3>Bloqueio de Equipamentos por Turma</h3><p style="font-size:12px;color:#6b6b6b;margin-bottom:14px">Bloqueia ou libera todos os equipamentos para uma turma específica, sem alterar as configurações individuais.</p>';
+  var bloqRow=document.createElement('div'); bloqRow.style.cssText='display:flex;gap:8px;flex-wrap:wrap;align-items:center';
+  var bloqSel=document.createElement('select'); bloqSel.id='bloqSemestre';
+  bloqSel.style.cssText='border:1.5px solid var(--borda);border-radius:var(--r);padding:8px 12px;font-size:13px;outline:none;font-family:Inter,sans-serif';
+  ['Todos','1','2','3','4','5','6'].forEach(function(s){
+    var o=document.createElement('option'); o.value=s; o.textContent=s==='Todos'?'Todos os semestres':s+'º Semestre'; bloqSel.appendChild(o);
+  });
+  var bBloq=document.createElement('button'); bBloq.className='btn bverm'; bBloq.textContent='🚫 Bloquear turma';
+  bBloq.onclick=function(){ bloqueioEquipTurma(bloqSel.value, true); };
+  var bLib2=document.createElement('button'); bLib2.className='btn bok'; bLib2.textContent='✅ Liberar turma';
+  bLib2.onclick=function(){ bloqueioEquipTurma(bloqSel.value, false); };
+  bloqRow.appendChild(bloqSel); bloqRow.appendChild(bBloq); bloqRow.appendChild(bLib2);
+  bloqBox.appendChild(bloqRow); el.appendChild(bloqBox);
+
   var ab=document.createElement('button'); ab.className='abtn'; ab.textContent='+ Adicionar equipamento'; ab.onclick=function(){abrirModal(null);};
   el.appendChild(ab);
 
@@ -514,6 +530,24 @@ function abrirModal(item) {
   document.getElementById('modal').classList.add('on');
 }
 
+function bloqueioEquipTurma(sem, bloquear) {
+  var msg = (bloquear?'Bloquear':'Liberar')+' equipamentos para '+(sem==='Todos'?'todos os semestres':'o '+sem+'º semestre')+'?';
+  if (!confirm(msg)) return;
+  // Bloquear/liberar os alunos do semestre para equipamentos
+  db.collection('alunos').get().then(function(snap) {
+    var batch=db.batch();
+    var count=0;
+    snap.forEach(function(d){
+      var aluno=d.data();
+      if (sem==='Todos' || String(aluno.semestre)===String(sem)) {
+        batch.update(d.ref, {equipBloqueado: bloquear});
+        count++;
+      }
+    });
+    batch.commit().then(function(){ alert(count+' alunos '+(bloquear?'bloqueados':'liberados')+' para equipamentos.'); });
+  });
+}
+
 function fecharModal() { document.getElementById('modal').classList.remove('on'); }
 
 function salvarEquip() {
@@ -562,7 +596,24 @@ function renderListaAlunos(docs, container, filtro) {
     var grid=document.createElement('div'); grid.className='agrid';
     sems[sem].forEach(function(d){
       var c=document.createElement('div'); c.className='acard'+(d.bloqueado?' bloqueado':'');
-      c.innerHTML='<h3>'+(d.nome||'')+'</h3><p>RGM: <strong>'+(d.rgm||'')+'</strong></p><p>E-mail: '+(d.rgm||'')+'@alunos.unigrancapital.com.br</p>';
+      // Nome editável
+      var nomeEl=document.createElement('input');
+      nomeEl.value=d.nome||'';
+      nomeEl.style.cssText='width:100%;border:none;border-bottom:1px solid var(--borda);font-size:13px;font-weight:600;padding:2px 0;margin-bottom:6px;outline:none;font-family:Inter,sans-serif;background:transparent';
+      nomeEl.onblur=function(){ if(this.value!==d.nome){ db.collection('alunos').doc(d.id).update({nome:this.value}); d.nome=this.value; } };
+
+      // RGM editável
+      var rgmRow=document.createElement('div'); rgmRow.style.cssText='display:flex;align-items:center;gap:4px;margin-bottom:2px';
+      var rgmLbl=document.createElement('span'); rgmLbl.style.cssText='font-size:12px;color:#6b6b6b'; rgmLbl.textContent='RGM: ';
+      var rgmEl=document.createElement('input'); rgmEl.value=d.rgm||'';
+      rgmEl.style.cssText='border:none;border-bottom:1px solid var(--borda);font-size:12px;font-weight:600;padding:1px 0;outline:none;font-family:Inter,sans-serif;background:transparent;width:80px';
+      rgmEl.onblur=function(){ if(this.value!==d.rgm){ db.collection('alunos').doc(d.id).update({rgm:this.value}); d.rgm=this.value; } };
+      rgmRow.appendChild(rgmLbl); rgmRow.appendChild(rgmEl);
+
+      var emailP=document.createElement('p'); emailP.style.cssText='font-size:11px;color:#6b6b6b;margin-bottom:2px';
+      emailP.textContent=(d.rgm||'')+'@alunos.unigrancapital.com.br';
+
+      c.appendChild(nomeEl); c.appendChild(rgmRow); c.appendChild(emailP);
       var badge=document.createElement('span'); badge.className=d.bloqueado?'semp':'sdisp';
       badge.textContent=d.bloqueado?'🚫 Bloqueado':'✅ Ativo'; badge.style.marginTop='8px'; badge.style.display='inline-block';
       c.appendChild(badge);
