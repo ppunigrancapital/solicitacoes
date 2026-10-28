@@ -231,6 +231,7 @@ textarea{resize:vertical;min-height:80px}
     <div class="campo">
       <label>Data de retirada <span class="obrig">*</span></label>
       <input type="date" name="dataRetirada" id="dataRetirada" required onchange="onDataRetiradaChange()">
+      <p class="campo-hint">Retiradas de segunda a quinta-feira. Não há retirada às sextas.</p>
     </div>
     <div class="devolucao-info" id="devolucaoInfo"></div>
 
@@ -256,6 +257,59 @@ textarea{resize:vertical;min-height:80px}
 
 <script>
 var SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx0ib88rEgwl9Th_O5VHs_OCY9CswSgXjwxNG3FEmoyZEWoZsCYX5E59O-IWFQvrEz_/exec";
+
+// ====== DISPONIBILIDADE POR DATA (compartilhado entre estúdio e equipamentos) ======
+function _isoDe(v) {
+  var s = String(v || ''), m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return m[1] + '-' + m[2] + '-' + m[3];
+  m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  return m ? m[3] + '-' + m[2] + '-' + m[1] : '';
+}
+
+// Devolve {patrimonio: true} dos itens ocupados em qualquer dia entre ini e fim (AAAA-MM-DD).
+// Conta empréstimos aprovados que se sobrepõem ao período, empréstimos retirados e ainda não
+// devolvidos (mesmo que a data prevista já tenha passado) e reservas de estúdio aprovadas no período.
+function patrimoniosEmUso(db, ini, fim, cb) {
+  var emUso = {};
+  function marcar(str) { String(str || '').split(',').forEach(function(p) { var t = p.trim(); if (t) emUso[t] = true; }); }
+  db.collection('emprestimos').where('status', '==', 'Aprovado').get().then(function(empSnap) {
+    empSnap.forEach(function(d) {
+      var e = d.data(); if (e.devolvidoEm) return;
+      var r = _isoDe(e.dataRetirada), v = _isoDe(e.dataDevolucao) || r;
+      if (!r) return;
+      if ((r <= fim && ini <= v) || (e.retiradoEm && fim >= r)) marcar(e.patrimonios);
+    });
+    return db.collection('solicitacoes').where('status', '==', 'Aprovado').get();
+  }).then(function(estSnap) {
+    estSnap.forEach(function(d) {
+      var s = d.data(); if (s.devolvidoEm) return;
+      var dt = _isoDe(s.data);
+      if (dt && dt >= ini && dt <= fim) marcar(s.patrimonios);
+    });
+    cb(emUso);
+  }).catch(function(err) { console.error('patrimoniosEmUso:', err); cb(emUso); });
+}
+
+// Tira da lista os horários que já têm pedido pendente ou aprovado para o mesmo estúdio
+// Regras de sexta-feira
+var SEXTA_ESTUDIO_TERMINA_ATE = 16;   // estúdio na sexta: último horário às 15h (uso termina às 16h)
+function _ehSexta(iso) { var p = String(iso || '').split('-'); return p.length === 3 && new Date(+p[0], +p[1]-1, +p[2]).getDay() === 5; }
+function _limitarSexta(slots, data) {
+  if (!_ehSexta(data) || !slots) return slots;
+  return slots.filter(function(h){ return parseInt(String(h).split(':')[0], 10) + 1 <= SEXTA_ESTUDIO_TERMINA_ATE; });
+}
+function _removerSlotsOcupados(slots, data) {
+  if (!slots || !slots.length) return slots;
+  return firebase.firestore().collection('solicitacoes').where('data', '==', data).get().then(function(snap) {
+    var ocupados = {}, tipo = estudioSelecionado || 'Estúdio de Foto';
+    snap.forEach(function(d) {
+      var x = d.data();
+      if ((x.status === 'Pendente' || x.status === 'Aprovado') && (x.tipoEstudio || 'Estúdio de Foto') === tipo)
+        ocupados[String(x.horario || '').substring(0, 5)] = true;
+    });
+    return slots.filter(function(s) { return !ocupados[s]; });
+  }).catch(function() { return slots; });
+}
 
 // Verificar status via Firebase Firestore
 (function() {
@@ -309,8 +363,18 @@ var inventario = [];
 var estudiosBloquedos = {}; // {tipoEstudio: true/false}
 
 // Monitorar bloqueios de estúdio em tempo real
+var _datasBloq = [];
+// Datas bloqueadas pela coordenação (feriado, recesso). alvo: 'estudio' ou 'equip'
+function _bloqueioData(iso, alvo) {
+  for (var i = 0; i < _datasBloq.length; i++) {
+    var x = _datasBloq[i], a = x.alvo || 'ambos';
+    if ((a === 'ambos' || a === alvo) && iso >= x.de && iso <= (x.ate || x.de)) return x.motivo || 'Sem atendimento nesta data';
+  }
+  return null;
+}
 firebase.firestore().collection('config').onSnapshot(function(snap) {
   snap.forEach(function(d) {
+    if (d.id === 'datasBloqueadas') _datasBloq = Array.isArray(d.data().itens) ? d.data().itens : [];
     if (d.id.startsWith('bloqEstudio_')) {
       var data = d.data();
       if (data.estudio) estudiosBloquedos[data.estudio] = !!data.bloqueado;
@@ -429,7 +493,8 @@ function gerarDias(gridId, onClickFn) {
   d.setDate(d.getDate() + 1);
   while (n < 30) {
     var ds = d.getDay();
-    if (ds >= 1 && ds <= 5) {
+    var _isoDia = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
+    if (ds >= 1 && ds <= 5 && !(gridId === 'diasGridEstudio' && _bloqueioData(_isoDia, 'estudio'))) {
       var btn = document.createElement('button');
       btn.type = 'button'; btn.className = 'dia-btn';
       btn.dataset.data = d.getFullYear() + '-' + ('0'+(d.getMonth()+1)).slice(-2) + '-' + ('0'+d.getDate()).slice(-2);
@@ -465,10 +530,17 @@ function selecionarDiaEstudio(e) {
 }, 'pp-inv');
   }
   var dbEst = firebase.firestore(fbAppEst);
+  var diaConsulta = diaSelecionadoEstudio;
   dbEst.collection('patrimonio').get().then(function(snap) {
-    var itens = [];
-    snap.forEach(function(d) { itens.push(Object.assign({id:d.id}, d.data(), {disponivel: d.data().status === 'Disponivel'})); });
-    renderEquipEstudio(itens);
+    patrimoniosEmUso(dbEst, diaConsulta, diaConsulta, function(emUso) {
+      if (diaSelecionadoEstudio !== diaConsulta) return; // aluno já trocou de dia
+      var itens = [];
+      snap.forEach(function(d) {
+        var x = d.data();
+        itens.push(Object.assign({id:d.id}, x, {disponivel: x.status === 'Disponivel' && (!x.patrimonio || !emUso[x.patrimonio])}));
+      });
+      renderEquipEstudio(itens);
+    });
   }).catch(function(){ container.innerHTML = '<p class="msg-slots">Erro ao carregar equipamentos.</p>'; });
 }
 
@@ -477,6 +549,8 @@ function carregarSlots(data) {
   cont.innerHTML = '<p class="carregando">Verificando disponibilidade...</p>';
   fetch(SCRIPT_URL + '?acao=slots&data=' + data + '&tipo=' + encodeURIComponent(estudioSelecionado || 'Estúdio de Foto'))
     .then(function(r){ return r.json(); })
+    .then(function(slots){ return _removerSlotsOcupados(slots, data); })
+    .then(function(slots){ return _limitarSexta(slots, data); })
     .then(function(slots){
       if (!slots || slots.length === 0) {
         cont.innerHTML = '<p class="msg-slots">Nenhum horário disponível nesta data.</p>'; return;
@@ -616,6 +690,24 @@ function calcularDevolucao(dataStr) {
 function onDataRetiradaChange() {
   var data = document.getElementById('dataRetirada').value;
   if (!data) return;
+  if (_ehSexta(data)) {
+    alert('Não há retirada de equipamentos às sextas-feiras. Escolha a quinta-feira (a devolução será na segunda).');
+    document.getElementById('dataRetirada').value = '';
+    document.getElementById('devolucaoInfo').style.display = 'none';
+    equipSelecionados = [];
+    document.getElementById('equipSelecionadosHidden').value = '';
+    return;
+  }
+  var _blq = _bloqueioData(data, 'equip') ? 'A retirada não é possível nesta data (' + _bloqueioData(data, 'equip') + ').' :
+             (_bloqueioData(_isoDe(calcularDevolucao(data)), 'equip') ? 'A devolução cairia em um dia sem atendimento (' + _bloqueioData(_isoDe(calcularDevolucao(data)), 'equip') + '). Escolha outra data de retirada.' : '');
+  if (_blq) {
+    alert(_blq);
+    document.getElementById('dataRetirada').value = '';
+    document.getElementById('devolucaoInfo').style.display = 'none';
+    equipSelecionados = [];
+    document.getElementById('equipSelecionadosHidden').value = '';
+    return;
+  }
   var dev = calcularDevolucao(data);
   var info = document.getElementById('devolucaoInfo');
   info.style.display = 'block';
@@ -645,37 +737,14 @@ function renderEquipamentosDisponiveis(dataRetirada) {
     var todos = [];
     snap.forEach(function(d) { todos.push(Object.assign({id: d.id}, d.data())); });
 
-    var dataObj = new Date(dataRetirada + 'T12:00:00');
-    db.collection('emprestimos').where('status','==','Aprovado').get().then(function(empSnap) {
-      var emUso = {};
-      empSnap.forEach(function(d) {
-        var emp = d.data();
-        var ret = emp.dataRetirada ? new Date(emp.dataRetirada + 'T12:00:00') : null;
-        var devStr = emp.dataDevolucao || '';
-        var devMatch = devStr.match(/(\d{2})\/(\d{2})\/(\d{4})/);
-        var dev = devMatch ? new Date(devMatch[3]+'-'+devMatch[2]+'-'+devMatch[1]+'T23:59:00') : null;
-        if (ret && dataObj >= ret && (!dev || dataObj <= dev)) {
-          (emp.patrimonios||'').split(',').forEach(function(p){
-            var t = p.trim(); if(t) emUso[t] = true;
-          });
-        }
-      });
-      db.collection('solicitacoes').where('status','==','Aprovado').get().then(function(estSnap) {
-        estSnap.forEach(function(d) {
-          var est = d.data();
-          if (est.data === dataRetirada) {
-            (est.patrimonios||'').split(',').forEach(function(p){
-              var t = p.trim(); if(t) emUso[t] = true;
-            });
-          }
+    var devISO = _isoDe(calcularDevolucao(dataRetirada)) || dataRetirada;
+    patrimoniosEmUso(db, dataRetirada, devISO, function(emUso) {
+      inventario = todos.map(function(item) {
+        return Object.assign({}, item, {
+          disponivel: item.status === 'Disponivel' && (!item.patrimonio || !emUso[item.patrimonio])
         });
-        inventario = todos.map(function(item) {
-          return Object.assign({}, item, {
-            disponivel: item.status === 'Disponivel' && (!item.patrimonio || !emUso[item.patrimonio])
-          });
-        });
-        renderLista(dataRetirada);
       });
+      renderLista(dataRetirada);
     });
   }).catch(function(err) {
     container.innerHTML = '<p class="msg-slots">Erro ao carregar equipamentos. Tente novamente.</p>';
@@ -846,7 +915,7 @@ function toggleEquipEstudioModelo(el, cat, modelo, disponiveis) {
   document.getElementById('equipEstudioHidden').value =
     equipEstudioSelecionados.map(function(e){ return e.descricao || e.cat; }).join(', ') || 'Nenhum';
   document.getElementById('patrimoniosEstudioHidden').value =
-    equipEstudioSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', ');
+    (function(l){ return l.some(Boolean) ? l.join(', ') : ''; })(equipEstudioSelecionados.map(function(e){ return e.patrimonio || ''; }));
 }
 
 function toggleEquipEstudio(id, cat, patrimonio) {
@@ -862,7 +931,7 @@ function toggleEquipEstudio(id, cat, patrimonio) {
   document.getElementById('equipEstudioHidden').value =
     equipEstudioSelecionados.map(function(e){ return e.descricao || e.cat; }).join(', ') || 'Nenhum';
   document.getElementById('patrimoniosEstudioHidden').value =
-    equipEstudioSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', ');
+    (function(l){ return l.some(Boolean) ? l.join(', ') : ''; })(equipEstudioSelecionados.map(function(e){ return e.patrimonio || ''; }));
 }
 function mascaraRgm(el) {
   var v = el.value.replace(/\D/g, '');
@@ -899,7 +968,9 @@ function verificarRgm(rgm, tipo) {
       return;
     }
     if (aluno.bloqueado) {
-      if (statusEl) { statusEl.style.color = '#c0392b'; statusEl.textContent = 'No momento seu RGM não está disponível para reserva. Procure a Coordenação para mais informações.'; }
+      if (statusEl) { statusEl.style.color = '#c0392b'; statusEl.textContent = aluno.bloqueadoPorAtraso
+        ? 'Há equipamentos com devolução pendente no seu RGM. Procure a Coordenação de PP para regularizar e liberar novas reservas.'
+        : 'No momento seu RGM não está disponível para reserva. Procure a Coordenação para mais informações.'; }
       if (nomeEl) { nomeEl.value = ''; nomeEl.placeholder = ''; }
       alunoLogado = null;
       return;
@@ -995,7 +1066,7 @@ function toggleEquipEstudioModelo(el, cat, modelo, disponiveis) {
   document.getElementById('equipEstudioHidden').value =
     equipEstudioSelecionados.map(function(e){ return e.descricao || e.cat; }).join(', ') || 'Nenhum';
   document.getElementById('patrimoniosEstudioHidden').value =
-    equipEstudioSelecionados.map(function(e){ return e.patrimonio; }).filter(Boolean).join(', ');
+    (function(l){ return l.some(Boolean) ? l.join(', ') : ''; })(equipEstudioSelecionados.map(function(e){ return e.patrimonio || ''; }));
 }
 
 var equipEstudioSelecionados = [];
@@ -1010,6 +1081,8 @@ document.getElementById('formEquip').addEventListener('submit', function(ev) {
 
   var dataRet = document.getElementById('dataRetirada') ? document.getElementById('dataRetirada').value : '';
   if (!dataRet) { alert('Selecione a data de retirada.'); return; }
+  if (_ehSexta(dataRet)) { alert('Não há retirada de equipamentos às sextas-feiras. Escolha a quinta-feira.'); return; }
+  if (_bloqueioData(dataRet, 'equip') || _bloqueioData(_isoDe(calcularDevolucao(dataRet)), 'equip')) { alert('Data indisponível para retirada. Escolha outra data.'); return; }
   if (equipSelecionados.length === 0) { alert('Selecione ao menos um equipamento.'); return; }
 
   var fd = new FormData(ev.target);
@@ -1021,7 +1094,8 @@ document.getElementById('formEquip').addEventListener('submit', function(ev) {
   var nomesList = equipSelecionados.map(function(e) {
     return e.cat === 'Câmera de Foto' || e.cat === 'Câmera' ? e.descricao + ' + Kit' : (e.descricao || e.cat);
   }).join(', ');
-  var patList = equipSelecionados.map(function(e){ return e.patrimonio || ''; }).filter(Boolean).join(', ');
+  var _pl = equipSelecionados.map(function(e){ return e.patrimonio || ''; });
+  var patList = _pl.some(Boolean) ? _pl.join(', ') : '';
 
   var devInfo = document.getElementById('devolucaoInfo') ? document.getElementById('devolucaoInfo').textContent.replace('📅 Data de devolução: ','').trim() : '';
 
@@ -1034,6 +1108,8 @@ document.getElementById('formEquip').addEventListener('submit', function(ev) {
     whatsapp: fd.get('whatsappE') || '',
     nascimento: fd.get('nascimentoE') || '',
     email: emailVal,
+    finalidade: fd.get('finalidadeE') || '',
+    descricao: fd.get('descricaoE') || '',
     dataRetirada: dataRet,
     dataDevolucao: devInfo,
     equipamentos: nomesList || 'Nenhum',
@@ -1073,7 +1149,7 @@ document.getElementById('formEquip').addEventListener('submit', function(ev) {
       // Enviar via GET para evitar CORS
       var paramsEq = '?acao=novoEquip';
       ['nome','rgm','semestre','whatsapp','email','equipamentos',
-       'patrimonios','dataRetirada','dataDevolucao'].forEach(function(k){
+       'patrimonios','dataRetirada','dataDevolucao','finalidade','descricao'].forEach(function(k){
         paramsEq += '&' + k + '=' + encodeURIComponent(dados[k]||'');
       });
       fetch(SCRIPT_URL + paramsEq)

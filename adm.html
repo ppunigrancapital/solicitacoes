@@ -93,6 +93,8 @@ header span{font-size:12px;opacity:.7}
 .campo{margin-bottom:14px}.campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
 .campo input,.campo select{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .campo input:focus,.campo select:focus{border-color:var(--roxo)}
+.cancelado{background:#e2e3e5;color:#383d41}.bicon{padding:8px 12px}
+@media(max-width:700px){header{padding:12px 16px}.tabs{padding:0 8px}.tab{padding:12px 14px}.cgrid{grid-template-columns:1fr}.btns .btn{flex:1 1 calc(50% - 8px);text-align:center;padding:12px 10px}.btns .btn.bicon{flex:0 0 auto}.acard .abtns .btn{flex:1;padding:9px 10px!important}.mbox,.emodal-box{padding:18px}.header-right{gap:10px}input,select,textarea{font-size:16px!important}#ctlLista{overflow-x:auto}.painel{padding:12px}}
 @media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}.cat-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
 </style>
 </head>
@@ -120,12 +122,16 @@ header span{font-size:12px;opacity:.7}
   <div class="tabs">
     <div class="tab on" onclick="mudarAba('estudio',this)">📷 Estúdio</div>
     <div class="tab" onclick="mudarAba('equipamentos',this)">🎥 Equipamentos</div>
+    <div class="tab" onclick="mudarAba('controle',this)">📋 Controle</div>
+    <div class="tab" onclick="mudarAba('historico',this)">📊 Histórico</div>
     <div class="tab" onclick="mudarAba('patrimonio',this)">📦 Patrimônio</div>
     <div class="tab" onclick="mudarAba('alunos',this)">🎓 Alunos</div>
   </div>
   <div class="painel">
     <div id="estudio"></div>
     <div id="equipamentos" style="display:none"></div>
+    <div id="controle" style="display:none"></div>
+    <div id="historico" style="display:none"></div>
     <div id="patrimonio" style="display:none"></div>
     <div id="alunos" style="display:none"></div>
   </div>
@@ -219,72 +225,10 @@ function entrar() {
     });
 }
 
-function mudarAba(aba, el) {
-  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
-  el.classList.add('on');
-  ['estudio','equipamentos','patrimonio','alunos'].forEach(function(id){
-    document.getElementById(id).style.display = id === aba ? 'block' : 'none';
-  });
-}
 
-function iniciar() {
-  var u1 = db.collection('solicitacoes').orderBy('enviadoEm','desc').onSnapshot(function(snap) {
-    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
-    renderEstudio(docs);
-  });
-  var u2 = db.collection('emprestimos').orderBy('enviadoEm','desc').onSnapshot(function(snap) {
-    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
-    renderEquipamentos(docs);
-  });
-  var u3 = db.collection('patrimonio').onSnapshot(function(snap) {
-    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
-    CATS = [...new Set(docs.map(function(d){ return d.categoria; }))].filter(Boolean).sort();
-    popularSelectCat();
-    renderPatrimonio(docs);
-  });
-  var u4 = db.collection('alunos').onSnapshot(function(snap) {
-    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
-    _todosAlunos = docs;
-    renderAlunos(docs);
-  });
-  var u5 = db.collection('config').doc('status').onSnapshot(function(snap) {
-    if (!snap.exists) return;
-    var d = snap.data();
-    var ckEst=document.getElementById('ckEst'); if(ckEst) ckEst.checked = d.estudioAtivo!==false;
-    var ckEq=document.getElementById('ckEq');   if(ckEq)  ckEq.checked  = d.equipAtivo!==false;
-    var me=document.getElementById('msgEst');   if(me) me.value = d.msgEstudio||'';
-    var mq=document.getElementById('msgEq');    if(mq) mq.value = d.msgEquip||'';
-  });
-  _unsubscribers = [u1,u2,u3,u4,u5];
-}
 
 // ── HELPERS ──────────────────────────────────────────────────────────
-function mkCard(nome, sub, status, dets, btnsEl) {
-  var c = document.createElement('div'); c.className = 'card';
-  var top = document.createElement('div'); top.className = 'ctop';
-  var inf = document.createElement('div');
-  inf.innerHTML = '<div class="cnome">'+nome+'</div><div class="csub">'+sub+'</div>';
-  var b = document.createElement('span');
-  b.className = 'badge '+status.toLowerCase(); b.textContent = status;
-  top.appendChild(inf); top.appendChild(b); c.appendChild(top);
-  var g = document.createElement('div'); g.className = 'cgrid';
-  dets.forEach(function(d){
-    var el = document.createElement('div'); el.className = 'det';
-    el.innerHTML = '<strong>'+d[0]+'</strong>'+(d[1]||'—'); g.appendChild(el);
-  });
-  c.appendChild(g); if(btnsEl) c.appendChild(btnsEl); return c;
-}
 
-function mkBtns(lista) {
-  var d = document.createElement('div'); d.className = 'btns';
-  lista.forEach(function(b){
-    var el = document.createElement(b.href?'a':'button');
-    el.className = 'btn '+b.cls; el.textContent = b.label;
-    if(b.href){ el.href=b.href; el.target='_blank'; } else el.onclick=b.fn;
-    d.appendChild(el);
-  });
-  return d;
-}
 
 function renderSec(cid, titulo, itens, mkFn) {
   var el = document.getElementById(cid);
@@ -295,137 +239,8 @@ function renderSec(cid, titulo, itens, mkFn) {
 }
 
 // ── ESTÚDIO ──────────────────────────────────────────────────────────
-function renderEstudio(docs) {
-  var el = document.getElementById('estudio'); el.innerHTML = '';
-  var pend=docs.filter(function(s){return s.status==='Pendente';});
-  var apr=docs.filter(function(s){return s.status==='Aprovado';});
-  var rec=docs.filter(function(s){return s.status==='Recusado';});
-  renderSec('estudio','Pendentes',pend,function(s){ return mkCard(
-    (s.nome||'')+' — '+(s.semestre||'')+' sem.','RGM '+(s.rgm||'')+' · '+(s.email||'')+' · '+(s.whatsapp||''),s.status,
-    [['Tipo',s.tipoEstudio],['Data',s.data],['Horário',s.horario],['WhatsApp',s.whatsapp],['Finalidade',s.finalidade],['Descrição',s.descricao],['Equipamentos',s.equipamentos],['Participantes',s.participantes]],
-    mkBtns([
-      {label:'✅ Aprovar',cls:'bok',fn:function(){aprovarEst(s);}},
-      {label:'❌ Recusar',cls:'bno',fn:function(){recusarEst(s);}},
-      {label:'📱 WhatsApp',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'estudio','Aprovado',s.data,s.horario);}}
-    ]));
-  });
-  renderSec('estudio','Agendados',apr,function(s){ return mkCard(
-    (s.nome||'')+' — '+(s.semestre||'')+' sem.','RGM '+(s.rgm||''),s.status,
-    [['Tipo',s.tipoEstudio],['Data',s.data],['Horário',s.horario]],
-    mkBtns([
-      {label:'❌ Cancelar',cls:'bverm',fn:function(){cancelarEst(s);}},
-      {label:'✏️ Editar',cls:'bno',fn:function(){editarSolicitacao(s,'solicitacoes');}},
-      {label:'🖨️ Ver Termo',cls:'broxo',href:(function(s){
-        var p = '?acao=termoEstudio&id='+(s.firestoreId||s.id);
-        p += '&nome='+encodeURIComponent(s.nome||'');
-        p += '&rgm='+encodeURIComponent(s.rgm||'');
-        p += '&semestre='+encodeURIComponent(s.semestre||'');
-        p += '&whatsapp='+encodeURIComponent(s.whatsapp||'');
-        p += '&email='+encodeURIComponent(s.email||'');
-        p += '&finalidade='+encodeURIComponent(s.finalidade||'');
-        p += '&descricao='+encodeURIComponent(s.descricao||'');
-        p += '&equipamentos='+encodeURIComponent(s.equipamentos||'Nenhum');
-        p += '&participantes='+encodeURIComponent(s.participantes||'');
-        p += '&data='+encodeURIComponent(s.data||'');
-        p += '&horario='+encodeURIComponent(s.horario||'');
-        p += '&tipoEstudio='+encodeURIComponent(s.tipoEstudio||'Estúdio de Foto');
-        return SU+p;
-      })(s)},
-      {label:'📱 WhatsApp',cls:'bok',fn:function(){abrirWA(s.nome,s.whatsapp,'estudio','Aprovado',s.data,s.horario);}}
-    ]));
-  });
-  renderSec('estudio','Histórico',rec,function(s){ return mkCard(s.nome||'','RGM '+(s.rgm||''),s.status,[['Data',s.data],['Horário',s.horario]],
-    s.status==='Recusado'?mkBtns([{label:'📱 WhatsApp',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'estudio','Recusado',s.data,s.horario);}}]):null); });
-}
-function aprovarEst(s) {
-  if(!confirm('Aprovar reserva de '+s.nome+'?')) return;
-  db.collection('solicitacoes').doc(s.id).update({status:'Aprovado'});
-  var u = SU+'?acao=aprovar'
-    +'&id='+encodeURIComponent(s.firestoreId||s.id||'')
-    +'&nome='+encodeURIComponent(s.nome||'')
-    +'&email='+encodeURIComponent(s.email||'')
-    +'&data='+encodeURIComponent(s.data||'')
-    +'&horario='+encodeURIComponent(s.horario||'')
-    +'&tipoEstudio='+encodeURIComponent(s.tipoEstudio||'');
-  fetch(u).then(function(r){return r.json();}).then(function(res){console.log('aprovar:',res);}).catch(function(e){console.error(e);});
-  alert('Aprovado! E-mail enviado ao aluno.');
-}
-function recusarEst(s) {
-  if(!confirm('Recusar reserva de '+s.nome+'?')) return;
-  db.collection('solicitacoes').doc(s.id).update({status:'Recusado'});
-  var u = SU+'?acao=recusar'
-    +'&id='+encodeURIComponent(s.firestoreId||s.id||'')
-    +'&nome='+encodeURIComponent(s.nome||'')
-    +'&email='+encodeURIComponent(s.email||'')
-    +'&data='+encodeURIComponent(s.data||'')
-    +'&horario='+encodeURIComponent(s.horario||'');
-  fetch(u).then(function(r){return r.json();}).then(function(res){console.log('recusar:',res);}).catch(function(e){console.error(e);});
-  alert('Recusado. E-mail enviado ao aluno.');
-}
 
 // ── EQUIPAMENTOS ─────────────────────────────────────────────────────
-function renderEquipamentos(docs) {
-  var el = document.getElementById('equipamentos'); el.innerHTML = '';
-  var pend=docs.filter(function(s){return s.status==='Pendente';});
-  var apr=docs.filter(function(s){return s.status==='Aprovado';});
-  var rec=docs.filter(function(s){return s.status==='Recusado';});
-  renderSec('equipamentos','Pendentes',pend,function(s){ return mkCard(
-    s.nome||'','RGM '+(s.rgm||'')+' · '+(s.email||''),s.status,
-    [['Retirada',s.dataRetirada],['Devolução',s.dataDevolucao],['Equipamentos',s.equipamentos],['Patrimônios',s.patrimonios]],
-    mkBtns([
-      {label:'✅ Aprovar e enviar termo',cls:'bok',fn:function(){aprovarEq(s);}},
-      {label:'❌ Recusar',cls:'bno',fn:function(){recusarEq(s);}},
-      {label:'📱 WhatsApp',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'equip','Aprovado',s.dataRetirada,'');}}
-    ]));
-  });
-  renderSec('equipamentos','Aprovados',apr,function(s){ return mkCard(
-    s.nome||'','RGM '+(s.rgm||''),s.status,[['Retirada',s.dataRetirada],['Devolução',s.dataDevolucao],['Equipamentos',s.equipamentos]],
-    mkBtns([
-      {label:'❌ Cancelar',cls:'bverm',fn:function(){cancelarEq(s);}},
-      {label:'✏️ Editar',cls:'bno',fn:function(){editarSolicitacao(s,'emprestimos');}},
-      {label:'🖨️ Ver Termo',cls:'broxo',href:(function(s){
-        var p = '?acao=termoEquip&id='+(s.firestoreId||s.id);
-        p += '&nome='+encodeURIComponent(s.nome||'');
-        p += '&rgm='+encodeURIComponent(s.rgm||'');
-        p += '&semestre='+encodeURIComponent(s.semestre||'');
-        p += '&email='+encodeURIComponent(s.email||'');
-        p += '&equipamentos='+encodeURIComponent(s.equipamentos||'');
-        p += '&patrimonios='+encodeURIComponent(s.patrimonios||'');
-        p += '&dataRetirada='+encodeURIComponent(s.dataRetirada||'');
-        p += '&dataDevolucao='+encodeURIComponent(s.dataDevolucao||'');
-        return SU+p;
-      })(s)},
-      {label:'📱 WhatsApp',cls:'bok',fn:function(){abrirWA(s.nome,s.whatsapp,'equip','Aprovado',s.dataRetirada,'');}}
-    ]));
-  });
-  renderSec('equipamentos','Histórico',rec,function(s){ return mkCard(s.nome||'','RGM '+(s.rgm||''),s.status,[['Retirada',s.dataRetirada]],
-    s.status==='Recusado'?mkBtns([{label:'📱 WhatsApp',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'equip','Recusado',s.dataRetirada,'');}}]):null); });
-}
-function aprovarEq(s) {
-  if(!confirm('Aprovar empréstimo de '+s.nome+'?')) return;
-  db.collection('emprestimos').doc(s.id).update({status:'Aprovado'});
-  var u = SU+'?acao=aprovarEquip'
-    +'&id='+encodeURIComponent(s.firestoreId||s.id||'')
-    +'&nome='+encodeURIComponent(s.nome||'')
-    +'&email='+encodeURIComponent(s.email||'')
-    +'&equipamentos='+encodeURIComponent(s.equipamentos||'')
-    +'&patrimonios='+encodeURIComponent(s.patrimonios||'')
-    +'&dataRetirada='+encodeURIComponent(s.dataRetirada||'')
-    +'&dataDevolucao='+encodeURIComponent(s.dataDevolucao||'');
-  fetch(u).then(function(r){return r.json();}).then(function(res){console.log('aprovarEq:',res);}).catch(function(e){console.error(e);});
-  alert('Aprovado! E-mail enviado ao aluno.');
-}
-function recusarEq(s) {
-  if(!confirm('Recusar empréstimo de '+s.nome+'?')) return;
-  db.collection('emprestimos').doc(s.id).update({status:'Recusado'});
-  var u = SU+'?acao=recusarEquip'
-    +'&id='+encodeURIComponent(s.firestoreId||s.id||'')
-    +'&nome='+encodeURIComponent(s.nome||'')
-    +'&email='+encodeURIComponent(s.email||'')
-    +'&equipamentos='+encodeURIComponent(s.equipamentos||'');
-  fetch(u).then(function(r){return r.json();}).then(function(res){console.log('recusarEq:',res);}).catch(function(e){console.error(e);});
-  alert('Recusado. E-mail enviado ao aluno.');
-}
 
 // ── PATRIMÔNIO ───────────────────────────────────────────────────────
 function popularSelectCat() {
@@ -448,6 +263,7 @@ function renderPatrimonio(docs) {
   var bSv=document.createElement('button'); bSv.className='btn broxo'; bSv.textContent='Salvar disponibilidade'; bSv.onclick=salvarStatus;
   cfg.appendChild(lEst); cfg.appendChild(mEst); cfg.appendChild(lEq); cfg.appendChild(mEq); cfg.appendChild(bSv);
   el.appendChild(cfg);
+  el.appendChild(boxDatasBloqueadas());
 
   // Bloqueio por estúdio individual
   var stBox=document.createElement('div'); stBox.className='cfg';
@@ -486,7 +302,7 @@ function renderPatrimonio(docs) {
   var tagsDiv=document.createElement('div');
   CATS.forEach(function(cat){
     var tag=document.createElement('span'); tag.className='cat-tag';
-    tag.innerHTML=cat+' <button class="cat-edit" title="Renomear">✏️</button><button class="cat-del" title="Remover">×</button>';
+    tag.innerHTML=esc(cat)+' <button class="cat-edit" title="Renomear">✏️</button><button class="cat-del" title="Remover">×</button>';
     tag.querySelector('.cat-del').onclick=function(){ removerCategoria(cat,docs); };
     tag.querySelector('.cat-edit').onclick=function(){ var n=prompt('Novo nome:',cat); if(n&&n.trim()&&n.trim()!==cat) renomearCategoria(cat,n.trim(),docs); };
     tagsDiv.appendChild(tag);
@@ -548,8 +364,8 @@ function renderPatrimonio(docs) {
       c.innerHTML=(restrito?'<span class="ecard-restrito">🔒</span>':'')+
         '<span class="ecard-badge">'+disponiveis+'/'+unidades.length+'</span>'+
         '<span class="ecard-icon">'+icone+'</span>'+
-        '<div class="ecard-nome">'+modelo.descricao+'</div>'+
-        '<div class="ecard-info">'+(modelo.marca||'')+'</div>';
+        '<div class="ecard-nome">'+esc(modelo.descricao)+'</div>'+
+        '<div class="ecard-info">'+esc(modelo.marca)+'</div>';
       c.onclick=(function(cat,modelo,unidades,restrito,icone){return function(){abrirEmodal(cat,modelo,unidades,restrito,icone);};})(cat,modelo,unidades,restrito,icone);
       cardsDiv.appendChild(c);
     });
@@ -597,7 +413,7 @@ function abrirEmodal(cat, modelo, unidades, restrito, icone) {
 function salvarStatus() {
   var ce=document.getElementById('ckEst'), cq=document.getElementById('ckEq');
   var me=document.getElementById('msgEst'), mq=document.getElementById('msgEq');
-  db.collection('config').doc('status').set({estudioAtivo:ce?ce.checked:true,msgEstudio:me?me.value:'',equipAtivo:cq?cq.checked:true,msgEquip:mq?mq.value:''});
+  db.collection('config').doc('status').set({estudioAtivo:ce?ce.checked:true,msgEstudio:me?me.value:'',equipAtivo:cq?cq.checked:true,msgEquip:mq?mq.value:''},{merge:true});
   alert('Disponibilidade salva!');
 }
 
@@ -677,11 +493,11 @@ function renderListaAlunos(docs, container, filtro) {
     var grid=document.createElement('div'); grid.className='agrid';
     sems[sem].forEach(function(d){
       var c=document.createElement('div'); c.className='acard'+(d.bloqueado?' bloqueado':'');
-      c.innerHTML='<h3>'+(d.nome||'')+'</h3>' +
-        '<p>RGM: <strong>'+(d.rgm||'')+'</strong></p>' +
-        '<p>E-mail: '+(d.rgm||'')+'@alunos.unigrancapital.com.br</p>' +
-        (d.whatsapp ? '<p>WhatsApp: '+(d.whatsapp||'')+'</p>' : '') +
-        (d.nascimento ? '<p>Nascimento: '+(d.nascimento||'')+'</p>' : '');
+      c.innerHTML='<h3>'+esc(d.nome)+'</h3>' +
+        '<p>RGM: <strong>'+esc(d.rgm)+'</strong></p>' +
+        '<p>E-mail: '+esc(d.rgm)+'@alunos.unigrancapital.com.br</p>' +
+        (d.whatsapp ? '<p>WhatsApp: '+esc(d.whatsapp)+'</p>' : '') +
+        (d.nascimento ? '<p>Nascimento: '+esc(nascTexto(d.nascimento))+'</p>' : '');
       var badge=document.createElement('span'); badge.className=d.bloqueado?'semp':'sdisp';
       badge.textContent=d.bloqueado?'🚫 Bloqueado':'✅ Ativo'; badge.style.marginTop='8px'; badge.style.display='inline-block';
       c.appendChild(badge);
@@ -927,71 +743,1524 @@ function bloqueioEstudio(estudio, bloquear) {
   });
 }
 
-function cancelarEst(s) {
-  if(!confirm('Cancelar a reserva aprovada de '+s.nome+'? O aluno será notificado.')) return;
-  db.collection('solicitacoes').doc(s.id).update({status:'Cancelado'});
-  var url = SU+'?acao=recusar&id='+encodeURIComponent(s.firestoreId||s.id);
-  url += '&nome='+encodeURIComponent(s.nome||'')+'&email='+encodeURIComponent(s.email||'');
-  url += '&data='+encodeURIComponent(s.data||'')+'&horario='+encodeURIComponent(s.horario||'');
-  url += '&motivo=cancelamento';
-  fetch(url).catch(function(){});
-  alert('Reserva cancelada. E-mail enviado ao aluno.');
+
+
+
+
+
+
+function fmtData(d) {
+  if (!d) return '—';
+  // Se for yyyy-mm-dd converte para dd/mm/yyyy
+  if (/^\d{4}-\d{2}-\d{2}/.test(String(d))) {
+    var p = String(d).split('-');
+    return p[2].substring(0,2) + '/' + p[1] + '/' + p[0];
+  }
+  return String(d);
 }
 
-function cancelarEq(s) {
-  if(!confirm('Cancelar o empréstimo aprovado de '+s.nome+'? O aluno será notificado.')) return;
-  db.collection('emprestimos').doc(s.id).update({status:'Cancelado'});
-  var url = SU+'?acao=recusarEquip&id='+encodeURIComponent(s.firestoreId||s.id);
-  url += '&nome='+encodeURIComponent(s.nome||'')+'&email='+encodeURIComponent(s.email||'');
-  url += '&equipamentos='+encodeURIComponent(s.equipamentos||'');
-  fetch(url).catch(function(){});
-  alert('Empréstimo cancelado. E-mail enviado ao aluno.');
-}
-
-function editarSolicitacao(s, colecao) {
-  var equipAtual = s.equipamentos || '';
-  var novo = prompt('Editar equipamentos aprovados (aprovação parcial):\nAtual: ' + equipAtual + '\n\nDigite os equipamentos aprovados:', equipAtual);
-  if (novo === null) return;
-  db.collection(colecao).doc(s.id).update({equipamentos: novo.trim()});
-  alert('Equipamentos atualizados. Recarregue a página para ver.');
+function _waAbrir(whatsapp, msg) {
+  var tel = (whatsapp||'').replace(/\D/g,'');
+  if (tel.length < 10) { alert('WhatsApp não cadastrado ou inválido: ' + (whatsapp||'(vazio)')); return; }
+  if (tel.slice(0,2) !== '55') tel = '55' + tel;
+  window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank');
 }
 
 function abrirWA(nome, whatsapp, tipo, status, data, horario) {
-  var tel = (whatsapp||'').replace(/\D/g,'');
-  if (tel.length < 10) { alert('WhatsApp não cadastrado ou inválido.'); return; }
-  if (tel.slice(0,2) !== '55') tel = '55' + tel;
+  var dataFmt = fmtData(data);
   var msg = '';
   if (status === 'Aprovado') {
     if (tipo === 'estudio') {
       msg = 'Olá, ' + nome + '! 😊\n\n' +
-        'Sua reserva no *Estúdio de PP da UNIGRAN Capital* foi *aprovada*! ✅\n\n' +
-        '📅 Data: *' + (data||'') + '*\n' +
+        'Sua reserva no *Estúdio PP da UNIGRAN Capital* foi *aprovada*! ✅\n\n' +
+        '📅 Data: *' + dataFmt + '*\n' +
         '🕐 Horário: *' + (horario||'') + '*\n\n' +
-        'Você receberá o Termo de Uso por e-mail. ' +
-        'Lembre-se de comparecer à coordenação para retirar os equipamentos e assinar o documento.\n\n' +
+        'O Termo de Uso será enviado por e-mail. Assine e entregue uma via à Coordenação *antes da retirada dos equipamentos*.\n\n' +
         '_Publicidade & Propaganda — UNIGRAN Capital_';
     } else {
       msg = 'Olá, ' + nome + '! 😊\n\n' +
         'Sua solicitação de *empréstimo de equipamentos* foi *aprovada*! ✅\n\n' +
-        '📅 Retirada: *' + (data||'') + '*\n\n' +
-        'Você receberá o Termo de Responsabilidade por e-mail. ' +
-        'Compareça à coordenação para retirar os equipamentos e assinar o documento.\n\n' +
+        '📅 Retirada: *' + dataFmt + '*\n\n' +
+        'O Termo de Responsabilidade será enviado por e-mail. Assine e entregue uma via à Coordenação *antes da retirada*.\n\n' +
         '_Publicidade & Propaganda — UNIGRAN Capital_';
     }
   } else {
-    if (tipo === 'estudio') {
-      msg = 'Olá, ' + nome + '.\n\n' +
-        'Infelizmente sua solicitação de reserva do *Estúdio PP* para o dia *' + (data||'') + '* às *' + (horario||'') + '* não pôde ser aprovada no momento.\n\n' +
-        'Entre em contato com a Coordenação para mais informações.\n\n' +
-        '_Publicidade & Propaganda — UNIGRAN Capital_';
-    } else {
-      msg = 'Olá, ' + nome + '.\n\n' +
-        'Infelizmente sua solicitação de *empréstimo de equipamentos* não pôde ser aprovada no momento.\n\n' +
-        'Entre em contato com a Coordenação para mais informações.\n\n' +
-        '_Publicidade & Propaganda — UNIGRAN Capital_';
-    }
+    msg = '';
   }
+  _waAbrir(whatsapp, msg);
+}
+
+function abrirWARecusa(nome, whatsapp, tipo, data, horario, motivo) {
+  var dataFmt = fmtData(data);
+  var msg = '';
+  if (tipo === 'estudio') {
+    msg = 'Olá, ' + nome + '.\n\n' +
+      'Infelizmente sua solicitação de reserva do *Estúdio PP* para o dia *' + dataFmt + '* às *' + (horario||'') + '* não foi aprovada.\n\n' +
+      '📋 Motivo: ' + (motivo||'Horário indisponível') + '\n\n' +
+      'Se quiser, pode fazer uma nova solicitação para outra data/horário.\n\n' +
+      '_Publicidade & Propaganda — UNIGRAN Capital_';
+  } else {
+    msg = 'Olá, ' + nome + '.\n\n' +
+      'Sua solicitação de *empréstimo de equipamentos* não foi aprovada.\n\n' +
+      '📋 Motivo: ' + (motivo||'Equipamentos indisponíveis') + '\n\n' +
+      'Se quiser, pode fazer uma nova solicitação.\n\n' +
+      '_Publicidade & Propaganda — UNIGRAN Capital_';
+  }
+  _waAbrir(whatsapp, msg);
+}
+
+function abrirWAEdicao(nome, whatsapp, tipo, novaData, novoHorario, novosEquip) {
+  var dataFmt = fmtData(novaData);
+  var msg = 'Olá, ' + nome + '! 👋\n\n' +
+    'A Coordenação de PP fez algumas alterações na sua solicitação' +
+    (tipo === 'estudio'
+      ? ' de reserva do estúdio:\n\n📅 Nova data: *' + dataFmt + '*\n🕐 Novo horário: *' + (novoHorario||'') + '*'
+      : ' de empréstimo de equipamentos:\n\n📅 Nova data de retirada: *' + dataFmt + '*') +
+    (novosEquip ? '\n📦 Equipamentos: *' + novosEquip + '*' : '') +
+    '\n\nVocê *confirma* essa alteração? Responda com *SIM* para confirmar ou entre em contato com a Coordenação.\n\n' +
+    '_Publicidade & Propaganda — UNIGRAN Capital_';
+  _waAbrir(whatsapp, msg);
+}
+
+
+// ═════════════════════════════════════════════════════════════════════
+//  v6 — editor de reserva, apagar, controle de materiais, termo
+// ═════════════════════════════════════════════════════════════════════
+var ESTUDIOS = ['Estúdio de Foto','Estúdio de Vídeo','Estúdio de Podcast'];
+var HORARIOS = [8,9,10,13,14,15,16,17,18];
+var _estDocs = [], _empDocs = [], _patDocs = [];
+var _ctl = {status:'abertos', sem:'todos', busca:''};
+
+// ── utilidades ───────────────────────────────────────────────────────
+function esc(v) {
+  return String(v == null ? '' : v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+function pad2(n) { return ('0' + n).slice(-2); }
+function hojeISO() { var d = new Date(); return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+function paraISO(v) {
+  if (!v) return '';
+  if (v && typeof v.toDate === 'function') { var t = v.toDate(); return t.getFullYear()+'-'+pad2(t.getMonth()+1)+'-'+pad2(t.getDate()); }
+  var s = String(v), m = s.match(/^(\d{4})-(\d{2})-(\d{2})/);
+  if (m) return m[1]+'-'+m[2]+'-'+m[3];
+  m = s.match(/(\d{2})\/(\d{2})\/(\d{4})/);
+  return m ? m[3]+'-'+m[2]+'-'+m[1] : '';
+}
+function calcDevolucao(iso) {
+  var p = iso.split('-'), d = new Date(+p[0], +p[1]-1, +p[2]), ds = d.getDay();
+  d.setDate(d.getDate() + (ds === 4 ? 4 : ds === 5 ? 3 : ds === 6 ? 2 : 1));
+  return pad2(d.getDate()) + '/' + pad2(d.getMonth()+1) + '/' + d.getFullYear() + ' até 19h';
+}
+function qs(obj) {
+  return Object.keys(obj).map(function(k){ return '&' + k + '=' + encodeURIComponent(obj[k] == null ? '' : obj[k]); }).join('');
+}
+function splitLista(v) {
+  return String(v || '').split(',').map(function(x){ return x.trim(); });
+}
+function dataCurta(iso) {
+  var p = iso.split('-'), d = new Date(+p[0], +p[1]-1, +p[2]);
+  var dia = d.toLocaleDateString('pt-BR', {weekday:'short'}).replace('.','');
+  return dia + ', ' + p[2] + '/' + p[1] + '/' + p[0];
+}
+function overlay(id, conteudoEl) {
+  var antigo = document.getElementById(id); if (antigo) antigo.remove();
+  var m = document.createElement('div'); m.id = id;
+  m.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:300;display:flex;align-items:center;justify-content:center;padding:16px';
+  var box = document.createElement('div');
+  box.style.cssText = 'background:#fff;border-radius:10px;width:100%;max-width:520px;max-height:90vh;overflow-y:auto;padding:24px';
+  box.appendChild(conteudoEl); m.appendChild(box);
+  m.addEventListener('mousedown', function(ev){ if (ev.target === m) m.remove(); });
+  document.body.appendChild(m);
+  return m;
+}
+function mkEl(tag, css, txt) {
+  var e = document.createElement(tag); if (css) e.style.cssText = css; if (txt != null) e.textContent = txt; return e;
+}
+
+// ── abas e carga ─────────────────────────────────────────────────────
+function mudarAba(aba, el) {
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('on'); });
+  el.classList.add('on');
+  ['estudio','equipamentos','controle','historico','patrimonio','alunos'].forEach(function(id){
+    document.getElementById(id).style.display = id === aba ? 'block' : 'none';
+  });
+  if (aba === 'historico') renderHistorico();
+}
+
+function iniciar() {
+  montarBarraControle();
+  var u1 = iniciarFontesEst();
+  var u2 = iniciarFontesEmp();
+  var u6 = iniciarDatasBloq();
+  montarBarraPeriodo();
+  var u3 = db.collection('patrimonio').onSnapshot(function(snap) {
+    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
+    _patDocs = docs;
+    CATS = [...new Set(docs.map(function(d){ return d.categoria; }))].filter(Boolean).sort();
+    popularSelectCat();
+    renderPatrimonio(docs);
+  });
+  var u4 = db.collection('alunos').onSnapshot(function(snap) {
+    var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
+    _todosAlunos = docs;
+    renderAlunos(docs); renderControle();
+  });
+  var u5 = db.collection('config').doc('status').onSnapshot(function(snap) {
+    if (!snap.exists) return;
+    var d = snap.data(); _autoBloq = d.autoBloqueioAtraso === true; renderControle();
+    var ckEst=document.getElementById('ckEst'); if(ckEst) ckEst.checked = d.estudioAtivo!==false;
+    var ckEq=document.getElementById('ckEq');   if(ckEq)  ckEq.checked  = d.equipAtivo!==false;
+    var me=document.getElementById('msgEst');   if(me) me.value = d.msgEstudio||'';
+    var mq=document.getElementById('msgEq');    if(mq) mq.value = d.msgEquip||'';
+  });
+  _unsubscribers = [u1,u2,u3,u4,u5,u6];
+}
+
+// ── cards ────────────────────────────────────────────────────────────
+function mkCard(nome, sub, status, dets, btnsEl) {
+  var c = document.createElement('div'); c.className = 'card';
+  var top = document.createElement('div'); top.className = 'ctop';
+  var inf = document.createElement('div');
+  inf.innerHTML = '<div class="cnome">'+esc(nome)+'</div><div class="csub">'+esc(sub)+'</div>';
+  var b = document.createElement('span');
+  b.className = 'badge '+String(status).toLowerCase(); b.textContent = status;
+  top.appendChild(inf); top.appendChild(b); c.appendChild(top);
+  var g = document.createElement('div'); g.className = 'cgrid';
+  dets.forEach(function(d){
+    var el = document.createElement('div'); el.className = 'det';
+    el.innerHTML = '<strong>'+esc(d[0])+'</strong>'+(d[1] ? esc(d[1]) : '—'); g.appendChild(el);
+  });
+  c.appendChild(g); if(btnsEl) c.appendChild(btnsEl); return c;
+}
+
+function mkBtns(lista) {
+  var d = document.createElement('div'); d.className = 'btns';
+  lista.forEach(function(b){
+    var el = document.createElement(b.href?'a':'button');
+    el.className = 'btn '+b.cls; el.textContent = b.label;
+    if (b.title) el.title = b.title;
+    if (b.href){ el.href=b.href; el.target='_blank'; } else el.onclick=b.fn;
+    d.appendChild(el);
+  });
+  return d;
+}
+
+function btnApagar(col, s) {
+  return {label:'🗑️', title:'Apagar', cls:'bno bicon', fn:function(){ apagarSolicitacao(col, s); }};
+}
+
+// ── ESTÚDIO ──────────────────────────────────────────────────────────
+function renderEstudio(docs) {
+  var el = document.getElementById('estudio'); el.innerHTML = '';
+  var pend = docs.filter(function(s){return s.status==='Pendente';}).sort(function(a,b){return (paraISO(a.data)+(a.horario||'')).localeCompare(paraISO(b.data)+(b.horario||''));});
+  var apr  = docs.filter(function(s){return s.status==='Aprovado';});
+  var hist = docs.filter(function(s){return s.status==='Recusado' || s.status==='Cancelado';});
+  renderSec('estudio','Pendentes',pend,function(s){ return mkCard(
+    (s.nome||'')+' — '+(s.semestre||'')+' sem.','RGM '+(s.rgm||'')+' · '+(s.email||'')+' · '+(s.whatsapp||'')+resumoAluno(s.rgm)+conflitoTag(s,true),s.status,
+    conflitoDet(s,true).concat([['Nascimento',nascTexto(nascDe(s))],['Tipo',s.tipoEstudio],['Data',fmtData(s.data)],['Horário',s.horario],['WhatsApp',s.whatsapp],['Finalidade',s.finalidade],['Descrição',s.descricao],['Equipamentos',s.equipamentos],['Patrimônios',s.patrimonios],['Pessoas no estúdio',s.participantes]]),
+    mkBtns([
+      {label:'✅ Aprovar',cls:'bok',fn:function(){aprovarEst(s);}},
+      {label:'❌ Recusar',cls:'bverm',fn:function(){recusarEstComMotivo(s);}},
+      {label:'✏️ Editar reserva',cls:'broxo',fn:function(){editarSolicitacao(s,'solicitacoes');}},
+      {label:'🗂️ Abrir card',cls:'bno',fn:function(){abrirCardReserva(s,'solicitacoes');}},
+      {label:'📱 WA',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'estudio','Aprovado',s.data,s.horario);}},
+      btnApagar('solicitacoes', s)
+    ]));
+  });
+  renderSec('estudio','Agendados',apr,function(s){ return mkCard(
+    (s.nome||'')+' — '+(s.semestre||'')+' sem.','RGM '+(s.rgm||''),s.status,
+    [['Tipo',s.tipoEstudio],['Data',fmtData(s.data)],['Horário',s.horario],['Equipamentos',s.equipamentos],['Patrimônios',s.patrimonios],['Pessoas no estúdio',s.participantes]],
+    mkBtns([
+      {label:'❌ Cancelar',cls:'bverm',fn:function(){cancelarEst(s);}},
+      {label:'✏️ Editar',cls:'bno',fn:function(){editarSolicitacao(s,'solicitacoes');}},
+      {label:'🖨️ Ver Termo',cls:'broxo',fn:function(){abrirTermo(s,'estudio',false);}},
+      {label:'📱 WhatsApp',cls:'bok',fn:function(){abrirWA(s.nome,s.whatsapp,'estudio','Aprovado',s.data,s.horario);}},
+      btnApagar('solicitacoes', s)
+    ]));
+  });
+  renderSec('estudio','Histórico',hist,function(s){ return mkCard(s.nome||'','RGM '+(s.rgm||''),s.status,
+    [['Data',fmtData(s.data)],['Horário',s.horario],['Motivo',s.motivoRecusa]],
+    mkBtns((s.status==='Recusado' ? [{label:'📱 WhatsApp',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'estudio','Recusado',s.data,s.horario,s.motivoRecusa);}}] : []).concat([btnApagar('solicitacoes', s)]))); });
+}
+
+
+
+
+// ── EQUIPAMENTOS ─────────────────────────────────────────────────────
+function renderEquipamentos(docs) {
+  var el = document.getElementById('equipamentos'); el.innerHTML = '';
+  var pend = docs.filter(function(s){return s.status==='Pendente';}).sort(function(a,b){return paraISO(a.dataRetirada).localeCompare(paraISO(b.dataRetirada));});
+  var apr  = docs.filter(function(s){return s.status==='Aprovado';});
+  var hist = docs.filter(function(s){return s.status==='Recusado' || s.status==='Cancelado';});
+  renderSec('equipamentos','Pendentes',pend,function(s){ return mkCard(
+    (s.nome||'')+(s.semestre ? ' — '+s.semestre+' sem.' : ''),'RGM '+(s.rgm||'')+' · '+(s.email||'')+resumoAluno(s.rgm)+conflitoTag(s,false),s.status,
+    conflitoDet(s,false).concat([['Nascimento',nascTexto(nascDe(s))],['Finalidade',s.finalidade],['Descrição da atividade',s.descricao],['Retirada',fmtData(s.dataRetirada)],['Devolução',fmtData(s.dataDevolucao)],['Equipamentos',s.equipamentos],['Patrimônios',s.patrimonios],['WhatsApp',s.whatsapp]]),
+    mkBtns([
+      {label:'✅ Aprovar',cls:'bok',fn:function(){aprovarEq(s);}},
+      {label:'❌ Recusar',cls:'bverm',fn:function(){recusarEqComMotivo(s);}},
+      {label:'✏️ Editar reserva',cls:'broxo',fn:function(){editarSolicitacao(s,'emprestimos');}},
+      {label:'🗂️ Abrir card',cls:'bno',fn:function(){abrirCardReserva(s,'emprestimos');}},
+      {label:'📱 WA',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'equip','Aprovado',s.dataRetirada,'');}},
+      btnApagar('emprestimos', s)
+    ]));
+  });
+  renderSec('equipamentos','Aprovados',apr,function(s){ return mkCard(
+    s.nome||'','RGM '+(s.rgm||''),s.status,[['Finalidade',s.finalidade],['Descrição da atividade',s.descricao],['Retirada',fmtData(s.dataRetirada)],['Devolução',fmtData(s.dataDevolucao)],['Equipamentos',s.equipamentos],['Patrimônios',s.patrimonios]],
+    mkBtns([
+      {label:'❌ Cancelar',cls:'bverm',fn:function(){cancelarEq(s);}},
+      {label:'✏️ Editar',cls:'bno',fn:function(){editarSolicitacao(s,'emprestimos');}},
+      {label:'🖨️ Ver Termo',cls:'broxo',fn:function(){abrirTermo(s,'equip',false);}},
+      {label:'📱 WhatsApp',cls:'bok',fn:function(){abrirWA(s.nome,s.whatsapp,'equip','Aprovado',s.dataRetirada,'');}},
+      btnApagar('emprestimos', s)
+    ]));
+  });
+  renderSec('equipamentos','Histórico',hist,function(s){ return mkCard(s.nome||'','RGM '+(s.rgm||''),s.status,
+    [['Retirada',fmtData(s.dataRetirada)],['Motivo',s.motivoRecusa]],
+    mkBtns((s.status==='Recusado' ? [{label:'📱 WhatsApp',cls:'bno',fn:function(){abrirWA(s.nome,s.whatsapp,'equip','Recusado',s.dataRetirada,'',s.motivoRecusa);}}] : []).concat([btnApagar('emprestimos', s)]))); });
+}
+
+
+
+
+// ── APAGAR ───────────────────────────────────────────────────────────
+
+// ── TERMO ────────────────────────────────────────────────────────────
+
+
+
+// ── EDITAR RESERVA ───────────────────────────────────────────────────
+function patrimoniosEmUso(iso, ignoreId) {
+  var uso = {};
+  _estDocs.forEach(function(x){
+    if (x.id === ignoreId || x.status !== 'Aprovado' || paraISO(x.data) !== iso) return;
+    splitLista(x.patrimonios).forEach(function(p){ if (p) uso[p] = true; });
+  });
+  _empDocs.forEach(function(x){
+    if (x.id === ignoreId || x.status !== 'Aprovado') return;
+    var r = paraISO(x.dataRetirada), d = paraISO(x.dataDevolucao);
+    if (!r || iso < r || (d && iso > d)) return;
+    splitLista(x.patrimonios).forEach(function(p){ if (p) uso[p] = true; });
+  });
+  return uso;
+}
+
+// Mesmo formato que o formulário do aluno grava
+function nomeDoItem(p, isEst) {
+  var base = p.descricao || p.categoria || '';
+  if (!isEst && (p.categoria === 'Câmera de Foto' || p.categoria === 'Câmera')) base += ' + Kit';
+  return base;
+}
+
+function editarSolicitacao(s, colecao) {
+  var isEst = colecao === 'solicitacoes';
+  var dataOrig = paraISO(isEst ? s.data : s.dataRetirada);
+  var nomes = splitLista(s.equipamentos).filter(function(n){ return n && !/^nenhum$/i.test(n); });
+  var pats = splitLista(s.patrimonios);
+  var itens = nomes.map(function(n, i){ return {nome: n, pat: pats[i] || ''}; });
+
+  var box = document.createElement('div');
+  box.appendChild(mkEl('h3', 'color:#4a1270;margin-bottom:4px', '✏️ Editar reserva'));
+  box.appendChild(mkEl('p', 'font-size:12px;color:#6b6b6b;margin-bottom:16px', (s.nome || '') + ' · RGM ' + (s.rgm || '')));
+  if (s.patrimonios && pats.length !== nomes.length) {
+    box.appendChild(mkEl('div', 'font-size:11px;background:#fff3cd;color:#856404;border-radius:6px;padding:6px 10px;margin-bottom:12px',
+      'Pedido antigo: os patrimônios (' + s.patrimonios + ') podem não estar na mesma ordem dos itens. Confira antes de salvar.'));
+  }
+
+  function campo(rotulo, el) {
+    var w = mkEl('div', 'margin-bottom:12px');
+    w.appendChild(mkEl('label', 'display:block;font-size:12px;font-weight:600;color:#4a1270;margin-bottom:4px', rotulo));
+    el.style.cssText = 'width:100%;border:1.5px solid #ddd0ea;border-radius:8px;padding:8px 10px;font-size:13px;font-family:Inter,sans-serif;outline:none';
+    w.appendChild(el); box.appendChild(w); return el;
+  }
+  var selTipo, inpData, selHora, inpParts;
+  if (isEst) {
+    selTipo = document.createElement('select');
+    ESTUDIOS.forEach(function(t){ var o = document.createElement('option'); o.value = t; o.textContent = t; if (t === s.tipoEstudio) o.selected = true; selTipo.appendChild(o); });
+    campo('Estúdio', selTipo);
+  }
+  inpData = document.createElement('input'); inpData.type = 'date'; inpData.value = dataOrig;
+  campo(isEst ? 'Data' : 'Data de retirada', inpData);
+  if (isEst) {
+    selHora = document.createElement('select');
+    HORARIOS.forEach(function(h){ var v = pad2(h) + ':00', o = document.createElement('option'); o.value = v; o.textContent = v; if (v === String(s.horario || '').substring(0,5)) o.selected = true; selHora.appendChild(o); });
+    campo('Horário', selHora);
+    inpParts = document.createElement('input'); inpParts.type = 'text'; inpParts.value = s.participantes || '';
+    campo('Participantes', inpParts);
+  }
+
+  box.appendChild(mkEl('label', 'display:block;font-size:12px;font-weight:600;color:#4a1270;margin:6px 0 6px', 'Equipamentos da reserva'));
+  var rowsEl = mkEl('div', 'margin-bottom:8px');
+  box.appendChild(rowsEl);
+  var inpCss = 'border:1.5px solid #ddd0ea;border-radius:6px;padding:6px 8px;font-size:12px;font-family:Inter,sans-serif;outline:none;';
+
+  function desenharLinhas() {
+    rowsEl.innerHTML = '';
+    if (!itens.length) rowsEl.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b;padding:6px 0', 'Nenhum equipamento na reserva.'));
+    itens.forEach(function(it, i){
+      var r = mkEl('div', 'display:flex;gap:6px;margin-bottom:6px;align-items:center');
+      var n = document.createElement('input'); n.type = 'text'; n.value = it.nome; n.placeholder = 'Equipamento'; n.style.cssText = inpCss + 'flex:2;min-width:0';
+      n.oninput = function(){ it.nome = n.value; };
+      var p = document.createElement('input'); p.type = 'text'; p.value = it.pat; p.placeholder = 'Patrimônio'; p.style.cssText = inpCss + 'flex:1;min-width:0';
+      p.oninput = function(){ it.pat = p.value; };
+      var x = mkEl('button', 'background:#fde;color:#c0392b;border:none;border-radius:6px;padding:6px 10px;cursor:pointer;font-weight:700', '×');
+      x.title = 'Remover item';
+      x.onclick = function(){ itens.splice(i, 1); desenharLinhas(); montarPicker(); };
+      r.appendChild(n); r.appendChild(p); r.appendChild(x); rowsEl.appendChild(r);
+    });
+  }
+
+  var pickRow = mkEl('div', 'display:flex;gap:6px;margin-bottom:6px');
+  var pick = document.createElement('select'); pick.style.cssText = inpCss + 'flex:1;min-width:0';
+  var btnAdd = mkEl('button', 'background:#6a1e9a;color:#fff;border:none;border-radius:6px;padding:6px 12px;cursor:pointer;font-weight:600;font-size:12px', '+ Adicionar');
+  pickRow.appendChild(pick); pickRow.appendChild(btnAdd); box.appendChild(pickRow);
+  var btnManual = mkEl('button', 'background:none;border:none;color:#6a1e9a;font-size:12px;cursor:pointer;padding:0;margin-bottom:16px;text-decoration:underline', 'Adicionar item digitando manualmente');
+  box.appendChild(btnManual);
+
+  function montarPicker() {
+    var uso = patrimoniosEmUso(inpData.value, s.id);
+    var jaTem = {}; itens.forEach(function(it){ if (it.pat) jaTem[it.pat] = true; });
+    pick.innerHTML = '';
+    var o0 = document.createElement('option'); o0.value = ''; o0.textContent = 'Escolher do inventário...'; pick.appendChild(o0);
+    _patDocs.slice().sort(function(a, b){
+      return (a.categoria||'').localeCompare(b.categoria||'') || (a.descricao||'').localeCompare(b.descricao||'') || (a.patrimonio||'').localeCompare(b.patrimonio||'');
+    }).forEach(function(p){
+      var o = document.createElement('option'); o.value = p.id;
+      var flag = '';
+      if (p.status === 'Manutencao') { flag = ' ⛔ manutenção'; o.disabled = true; }
+      else if (p.patrimonio && uso[p.patrimonio]) { flag = ' ⚠ em uso nesta data'; }
+      else if (p.status === 'Emprestado') { flag = ' ⚠ marcado emprestado'; }
+      if (p.patrimonio && jaTem[p.patrimonio]) { flag = ' ✓ já na reserva'; o.disabled = true; }
+      o.textContent = (p.categoria || '') + ' · ' + nomeDoItem(p, isEst) + ' · ' + (p.patrimonio || 's/ nº') + flag;
+      pick.appendChild(o);
+    });
+  }
+  btnAdd.onclick = function(){
+    var p = _patDocs.filter(function(x){ return x.id === pick.value; })[0];
+    if (!p) return;
+    itens.push({nome: nomeDoItem(p, isEst), pat: p.patrimonio || ''});
+    desenharLinhas(); montarPicker();
+  };
+  btnManual.onclick = function(){ itens.push({nome: '', pat: ''}); desenharLinhas(); };
+  inpData.onchange = montarPicker;
+  desenharLinhas(); montarPicker();
+
+  var acoes = mkEl('div', 'display:flex;gap:8px;margin-top:8px');
+  var salvar = mkEl('button', 'background:#6a1e9a;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer', 'Salvar');
+  var cancelar = mkEl('button', 'background:#eee;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer', 'Cancelar');
+  cancelar.onclick = function(){ document.getElementById('_editModal').remove(); };
+  acoes.appendChild(salvar); acoes.appendChild(cancelar); box.appendChild(acoes);
+
+  salvar.onclick = function(){
+    if (!inpData.value) { alert('Informe a data.'); return; }
+    var validos = itens.filter(function(it){ return it.nome.trim(); });
+    var up = {
+      equipamentos: validos.map(function(it){ return it.nome.trim(); }).join(', ') || (isEst ? 'Nenhum' : ''),
+      patrimonios: validos.some(function(it){ return it.pat.trim(); }) ? validos.map(function(it){ return it.pat.trim(); }).join(', ') : ''
+    };
+    if (isEst) {
+      up.data = inpData.value; up.horario = selHora.value; up.tipoEstudio = selTipo.value; up.participantes = inpParts.value.trim();
+    } else {
+      up.dataRetirada = inpData.value;
+      if (inpData.value !== dataOrig || !s.dataDevolucao) up.dataDevolucao = calcDevolucao(inpData.value);
+    }
+    var mudouAgenda = isEst && (up.data !== dataOrig || up.horario !== String(s.horario||'').substring(0,5) || up.tipoEstudio !== (s.tipoEstudio||'') || up.equipamentos !== (s.equipamentos||'Nenhum'));
+    db.collection(colecao).doc(s.id).update(up).then(function(){
+      document.getElementById('_editModal').remove();
+      if (isEst && s.status === 'Aprovado' && mudouAgenda) {
+        chamarGS('atualizarEvento', ({
+          nome:s.nome, rgm:s.rgm, semestre:s.semestre, email:s.email, equipamentos:up.equipamentos, patrimonios:up.patrimonios||'', participantes:up.participantes||s.participantes||'', whatsapp:s.whatsapp||'',
+          data:up.data, horario:up.horario, tipoEstudio:up.tipoEstudio,
+          oldData:dataOrig, oldHorario:String(s.horario||'').substring(0,5), oldTipo:s.tipoEstudio||'Estúdio de Foto'
+        })).catch(function(){});
+      }
+      // O termo já gerado tem os dados antigos: descarta para gerar de novo quando precisar
+      if (s.termoDocId) { chamarGS('removerTermo', {docId: s.termoDocId}).catch(function(){}); db.collection(colecao).doc(s.id).update({termoDocId: firebase.firestore.FieldValue.delete()}); }
+      if (confirm('Reserva atualizada! Deseja avisar o aluno pelo WhatsApp?')) {
+        abrirWAEdicao(s.nome, s.whatsapp, isEst ? 'estudio' : 'equip', up.data || up.dataRetirada || '', up.horario || '', up.equipamentos || '');
+      }
+    }).catch(function(err){ alert('Erro: ' + err.message); });
+  };
+  overlay('_editModal', box);
+}
+
+// ── CONTROLE DE MATERIAIS ────────────────────────────────────────────
+function semestreDe(doc) {
+  if (doc.semestre) return String(doc.semestre);
+  var a = _todosAlunos.filter(function(x){ return x.rgm && String(x.rgm) === String(doc.rgm); })[0];
+  return a && a.semestre ? String(a.semestre) : '?';
+}
+
+function itensControle() {
+  var out = [];
+  _empDocs.forEach(function(x){
+    if (x.status !== 'Aprovado') return;
+    var ret = paraISO(x.dataRetirada); if (!ret) return;
+    out.push({col:'emprestimos', tipo:'equip', doc:x, retirada:ret, devolucao:paraISO(x.dataDevolucao) || ret, onde:'Empréstimo'});
+  });
+  _estDocs.forEach(function(x){
+    if (x.status !== 'Aprovado') return;
+    var eq = String(x.equipamentos || '').trim();
+    if (!eq || /^nenhum$/i.test(eq)) return;
+    var d = paraISO(x.data); if (!d) return;
+    out.push({col:'solicitacoes', tipo:'estudio', doc:x, retirada:d, devolucao:d, onde:(x.tipoEstudio || 'Estúdio') + ' às ' + (x.horario || '')});
+  });
+  return out;
+}
+
+function estadoItem(it) {
+  var hoje = hojeISO();
+  if (it.doc.devolvidoEm) return 'devolvido';
+  if (it.doc.retiradoEm) return it.devolucao < hoje ? 'atrasado' : 'em_uso';
+  return it.retirada < hoje ? 'nao_retirado' : 'aguardando';
+}
+
+var ESTADO_TXT = {aguardando:'Aguardando retirada', nao_retirado:'Não retirado (data passou)', em_uso:'Em uso', atrasado:'Devolução atrasada', devolvido:'Devolvido'};
+var ESTADO_COR = {aguardando:'#fff3cd;color:#856404', nao_retirado:'#ffe5d0;color:#8a4b0f', em_uso:'#d6e4ff;color:#1d3f8c', atrasado:'#f8d7da;color:#721c24', devolvido:'#d4edda;color:#155724'};
+var GRUPOS = {
+  abertos:['aguardando','nao_retirado','em_uso','atrasado'], aguardando:['aguardando','nao_retirado'],
+  em_uso:['em_uso','atrasado'], atrasado:['atrasado'], devolvido:['devolvido'],
+  todos:['aguardando','nao_retirado','em_uso','atrasado','devolvido']
+};
+
+
+
+
+function abrirWACobranca(nome, whatsapp, equipamentos, devISO) {
+  var msg = 'Olá, ' + nome + '! 👋\n\n' +
+    'Passando para lembrar da devolução dos equipamentos da *Coordenação de PP* (' + (equipamentos || '') + '), prevista para *' + fmtData(devISO) + '*.\n\n' +
+    'Pode devolvê-los hoje na Coordenação? Se houver algum problema, é só avisar.\n\n' +
+    '_Publicidade & Propaganda — UNIGRAN Capital_';
+  _waAbrir(whatsapp, msg);
+}
+
+
+// ═════════════════════════════════════════════════════════════════════
+//  v7 — chamadas seguras, checklist, patrimônio, bloqueio por atraso, calendário
+// ═════════════════════════════════════════════════════════════════════
+var _autoBloq = false, _bloqPend = {};
+
+// Chamada ao Apps Script com o token do usuário logado (POST, sem limite de URL)
+function chamarGS(acao, params) {
+  var user = firebase.auth().currentUser;
+  if (!user) return Promise.reject(new Error('Sessão expirada. Entre novamente.'));
+  return user.getIdToken().then(function(tk){
+    var body = new URLSearchParams();
+    body.append('acao', acao); body.append('idToken', tk);
+    Object.keys(params || {}).forEach(function(k){ body.append(k, params[k] == null ? '' : params[k]); });
+    return fetch(SU, {method:'POST', body: body}).then(function(r){ return r.json(); });
+  }).then(function(res){
+    if (res && res.erro === 'Não autorizado') alert('O Apps Script recusou a chamada: seu usuário não está autorizado (confira CONFIG.adminEmails no script).');
+    return res;
+  });
+}
+
+// ── estúdio ──────────────────────────────────────────────────────────
+function aprovarEst(s) {
+  if (!confirmarAprov('Aprovar reserva de '+s.nome+'?\nO evento será criado na agenda e o convite enviado ao aluno e à Fabi.', s, true)) return;
+  auditar('Aprovou reserva de estúdio','solicitacoes',s,'');
+  db.collection('solicitacoes').doc(s.id).update({status:'Aprovado'}).then(function(){
+    chamarGS('aprovar', {id:s.firestoreId||s.id, nome:s.nome, rgm:s.rgm, semestre:s.semestre, email:s.email,
+      data:s.data, horario:s.horario, tipoEstudio:s.tipoEstudio, equipamentos:s.equipamentos, patrimonios:s.patrimonios||'', participantes:s.participantes||'', whatsapp:s.whatsapp||''})
+    .then(function(res){
+      if (res && res.evento && res.evento.ok === false) alert('Reserva aprovada, mas o evento não foi criado na agenda: ' + (res.evento.erro || 'erro desconhecido'));
+      else if (res && res.evento && res.evento.falhas && res.evento.falhas.length) alert('Evento criado, mas não consegui convidar: ' + res.evento.falhas.join('; '));
+      else if (res && res.ok === false) alert('Reserva aprovada, mas o script recusou a chamada: ' + (res.erro || 'erro desconhecido'));
+    }).catch(function(){});
+    abrirTermo(s, 'estudio', false);
+  });
+}
+function cancelarEst(s) {
+  if (!confirm('Cancelar a reserva aprovada de '+s.nome+'? O evento sai da agenda e o aluno é avisado.')) return;
+  auditar('Cancelou reserva de estúdio','solicitacoes',s,'');
+  db.collection('solicitacoes').doc(s.id).update({status:'Cancelado'});
+  chamarGS('recusar', {id:s.firestoreId||s.id, nome:s.nome, email:s.email, data:s.data, horario:s.horario, tipoEstudio:s.tipoEstudio, motivo:'cancelamento'}).catch(function(){});
+  alert('Reserva cancelada. O aluno foi avisado por e-mail.');
+}
+function recusarEstComMotivo(s) {
+  var motivo = prompt('Motivo da recusa (será enviado por WhatsApp e e-mail):', 'Horário indisponível para a data solicitada.');
+  if (motivo === null) return;
+  if (!confirm('Recusar reserva de ' + s.nome + '?')) return;
+  auditar('Recusou reserva de estúdio','solicitacoes',s,(typeof motivo!=='undefined'?motivo:''));
+  db.collection('solicitacoes').doc(s.id).update({status:'Recusado', motivoRecusa: motivo});
+  chamarGS('recusar', {id:s.firestoreId||s.id, nome:s.nome, email:s.email, data:s.data, horario:s.horario, tipoEstudio:s.tipoEstudio, motivo:motivo}).catch(function(){});
+  abrirWARecusa(s.nome, s.whatsapp, 'estudio', s.data, s.horario, motivo);
+}
+
+// ── equipamentos ─────────────────────────────────────────────────────
+function aprovarEq(s) {
+  if (!confirmarAprov('Aprovar empréstimo de '+s.nome+'?', s, false)) return;
+  auditar('Aprovou empréstimo','emprestimos',s,'');
+  db.collection('emprestimos').doc(s.id).update({status:'Aprovado'}).then(function(){
+    chamarGS('aprovarEquip', {id:s.firestoreId||s.id, nome:s.nome, email:s.email, equipamentos:s.equipamentos, patrimonios:s.patrimonios, dataRetirada:s.dataRetirada, dataDevolucao:s.dataDevolucao}).catch(function(){});
+    abrirTermo(s, 'equip', false);
+  });
+}
+function cancelarEq(s) {
+  if (!confirm('Cancelar o empréstimo aprovado de '+s.nome+'? O aluno será notificado.')) return;
+  auditar('Cancelou empréstimo','emprestimos',s,'');
+  db.collection('emprestimos').doc(s.id).update({status:'Cancelado'});
+  chamarGS('recusarEquip', {id:s.firestoreId||s.id, nome:s.nome, email:s.email, equipamentos:s.equipamentos, motivo:'cancelamento'}).catch(function(){});
+  alert('Empréstimo cancelado. O aluno foi avisado por e-mail.');
+}
+function recusarEqComMotivo(s) {
+  var motivo = prompt('Motivo da recusa (será enviado por WhatsApp e e-mail):', 'Equipamentos indisponíveis para a data solicitada.');
+  if (motivo === null) return;
+  if (!confirm('Recusar empréstimo de ' + s.nome + '?')) return;
+  auditar('Recusou empréstimo','emprestimos',s,(typeof motivo!=='undefined'?motivo:''));
+  db.collection('emprestimos').doc(s.id).update({status:'Recusado', motivoRecusa: motivo});
+  chamarGS('recusarEquip', {id:s.firestoreId||s.id, nome:s.nome, email:s.email, equipamentos:s.equipamentos, motivo:motivo}).catch(function(){});
+  abrirWARecusa(s.nome, s.whatsapp, 'equip', '', '', motivo);
+}
+
+function apagarSolicitacao(col, s) {
+  var comEvento = (col === 'solicitacoes' && s.status === 'Aprovado');
+  var msg = 'Apagar definitivamente a solicitação de ' + (s.nome||'(sem nome)') + '?' +
+    (comEvento ? '\nO evento também será removido da agenda.' : '') +
+    '\nNenhum e-mail será enviado ao aluno. Esta ação não pode ser desfeita.';
+  if (!confirm(msg)) return;
+  auditar('Apagou', col, s, s.status);
+  if (comEvento) chamarGS('removerEvento', {nome:s.nome, data:s.data, horario:s.horario, tipoEstudio:s.tipoEstudio}).catch(function(){});
+  if (s.termoDocId) chamarGS('removerTermo', {docId: s.termoDocId}).catch(function(){});
+  db.collection(col).doc(s.id).delete().catch(function(err){ alert('Erro ao apagar: ' + err.message); });
+}
+
+// ── termo ────────────────────────────────────────────────────────────
+function dadosTermo(s, tipo) {
+  if (tipo === 'estudio') {
+    return {id:s.firestoreId||s.id, nome:s.nome, rgm:s.rgm, semestre:s.semestre, email:s.email, data:s.data, horario:s.horario,
+      tipoEstudio:s.tipoEstudio||'Estúdio de Foto', equipamentos:s.equipamentos||'Nenhum', patrimonios:s.patrimonios||'', participantes:s.participantes, json:1};
+  }
+  return {id:s.firestoreId||s.id, nome:s.nome, rgm:s.rgm, semestre:s.semestre, email:s.email, equipamentos:s.equipamentos,
+    patrimonios:s.patrimonios, dataRetirada:s.dataRetirada, dataDevolucao:s.dataDevolucao, json:1};
+}
+function abrirTermo(s, tipo, forcar) {
+  var col = tipo === 'estudio' ? 'solicitacoes' : 'emprestimos';
+  if (s.termoDocId && !forcar) { mostrarModalTermo(s.termoDocId, s, tipo); return; }
+  var ov = overlay('_termoModal', mkEl('div', 'text-align:center;padding:20px;font-size:14px', 'Gerando termo...'));
+  var dt = dadosTermo(s, tipo); if (forcar && s.termoDocId) dt.termoAnterior = s.termoDocId;
+  chamarGS(tipo === 'estudio' ? 'termoEstudio' : 'termoEquip', dt).then(function(res){
+    ov.remove();
+    if (!res || !res.ok) { alert('Não consegui gerar o termo: ' + ((res && res.erro) || 'erro desconhecido')); return; }
+    db.collection(col).doc(s.id).update({termoDocId: res.docId});
+    s.termoDocId = res.docId;
+    mostrarModalTermo(res.docId, s, tipo);
+  }).catch(function(err){ ov.remove(); alert('Erro ao gerar o termo: ' + err.message); });
+}
+function mostrarModalTermo(docId, s, tipo) {
+  var docUrl = 'https://docs.google.com/document/d/' + docId + '/edit';
+  var pdfUrl = 'https://docs.google.com/document/d/' + docId + '/export?format=pdf';
+  var box = document.createElement('div'); box.style.textAlign = 'center';
+  box.appendChild(mkEl('div', 'font-size:40px;margin-bottom:8px', '📄'));
+  box.appendChild(mkEl('h3', 'color:#4a1270;margin-bottom:8px', 'Termo gerado'));
+  box.appendChild(mkEl('p', 'color:#6b6b6b;font-size:13px;margin-bottom:20px', 'Termo de ' + (s.nome || '')));
+  var col = mkEl('div', 'display:flex;flex-direction:column;gap:10px');
+  function link(txt, href, cor) {
+    var a = mkEl('a', 'background:' + cor + ';color:#fff;border-radius:8px;padding:12px;font-size:13px;font-weight:600;text-decoration:none;display:block', txt);
+    a.href = href; a.target = '_blank'; return a;
+  }
+  col.appendChild(link('👁️ Abrir no Google Docs', docUrl, '#4a1270'));
+  col.appendChild(link('⬇️ Baixar PDF', pdfUrl, '#6a1e9a'));
+  var em = mkEl('button', 'background:#2d7a2d;color:#fff;border:none;border-radius:8px;padding:12px;font-size:13px;font-weight:600;cursor:pointer', '📧 Enviar PDF por e-mail ao aluno');
+  em.onclick = function(){
+    em.disabled = true; em.textContent = 'Enviando...';
+    chamarGS('enviarTermoEmail', {docId:docId, email:s.email, nome:s.nome, tipo:tipo, json:1}).then(function(res){
+      em.disabled = false; em.textContent = '📧 Enviar PDF por e-mail ao aluno';
+      alert(res && res.ok ? 'Termo enviado para ' + s.email : 'Não foi possível enviar: ' + ((res && res.erro) || 'erro desconhecido'));
+    }).catch(function(err){ em.disabled = false; em.textContent = '📧 Enviar PDF por e-mail ao aluno'; alert('Erro: ' + err.message); });
+  };
+  col.appendChild(em);
+  var reg = mkEl('button', 'background:#fff;color:#6a1e9a;border:1.5px solid #6a1e9a;border-radius:8px;padding:10px;font-size:13px;cursor:pointer', '🔄 Gerar termo novamente');
+  reg.onclick = function(){ if (confirm('Gerar uma nova cópia do termo com os dados atuais?')) abrirTermo(s, tipo, true); };
+  var fechar = mkEl('button', 'background:#eee;color:#333;border:none;border-radius:8px;padding:12px;font-size:13px;cursor:pointer', 'Fechar');
+  fechar.onclick = function(){ document.getElementById('_termoModal').remove(); };
+  col.appendChild(reg); col.appendChild(fechar); box.appendChild(col);
+  overlay('_termoModal', box);
+}
+
+// ── checklist, patrimônio e bloqueio por atraso ──────────────────────
+var CHECK_RETIRADA = ['Itens conferidos na presença do aluno','Equipamentos sem avarias aparentes','Baterias carregadas'];
+var CHECK_DEVOLUCAO = ['Todos os itens devolvidos','Equipamentos sem avarias','Baterias carregadas','Cartões de memória formatados (após salvar o material)'];
+
+function checklistModal(titulo, subtitulo, labels, onOk) {
+  var box = document.createElement('div');
+  box.appendChild(mkEl('h3', 'color:#4a1270;margin-bottom:4px', titulo));
+  box.appendChild(mkEl('p', 'font-size:12px;color:#6b6b6b;margin-bottom:14px', subtitulo));
+  var checks = labels.map(function(t){
+    var l = mkEl('label', 'display:flex;gap:8px;align-items:center;font-size:13px;margin-bottom:8px;cursor:pointer');
+    var c = document.createElement('input'); c.type = 'checkbox'; c.checked = true; c.style.cssText = 'width:16px;height:16px;accent-color:#6a1e9a';
+    l.appendChild(c); l.appendChild(document.createTextNode(t)); box.appendChild(l); return c;
+  });
+  var obs = document.createElement('textarea'); obs.placeholder = 'Observações (ficam no histórico do aluno)';
+  obs.style.cssText = 'width:100%;border:1.5px solid #ddd0ea;border-radius:8px;padding:8px;font-size:13px;min-height:60px;margin:6px 0 14px;font-family:Inter,sans-serif';
+  box.appendChild(obs);
+  var acoes = mkEl('div', 'display:flex;gap:8px');
+  var ok = mkEl('button', 'background:#6a1e9a;color:#fff;border:none;border-radius:8px;padding:10px 20px;font-size:13px;font-weight:600;cursor:pointer', 'Confirmar');
+  var no = mkEl('button', 'background:#eee;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer', 'Cancelar');
+  no.onclick = function(){ document.getElementById('_chkModal').remove(); };
+  ok.onclick = function(){
+    var res = {itens: labels.map(function(t, i){ return {t: t, ok: checks[i].checked}; }), obs: obs.value.trim(), em: new Date().toISOString()};
+    document.getElementById('_chkModal').remove(); onOk(res);
+  };
+  acoes.appendChild(ok); acoes.appendChild(no); box.appendChild(acoes);
+  overlay('_chkModal', box);
+}
+
+function marcarPatrimonios(doc, status) {
+  var pats = splitLista(doc.patrimonios).filter(Boolean);
+  if (!pats.length) return;
+  var batch = db.batch(), n = 0;
+  _patDocs.forEach(function(p){ if (p.patrimonio && pats.indexOf(String(p.patrimonio)) >= 0 && p.status !== status) { batch.update(db.collection('patrimonio').doc(p.id), {status: status}); n++; } });
+  if (n) batch.commit().catch(function(){});
+}
+
+function sincronizarBloqueios(todos) {
+  if (!_autoBloq || !_todosAlunos.length) return;
+  var atrasados = {};
+  todos.forEach(function(i){ if (i.estado === 'atrasado' && i.doc.rgm) atrasados[String(i.doc.rgm)] = true; });
+  var apagar = firebase.firestore.FieldValue.delete();
+  _todosAlunos.forEach(function(a){
+    var rgm = String(a.rgm || ''), ref = db.collection('alunos').doc(a.id);
+    if (_bloqPend[a.id]) return;
+    if (atrasados[rgm] && !a.bloqueado) {
+      _bloqPend[a.id] = true;
+      ref.update({bloqueado: true, bloqueadoPorAtraso: true}).catch(function(){}).then(function(){ delete _bloqPend[a.id]; });
+    } else if (!atrasados[rgm] && a.bloqueadoPorAtraso) {
+      _bloqPend[a.id] = true;
+      var up = {bloqueadoPorAtraso: apagar}; if (a.bloqueado) up.bloqueado = false;
+      ref.update(up).catch(function(){}).then(function(){ delete _bloqPend[a.id]; });
+    }
+  });
+}
+
+// ── controle: barra, lista e calendário ──────────────────────────────
+var _ctlView = 'lista', _ctlMes = hojeISO().substring(0, 7), _ctlDia = '';
+
+function montarBarraControle() {
+  var el = document.getElementById('controle');
+  if (document.getElementById('ctlLista')) return;
+  el.innerHTML = '';
+  var resumo = mkEl('div', 'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px'); resumo.id = 'ctlResumo'; el.appendChild(resumo);
+  var barra = mkEl('div', 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center');
+  var css = 'border:1.5px solid #ddd0ea;border-radius:8px;padding:8px 10px;font-size:13px;font-family:Inter,sans-serif;background:#fff;outline:none';
+  var vw = mkEl('div', 'display:flex;border:1.5px solid #6a1e9a;border-radius:8px;overflow:hidden');
+  [['lista','☰ Lista'],['calendario','📅 Calendário']].forEach(function(o){
+    var b = mkEl('button', 'border:none;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif', o[1]);
+    b.dataset.v = o[0];
+    b.onclick = function(){ _ctlView = o[0]; renderControle(); };
+    vw.appendChild(b);
+  });
+  vw.id = 'ctlView'; barra.appendChild(vw);
+  var selS = document.createElement('select'); selS.style.cssText = css; selS.id = 'ctlStatus';
+  [['abertos','Pendentes (retirar / devolver)'],['aguardando','Aguardando retirada'],['em_uso','Em uso'],['atrasado','Atrasados'],['devolvido','Devolvidos'],['todos','Todos']].forEach(function(o){
+    var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; selS.appendChild(op);
+  });
+  selS.onchange = function(){ _ctl.status = selS.value; renderControle(); };
+  var selSem = document.createElement('select'); selSem.style.cssText = css; selSem.id = 'ctlSem';
+  selSem.onchange = function(){ _ctl.sem = selSem.value; renderControle(); };
+  var busca = document.createElement('input'); busca.type = 'text'; busca.placeholder = 'Buscar aluno, RGM ou equipamento...'; busca.style.cssText = css + ';flex:1;min-width:200px';
+  busca.oninput = function(){ _ctl.busca = busca.value; renderControle(); };
+  barra.appendChild(selS); barra.appendChild(selSem); barra.appendChild(busca); el.appendChild(barra);
+  var ab = mkEl('label', 'display:flex;gap:8px;align-items:center;font-size:12px;color:#4a1270;margin-bottom:14px;cursor:pointer');
+  var ck = document.createElement('input'); ck.type = 'checkbox'; ck.id = 'ckAutoBloq'; ck.style.cssText = 'width:15px;height:15px;accent-color:#6a1e9a'; ck.checked = _autoBloq;
+  ck.onchange = function(){ db.collection('config').doc('status').set({autoBloqueioAtraso: ck.checked}, {merge: true}); };
+  ab.appendChild(ck); ab.appendChild(document.createTextNode('Bloquear automaticamente novas reservas de alunos com devolução atrasada (libera quando devolverem)'));
+  el.appendChild(ab);
+  var lista = document.createElement('div'); lista.id = 'ctlLista'; el.appendChild(lista);
+}
+
+function passaFiltroControle(it, comStatus) {
+  if (comStatus && GRUPOS[_ctl.status].indexOf(it.estado) < 0) return false;
+  if (_ctl.sem !== 'todos' && it.sem !== _ctl.sem) return false;
+  var busca = _ctl.busca.toLowerCase();
+  if (busca) {
+    var txt = [it.doc.nome, it.doc.rgm, it.doc.equipamentos, it.doc.patrimonios].join(' ').toLowerCase();
+    if (txt.indexOf(busca) < 0) return false;
+  }
+  return true;
+}
+
+function renderControle() {
+  var lista = document.getElementById('ctlLista'); if (!lista) return;
+  var hv = document.getElementById('historico'); if (hv && hv.style.display === 'block') renderHistorico();
+  var todos = itensControle();
+  todos.forEach(function(it){ it.estado = estadoItem(it); it.sem = semestreDe(it.doc); });
+  sincronizarBloqueios(todos);
+
+  var hoje = hojeISO();
+  var res = document.getElementById('ctlResumo'); res.innerHTML = '';
+  [
+    ['Retiram hoje', todos.filter(function(i){ return i.estado === 'aguardando' && i.retirada === hoje; }).length, '#fff3cd'],
+    ['Em uso', todos.filter(function(i){ return i.estado === 'em_uso'; }).length, '#d6e4ff'],
+    ['Atrasados', todos.filter(function(i){ return i.estado === 'atrasado'; }).length, '#f8d7da'],
+    ['Não retirados', todos.filter(function(i){ return i.estado === 'nao_retirado'; }).length, '#ffe5d0']
+  ].forEach(function(r){
+    var c = mkEl('div', 'background:' + r[2] + ';border-radius:8px;padding:10px 16px;min-width:120px');
+    c.appendChild(mkEl('div', 'font-size:22px;font-weight:700', String(r[1])));
+    c.appendChild(mkEl('div', 'font-size:11px;font-weight:600', r[0]));
+    res.appendChild(c);
+  });
+
+  // botões de visão + filtros
+  var vw = document.getElementById('ctlView');
+  Array.prototype.forEach.call(vw.children, function(b){ var on = b.dataset.v === _ctlView; b.style.background = on ? '#6a1e9a' : '#fff'; b.style.color = on ? '#fff' : '#6a1e9a'; });
+  document.getElementById('ctlStatus').style.display = _ctlView === 'lista' ? '' : 'none';
+  var ck = document.getElementById('ckAutoBloq'); if (ck) ck.checked = _autoBloq;
+  var selSem = document.getElementById('ctlSem');
+  var sems = [...new Set(todos.map(function(i){ return i.sem; }))].sort();
+  selSem.innerHTML = '';
+  var oT = document.createElement('option'); oT.value = 'todos'; oT.textContent = 'Todos os semestres'; selSem.appendChild(oT);
+  sems.forEach(function(sm){ var o = document.createElement('option'); o.value = sm; o.textContent = sm === '?' ? 'Sem semestre' : sm + 'º semestre'; selSem.appendChild(o); });
+  if (_ctl.sem !== 'todos' && sems.indexOf(_ctl.sem) < 0) _ctl.sem = 'todos';
+  selSem.value = _ctl.sem;
+
+  lista.innerHTML = '';
+  if (_ctlView === 'calendario') { renderCalendario(lista, todos); return; }
+
+  var itens = todos.filter(function(i){ return passaFiltroControle(i, true); });
+  if (!itens.length) { lista.appendChild(mkEl('div', 'text-align:center;color:#6b6b6b;padding:40px;font-size:13px', 'Nenhum registro neste filtro.')); return; }
+  var porSem = {};
+  itens.forEach(function(i){ (porSem[i.sem] = porSem[i.sem] || []).push(i); });
+  Object.keys(porSem).sort().forEach(function(sm){
+    var det = document.createElement('details'); det.open = true;
+    det.style.cssText = 'background:#fff;border:1px solid #ddd0ea;border-radius:8px;margin-bottom:14px;padding:0 16px 8px';
+    det.appendChild(mkEl('summary', 'cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4a1270;padding:14px 0', (sm === '?' ? 'Sem semestre' : sm + 'º Semestre') + ' (' + porSem[sm].length + ')'));
+    var porData = {};
+    porSem[sm].forEach(function(i){ (porData[i.retirada] = porData[i.retirada] || []).push(i); });
+    Object.keys(porData).sort().forEach(function(dt){
+      det.appendChild(mkEl('div', 'font-size:12px;font-weight:700;color:#6a1e9a;margin:10px 0 8px;border-bottom:1px solid #eee;padding-bottom:4px', 'Retirada: ' + dataCurta(dt) + (dt === hoje ? '  · HOJE' : '')));
+      var grid = mkEl('div', 'display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:10px');
+      porData[dt].forEach(function(it){ grid.appendChild(cartaoControle(it)); });
+      det.appendChild(grid);
+    });
+    lista.appendChild(det);
+  });
+}
+
+function cartaoControle(it) {
+  var d = it.doc;
+  var c = mkEl('div', 'border:1px solid #ddd0ea;border-left:4px solid ' + (it.estado === 'atrasado' ? '#c0392b' : it.estado === 'devolvido' ? '#2d7a2d' : it.estado === 'em_uso' ? '#1d3f8c' : '#d9a400') + ';border-radius:8px;padding:12px;background:#fff');
+  var top = mkEl('div', 'display:flex;justify-content:space-between;gap:8px;align-items:flex-start');
+  var nm = document.createElement('div');
+  nm.appendChild(mkEl('div', 'font-weight:600;font-size:14px', d.nome || ''));
+  nm.appendChild(mkEl('div', 'font-size:11px;color:#6b6b6b', 'RGM ' + (d.rgm || '') + ' · ' + it.onde));
+  top.appendChild(nm);
+  top.appendChild(mkEl('span', 'font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;white-space:nowrap;background:' + ESTADO_COR[it.estado], ESTADO_TXT[it.estado]));
+  c.appendChild(top);
+  c.appendChild(mkEl('div', 'font-size:12px;margin:8px 0 6px', 'Retirada ' + dataCurta(it.retirada) + '  →  Devolução ' + dataCurta(it.devolucao)));
+  var nomes = splitLista(d.equipamentos).filter(Boolean), pats = splitLista(d.patrimonios);
+  var ul = mkEl('div', 'font-size:12px;color:#333;line-height:1.5');
+  nomes.forEach(function(n, i){ ul.appendChild(mkEl('div', '', '• ' + n + (pats[i] ? '  (' + pats[i] + ')' : ''))); });
+  c.appendChild(ul);
+  if (d.retiradoEm) c.appendChild(mkEl('div', 'font-size:11px;color:#6b6b6b;margin-top:6px', 'Retirado em ' + dataCurta(paraISO(d.retiradoEm)) + (d.devolvidoEm ? ' · devolvido em ' + dataCurta(paraISO(d.devolvidoEm)) : '')));
+  [['Retirada', d.checkRetirada], ['Devolução', d.checkDevolucao]].forEach(function(par){
+    var ch = par[1]; if (!ch) return;
+    var falhas = (ch.itens || []).filter(function(x){ return !x.ok; }).map(function(x){ return x.t; });
+    if (falhas.length) c.appendChild(mkEl('div', 'font-size:11px;color:#c0392b;margin-top:6px;font-weight:600', '⚠ ' + par[0] + ': ' + falhas.join('; ')));
+    if (ch.obs) c.appendChild(mkEl('div', 'font-size:11px;color:#555;margin-top:2px', '📝 ' + par[0] + ': ' + ch.obs));
+  });
+
+  var btns = mkEl('div', 'display:flex;gap:6px;flex-wrap:wrap;margin-top:10px');
+  function b(txt, cls, fn) { var x = mkEl('button', 'border:none;border-radius:6px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;' + cls, txt); x.onclick = fn; btns.appendChild(x); }
+  var ref = db.collection(it.col).doc(d.id);
+  var apagarCampo = firebase.firestore.FieldValue.delete();
+  var sub = (d.nome || '') + ' · ' + nomes.join(', ');
+  if (it.estado === 'devolvido') {
+    b('Desfazer devolução', 'background:#eee;color:#333', function(){ ref.update({devolvidoEm: apagarCampo, checkDevolucao: apagarCampo}); });
+  } else if (d.retiradoEm) {
+    b('↩️ Marcar devolvido', 'background:#2d7a2d;color:#fff', function(){
+      checklistModal('Registrar devolução', sub, CHECK_DEVOLUCAO, function(res){
+        auditar('Registrou devolução', it.col, d, res.obs || '');
+        ref.update({devolvidoEm: res.em, checkDevolucao: res});
+        var avaria = res.itens.some(function(x){ return !x.ok && /avaria/i.test(x.t); });
+        if (avaria && confirm('Houve avaria. Marcar os itens como "Manutenção" no patrimônio? (eles saem da lista do aluno até você liberar)')) marcarPatrimonios(d, 'Manutencao');
+      });
+    });
+    b('Desfazer retirada', 'background:#eee;color:#333', function(){ ref.update({retiradoEm: apagarCampo, checkRetirada: apagarCampo}); });
+    if (it.estado === 'atrasado') b('📱 Cobrar devolução', 'background:#c0392b;color:#fff', function(){ abrirWACobranca(d.nome, d.whatsapp, d.equipamentos, it.devolucao); });
+  } else {
+    b('✅ Marcar retirado', 'background:#6a1e9a;color:#fff', function(){
+      checklistModal('Registrar retirada', sub, CHECK_RETIRADA, function(res){
+        auditar('Registrou retirada', it.col, d, res.obs || '');
+        ref.update({retiradoEm: res.em, checkRetirada: res});
+      });
+    });
+  }
+  b('👤 Ficha', 'background:#f4f1f8;color:#4a1270', function(){ abrirFicha(d.rgm, d.nome); });
+  c.appendChild(btns);
+  return c;
+}
+
+// ── calendário ───────────────────────────────────────────────────────
+function renderCalendario(box, todos) {
+  var hoje = hojeISO(), ev = {};
+  function add(iso, o) { (ev[iso] = ev[iso] || []).push(o); }
+  todos.filter(function(i){ return passaFiltroControle(i, false); }).forEach(function(it){
+    if (it.tipo === 'estudio') add(it.retirada, {t:'estudio', it:it});
+    else {
+      add(it.retirada, {t:'retirada', it:it});
+      if (it.devolucao !== it.retirada) add(it.devolucao, {t:'devolucao', it:it});
+    }
+  });
+  _estDocs.forEach(function(x){
+    if (x.status !== 'Aprovado') return;
+    var eq = String(x.equipamentos || '').trim();
+    if (eq && !/^nenhum$/i.test(eq)) return;
+    var d = paraISO(x.data); if (!d) return;
+    var it = {doc:x, sem:semestreDe(x), estado:'aguardando'};
+    if (!passaFiltroControle(it, false)) return;
+    add(d, {t:'estudio', doc:x});
+  });
+
+  var p = _ctlMes.split('-'), ano = +p[0], mes = +p[1] - 1;
+  var nav = mkEl('div', 'display:flex;align-items:center;gap:10px;margin-bottom:10px');
+  function nb(txt, fn) { var x = mkEl('button', 'border:1.5px solid #ddd0ea;background:#fff;border-radius:8px;padding:6px 12px;cursor:pointer;font-size:13px;font-weight:600', txt); x.onclick = fn; return x; }
+  function mover(delta) { var d = new Date(ano, mes + delta, 1); _ctlMes = d.getFullYear() + '-' + pad2(d.getMonth() + 1); renderControle(); }
+  nav.appendChild(nb('◀', function(){ mover(-1); }));
+  nav.appendChild(mkEl('div', 'font-size:16px;font-weight:700;color:#4a1270;min-width:170px;text-align:center;text-transform:capitalize', new Date(ano, mes, 1).toLocaleDateString('pt-BR', {month:'long', year:'numeric'})));
+  nav.appendChild(nb('▶', function(){ mover(1); }));
+  nav.appendChild(nb('Hoje', function(){ _ctlMes = hoje.substring(0, 7); _ctlDia = hoje; renderControle(); }));
+  var leg = mkEl('div', 'margin-left:auto;font-size:11px;color:#6b6b6b', '🟪 retirada   🟩 devolução   🟥 atrasada   🟦 estúdio');
+  nav.appendChild(leg); box.appendChild(nav);
+
+  var grid = mkEl('div', 'display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px');
+  ['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'].forEach(function(n){ grid.appendChild(mkEl('div', 'font-size:11px;font-weight:700;color:#6b6b6b;text-align:center;padding:4px', n)); });
+  var primeiro = new Date(ano, mes, 1).getDay(), dias = new Date(ano, mes + 1, 0).getDate();
+  for (var v = 0; v < primeiro; v++) grid.appendChild(mkEl('div', ''));
+  for (var dia = 1; dia <= dias; dia++) {
+    (function(dia){
+      var iso = ano + '-' + pad2(mes + 1) + '-' + pad2(dia), lista = ev[iso] || [];
+      var sel = _ctlDia === iso;
+      var cel = mkEl('div', 'background:#fff;border:1.5px solid ' + (sel ? '#6a1e9a' : iso === hoje ? '#d9a400' : '#ddd0ea') + ';border-radius:8px;min-height:86px;padding:4px;cursor:pointer;overflow:hidden');
+      cel.appendChild(mkEl('div', 'font-size:12px;font-weight:' + (iso === hoje ? '700' : '600') + ';color:' + (iso === hoje ? '#b78900' : '#333') + ';margin-bottom:3px', String(dia)));
+      lista.slice(0, 3).forEach(function(o){
+        var atras = o.t === 'devolucao' && o.it.estado === 'atrasado';
+        var cor = o.t === 'retirada' ? '#e9d5f5;color:#4a1270' : o.t === 'devolucao' ? (atras ? '#f8d7da;color:#721c24' : '#d4edda;color:#155724') : '#d6e4ff;color:#1d3f8c';
+        var nome = (o.it ? o.it.doc.nome : o.doc.nome) || '';
+        var pre = o.t === 'retirada' ? '↑ ' : o.t === 'devolucao' ? '↓ ' : '📷 ';
+        cel.appendChild(mkEl('div', 'font-size:10px;font-weight:600;border-radius:4px;padding:1px 4px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;background:' + cor, pre + nome.split(' ')[0]));
+      });
+      if (lista.length > 3) cel.appendChild(mkEl('div', 'font-size:10px;color:#6b6b6b', '+' + (lista.length - 3) + ' mais'));
+      cel.onclick = function(){ _ctlDia = iso; renderControle(); };
+      grid.appendChild(cel);
+    })(dia);
+  }
+  box.appendChild(grid);
+
+  if (_ctlDia && _ctlDia.substring(0, 7) === _ctlMes) {
+    var det = mkEl('div', 'margin-top:16px');
+    det.appendChild(mkEl('div', 'font-size:13px;font-weight:700;color:#4a1270;margin-bottom:8px;text-transform:capitalize', dataCurta(_ctlDia)));
+    var evs = ev[_ctlDia] || [];
+    if (!evs.length) det.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'Nada agendado neste dia.'));
+    var g2 = mkEl('div', 'display:grid;grid-template-columns:repeat(auto-fill,minmax(min(300px,100%),1fr));gap:10px');
+    evs.forEach(function(o){
+      var rotulo = o.t === 'retirada' ? 'RETIRADA' : o.t === 'devolucao' ? 'DEVOLUÇÃO' : 'ESTÚDIO';
+      var w = document.createElement('div');
+      w.appendChild(mkEl('div', 'font-size:10px;font-weight:700;color:#6a1e9a;margin-bottom:3px', rotulo));
+      if (o.it) w.appendChild(cartaoControle(o.it));
+      else {
+        var x = o.doc;
+        var c = mkEl('div', 'border:1px solid #ddd0ea;border-left:4px solid #1d3f8c;border-radius:8px;padding:12px;background:#fff');
+        c.appendChild(mkEl('div', 'font-weight:600;font-size:14px', x.nome || ''));
+        c.appendChild(mkEl('div', 'font-size:11px;color:#6b6b6b', 'RGM ' + (x.rgm || '') + ' · ' + (x.tipoEstudio || 'Estúdio') + ' às ' + (x.horario || '') + ' · sem equipamentos'));
+        w.appendChild(c);
+      }
+      g2.appendChild(w);
+    });
+    det.appendChild(g2); box.appendChild(det);
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════
+//  v8 — conflitos, ficha do aluno, histórico, nascimento, auditoria
+// ═════════════════════════════════════════════════════════════════════
+var _auditDocs = [], _auditUnsub = null;
+
+function isoLocal(v) {
+  if (!v) return '';
+  var s = String(v);
+  if (s.length > 10 && s.indexOf('T') > 0) { var d = new Date(s); if (!isNaN(d)) return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+  return paraISO(v);
+}
+function diasEntre(a, b) { // b - a, em dias
+  var pa = a.split('-'), pb = b.split('-');
+  return Math.round((new Date(+pb[0], +pb[1]-1, +pb[2]) - new Date(+pa[0], +pa[1]-1, +pa[2])) / 86400000);
+}
+function dataBR3(iso) { var p = (iso || '').split('-'); return p.length === 3 ? p[2] + '/' + p[1] + '/' + p[0] : ''; }
+
+// ── nascimento e idade ───────────────────────────────────────────────
+function alunoPorRgm(rgm) {
+  return _todosAlunos.filter(function(a){ return String(a.rgm || '') === String(rgm || ''); })[0] || null;
+}
+function nascDe(s) {
+  var a = alunoPorRgm(s.rgm);
+  return paraISO((a && a.nascimento) || s.nascimento || s.nascimentoE || '');
+}
+function idadeEm(nascISO, refISO) {
+  if (!nascISO) return null;
+  var n = nascISO.split('-'), r = (refISO || hojeISO()).split('-');
+  var id = +r[0] - +n[0];
+  if (+r[1] < +n[1] || (+r[1] === +n[1] && +r[2] < +n[2])) id--;
+  return id;
+}
+function nascTexto(n, refISO) {
+  var iso = paraISO(n); if (!iso) return '';
+  var id = idadeEm(iso, refISO);
+  return dataBR3(iso) + ' (' + id + ' anos)' + (id < 18 ? ' · MENOR DE IDADE' : '');
+}
+
+// ── conflitos de patrimônio ──────────────────────────────────────────
+function nomePat(p) {
+  var d = _patDocs.filter(function(x){ return String(x.patrimonio) === String(p); })[0];
+  return d ? (d.descricao || d.categoria || '') : '';
+}
+function periodoDe(s, isEst) {
+  if (isEst) { var d = paraISO(s.data); return [d, d]; }
+  var r = paraISO(s.dataRetirada); return [r, paraISO(s.dataDevolucao) || r];
+}
+function usoDetalhado(ini, fim, ignoreId) {
+  var uso = {}, hoje = hojeISO();
+  function marca(lista, quem, desc) { splitLista(lista).forEach(function(p){ if (p && !uso[p]) uso[p] = quem + ' (' + desc + ')'; }); }
+  _estDocs.forEach(function(x){
+    if (x.id === ignoreId || x.status !== 'Aprovado' || x.devolvidoEm) return;
+    var d = paraISO(x.data);
+    if (d >= ini && d <= fim) marca(x.patrimonios, x.nome, 'estúdio ' + dataBR3(d));
+  });
+  _empDocs.forEach(function(x){
+    if (x.id === ignoreId || x.status !== 'Aprovado' || x.devolvidoEm) return;
+    var r = paraISO(x.dataRetirada), d = paraISO(x.dataDevolucao) || r;
+    var fimEf = (x.retiradoEm && d < hoje) ? '9999-12-31' : d;
+    if (r <= fim && fimEf >= ini) marca(x.patrimonios, x.nome, 'empréstimo ' + dataBR3(r) + ' a ' + dataBR3(d));
+  });
+  return uso;
+}
+function conflitosDe(s, isEst) {
+  var per = periodoDe(s, isEst); if (!per[0]) return [];
+  var uso = usoDetalhado(per[0], per[1], s.id), out = [];
+  splitLista(s.patrimonios).forEach(function(p){
+    if (!p) return;
+    var nm = nomePat(p), rotulo = p + (nm ? ' ' + nm : '');
+    if (uso[p]) out.push(rotulo + ' já está com ' + uso[p]);
+    else {
+      var pd = _patDocs.filter(function(x){ return String(x.patrimonio) === p; })[0];
+      if (pd && pd.status === 'Manutencao') out.push(rotulo + ' está em manutenção');
+    }
+  });
+  return out;
+}
+function conflitoDet(s, isEst) {
+  var c = conflitosDe(s, isEst);
+  return c.length ? [['⚠ CONFLITO', c.join(' | ')]] : [];
+}
+function conflitoTag(s, isEst) { return conflitosDe(s, isEst).length ? ' · ⚠ CONFLITO' : ''; }
+
+function avisosAprovacao(s, isEst) {
+  var linhas = [], c = conflitosDe(s, isEst);
+  if (c.length) linhas.push('\n⚠ CONFLITO DE ITENS:\n- ' + c.join('\n- '));
+  var f = _tudoCarregado ? fichaDe(s.rgm) : {atrasos: [], avarias: []};
+  if (f.atrasos.length || f.avarias.length) linhas.push('\n⚠ Histórico: ' + f.atrasos.length + ' atraso(s), ' + f.avarias.length + ' avaria(s).');
+  return linhas.join('\n');
+}
+function confirmarAprov(base, s, isEst) {
+  if (!confirm(base + avisosAprovacao(s, isEst))) return false;
+  var per = periodoDe(s, isEst), id = idadeEm(nascDe(s), per[0] || hojeISO());
+  if (id !== null && id < 18) return confirm('ATENÇÃO: ' + s.nome + ' tem ' + id + ' anos na data da ' + (isEst ? 'reserva' : 'retirada') + ' (menor de idade).\nAprovar mesmo assim?');
+  return true;
+}
+
+// ── auditoria ────────────────────────────────────────────────────────
+function auditar(acao, col, s, detalhe) {
+  try {
+    var u = firebase.auth().currentUser;
+    db.collection('auditoria').add({em: new Date().toISOString(), por: u ? u.email : '', acao: acao, col: col, docId: s.id || '', nome: s.nome || '', rgm: s.rgm || '', detalhe: detalhe || ''}).catch(function(){});
+  } catch (e) {}
+}
+
+// ── ficha do aluno ───────────────────────────────────────────────────
+function fichaDe(rgm) {
+  rgm = String(rgm || '');
+  var hoje = hojeISO();
+  var f = {rgm: rgm, reg: [], aprov: 0, recus: 0, pend: 0, devolvidos: 0, atrasos: [], avarias: [], faltas: [], obs: [], itens: {}, fin: {}, naoRetirou: 0};
+  function add(col, doc, tipo, ini, fim) { f.reg.push({col: col, doc: doc, tipo: tipo, ini: ini, fim: fim}); }
+  _empDocs.forEach(function(x){ if (String(x.rgm || '') === rgm) add('emprestimos', x, 'Empréstimo', paraISO(x.dataRetirada), paraISO(x.dataDevolucao) || paraISO(x.dataRetirada)); });
+  _estDocs.forEach(function(x){ if (String(x.rgm || '') === rgm) add('solicitacoes', x, x.tipoEstudio || 'Estúdio', paraISO(x.data), paraISO(x.data)); });
+  f.reg.sort(function(a, b){ return (b.ini || '').localeCompare(a.ini || ''); });
+  f.reg.forEach(function(r){
+    var d = r.doc;
+    if (d.status === 'Recusado' || d.status === 'Cancelado') { f.recus++; return; }
+    if (d.status === 'Pendente') { f.pend++; return; }
+    if (d.status !== 'Aprovado') return;
+    f.aprov++;
+    var fin = d.finalidade || d.finalidadeE;
+    if (fin) f.fin[fin] = (f.fin[fin] || 0) + 1;
+    splitLista(d.equipamentos).forEach(function(n){ if (n && !/^nenhum$/i.test(n)) f.itens[n] = (f.itens[n] || 0) + 1; });
+    var temEquip = String(d.equipamentos || '').trim() && !/^nenhum$/i.test(String(d.equipamentos).trim());
+    if (d.devolvidoEm) {
+      f.devolvidos++;
+      var dd = isoLocal(d.devolvidoEm), dias = r.fim ? diasEntre(r.fim, dd) : 0;
+      if (dias > 0) f.atrasos.push({r: r, dias: dias, aberto: false});
+    } else if (d.retiradoEm && r.fim && r.fim < hoje) {
+      f.atrasos.push({r: r, dias: diasEntre(r.fim, hoje), aberto: true});
+    } else if (!d.retiradoEm && temEquip && r.ini && r.ini < hoje) {
+      f.naoRetirou++;
+    }
+    [['Retirada', d.checkRetirada], ['Devolução', d.checkDevolucao]].forEach(function(par){
+      var ch = par[1]; if (!ch) return;
+      (ch.itens || []).forEach(function(x){
+        if (x.ok) return;
+        if (/avaria/i.test(x.t) && par[0] === 'Devolução') f.avarias.push({r: r, t: x.t});
+        else f.faltas.push({r: r, t: par[0] + ': ' + x.t});
+      });
+      if (ch.obs) f.obs.push({r: r, quando: par[0], txt: ch.obs, em: isoLocal(ch.em)});
+    });
+  });
+  return f;
+}
+function resumoAluno(rgm) {
+  if (!_tudoCarregado) return '';
+  var f = fichaDe(rgm), p = [];
+  var tot = f.aprov;
+  p.push(tot ? tot + ' reserva(s) aprovada(s)' : '1ª reserva');
+  if (f.atrasos.length) p.push('⚠ ' + f.atrasos.length + ' atraso(s)');
+  if (f.avarias.length) p.push('🔧 ' + f.avarias.length + ' avaria(s)');
+  return ' · 📊 ' + p.join(' · ');
+}
+
+function tile(txt, val, cor) {
+  var c = mkEl('div', 'background:' + cor + ';border-radius:8px;padding:8px 12px;min-width:90px;flex:1');
+  c.appendChild(mkEl('div', 'font-size:20px;font-weight:700', String(val)));
+  c.appendChild(mkEl('div', 'font-size:11px;font-weight:600', txt));
+  return c;
+}
+function contagemTxt(obj) {
+  var ks = Object.keys(obj).sort(function(a, b){ return obj[b] - obj[a]; });
+  return ks.length ? ks.map(function(k){ return k + ' (' + obj[k] + ')'; }).join(', ') : '—';
+}
+function secFicha(box, titulo) { box.appendChild(mkEl('div', 'font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4a1270;margin:16px 0 6px', titulo)); }
+
+function montarFicha(rgm, nome) {
+  var f = fichaDe(rgm), a = alunoPorRgm(rgm);
+  var reg0 = f.reg[0] ? f.reg[0].doc : {};
+  var nasc = paraISO((a && a.nascimento) || reg0.nascimento || reg0.nascimentoE || '');
+  var zap = (a && a.whatsapp) || reg0.whatsapp || '';
+  var box = document.createElement('div');
+  box.appendChild(mkEl('h3', 'color:#4a1270;margin-bottom:2px', (a && a.nome) || nome || reg0.nome || ''));
+  box.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'RGM ' + rgm + (a && a.semestre ? ' · ' + a.semestre + 'º semestre' : '') + (zap ? ' · ' + zap : '') + (a && a.bloqueado ? ' · 🚫 bloqueado' : '')));
+  if (nasc) {
+    var id = idadeEm(nasc), menor = id < 18;
+    box.appendChild(mkEl('div', 'font-size:12px;margin-top:4px;font-weight:' + (menor ? '700' : '400') + ';color:' + (menor ? '#c0392b' : '#333'), 'Nascimento: ' + dataBR3(nasc) + ' (' + id + ' anos)' + (menor ? ' · MENOR DE IDADE' : '')));
+  } else box.appendChild(mkEl('div', 'font-size:12px;margin-top:4px;color:#6b6b6b', 'Nascimento não informado'));
+
+  var tiles = mkEl('div', 'display:flex;gap:8px;flex-wrap:wrap;margin-top:14px');
+  tiles.appendChild(tile('Aprovadas', f.aprov, '#d4edda'));
+  tiles.appendChild(tile('Devolvidos', f.devolvidos, '#d6e4ff'));
+  tiles.appendChild(tile('Atrasos', f.atrasos.length, f.atrasos.length ? '#f8d7da' : '#f4f1f8'));
+  tiles.appendChild(tile('Avarias', f.avarias.length, f.avarias.length ? '#f8d7da' : '#f4f1f8'));
+  tiles.appendChild(tile('Recusadas/canc.', f.recus, '#f4f1f8'));
+  box.appendChild(tiles);
+
+  if (f.atrasos.length || f.avarias.length || f.faltas.length || f.naoRetirou) {
+    secFicha(box, 'Ocorrências');
+    f.atrasos.forEach(function(x){ box.appendChild(mkEl('div', 'font-size:12px;color:#c0392b;margin-bottom:3px', '⏰ ' + x.r.tipo + ' de ' + dataBR3(x.r.ini) + ': ' + (x.aberto ? 'ainda não devolvido, ' + x.dias + ' dia(s) de atraso' : 'devolvido com ' + x.dias + ' dia(s) de atraso'))); });
+    f.avarias.forEach(function(x){ box.appendChild(mkEl('div', 'font-size:12px;color:#c0392b;margin-bottom:3px', '🔧 ' + x.r.tipo + ' de ' + dataBR3(x.r.ini) + ': ' + x.t)); });
+    f.faltas.forEach(function(x){ box.appendChild(mkEl('div', 'font-size:12px;color:#8a4b0f;margin-bottom:3px', '• ' + dataBR3(x.r.ini) + ' ' + x.t)); });
+    if (f.naoRetirou) box.appendChild(mkEl('div', 'font-size:12px;color:#8a4b0f;margin-bottom:3px', '• ' + f.naoRetirou + ' reserva(s) aprovada(s) com equipamento que não foi retirado'));
+  }
+  if (f.obs.length) {
+    secFicha(box, 'Observações registradas');
+    f.obs.forEach(function(o){ box.appendChild(mkEl('div', 'font-size:12px;margin-bottom:4px', '📝 ' + dataBR3(o.r.ini) + ' (' + o.quando.toLowerCase() + '): ' + o.txt)); });
+  }
+  secFicha(box, 'Finalidade de uso');
+  box.appendChild(mkEl('div', 'font-size:12px', contagemTxt(f.fin)));
+  secFicha(box, 'Itens mais usados');
+  box.appendChild(mkEl('div', 'font-size:12px', contagemTxt(f.itens)));
+
+  secFicha(box, 'Histórico de reservas (' + f.reg.length + ')');
+  f.reg.forEach(function(r){
+    var d = r.doc, est = d.devolvidoEm ? 'devolvido ' + dataBR3(isoLocal(d.devolvidoEm)) : d.retiradoEm ? 'retirado ' + dataBR3(isoLocal(d.retiradoEm)) : d.status;
+    var linha = mkEl('div', 'font-size:12px;border-bottom:1px solid #eee;padding:6px 0');
+    linha.appendChild(mkEl('div', 'font-weight:600', dataBR3(r.ini) + (r.fim && r.fim !== r.ini ? ' a ' + dataBR3(r.fim) : '') + ' · ' + r.tipo + ' · ' + est));
+    var sub = [d.finalidade || d.finalidadeE, d.equipamentos].filter(Boolean).join(' · ');
+    if (sub) linha.appendChild(mkEl('div', 'color:#555', sub));
+    box.appendChild(linha);
+  });
+  return box;
+}
+function abrirFicha(rgm, nome) {
+  comTudo(function(){ abrirFichaPronta(rgm, nome); });
+}
+function abrirFichaPronta(rgm, nome) {
+  var box = montarFicha(rgm, nome);
+  var acoes = mkEl('div', 'display:flex;gap:8px;margin-top:16px;flex-wrap:wrap');
+  var fe = mkEl('button', 'background:#eee;border:none;border-radius:8px;padding:10px 20px;font-size:13px;cursor:pointer', 'Fechar');
+  fe.onclick = function(){ document.getElementById('_fichaModal').remove(); };
+  acoes.appendChild(fe); box.appendChild(acoes);
+  overlay('_fichaModal', box);
+}
+
+// ── card da reserva (abre ao clicar na solicitação) ──────────────────
+function iniciais(nome) {
+  var p = String(nome || '?').trim().split(/\s+/);
+  return ((p[0] || '?')[0] + (p.length > 1 ? p[p.length - 1][0] : '')).toUpperCase();
+}
+function corAvatar(txt) {
+  var h = 0, t = String(txt || '');
+  for (var i = 0; i < t.length; i++) h = (h * 31 + t.charCodeAt(i)) % 360;
+  return 'hsl(' + h + ',45%,38%)';
+}
+function renderSec(cid, titulo, itens, mkFn) {
+  var el = document.getElementById(cid);
+  var p = document.createElement('p'); p.className = 'st';
+  p.textContent = titulo + ' (' + itens.length + ')'; el.appendChild(p);
+  if (!itens.length) { var v = document.createElement('div'); v.className = 'vazio'; v.textContent = 'Nenhum registro.'; el.appendChild(v); return; }
+  var col = cid === 'estudio' ? 'solicitacoes' : cid === 'equipamentos' ? 'emprestimos' : '';
+  itens.forEach(function(s){
+    var c = mkFn(s);
+    var topo = col && c.querySelector ? c.querySelector('.ctop') : null;
+    if (topo) { topo.style.cursor = 'pointer'; topo.title = 'Abrir card da reserva'; topo.onclick = function(){ abrirCardReserva(s, col); }; }
+    el.appendChild(c);
+  });
+}
+function abrirCardReserva(s, col) {
+  var isEst = col === 'solicitacoes', tipo = isEst ? 'estudio' : 'equip';
+  var box = document.createElement('div');
+  var cab = mkEl('div', 'display:flex;gap:12px;align-items:center;margin-bottom:12px');
+  cab.appendChild(mkEl('div', 'width:48px;height:48px;border-radius:50%;color:#fff;font-weight:700;font-size:17px;display:flex;align-items:center;justify-content:center;flex:none;background:' + corAvatar(s.rgm || s.nome), iniciais(s.nome)));
+  var nm = mkEl('div', 'flex:1;min-width:0');
+  nm.appendChild(mkEl('div', 'font-weight:700;font-size:16px;color:#1a1a1a', s.nome || ''));
+  nm.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'RGM ' + (s.rgm || '') + (s.semestre ? ' · ' + s.semestre + 'º semestre' : '')));
+  cab.appendChild(nm);
+  var cor = {Pendente: '#fff3cd;color:#856404', Aprovado: '#d4edda;color:#155724', Recusado: '#f8d7da;color:#721c24', Cancelado: '#e2e3e5;color:#383d41'}[s.status] || '#eee';
+  cab.appendChild(mkEl('span', 'font-size:11px;font-weight:700;padding:3px 10px;border-radius:12px;background:' + cor, s.status || ''));
+  box.appendChild(cab);
+
+  var abas = mkEl('div', 'display:flex;gap:4px;border-bottom:2px solid #ddd0ea;margin-bottom:12px');
+  var corpo = document.createElement('div');
+  var fichaN = fichaDe(s.rgm).reg.length;
+  var btns = {};
+  [['reserva', 'Reserva'], ['hist', 'Histórico (' + fichaN + ')']].forEach(function(o){
+    var b = mkEl('button', 'border:none;background:none;padding:8px 14px;font-size:13px;font-weight:600;cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;font-family:Inter,sans-serif', o[1]);
+    b.onclick = function(){ mostrar(o[0]); }; btns[o[0]] = b; abas.appendChild(b);
+  });
+  box.appendChild(abas); box.appendChild(corpo);
+
+  function linha(rot, val, forte) {
+    if (!val) return;
+    var l = mkEl('div', 'display:flex;gap:8px;font-size:13px;padding:5px 0;border-bottom:1px solid #f0eaf6');
+    l.appendChild(mkEl('div', 'width:120px;flex:none;color:#4a1270;font-weight:600;font-size:12px', rot));
+    l.appendChild(mkEl('div', 'flex:1;min-width:0;word-break:break-word;' + (forte ? 'font-weight:700' : ''), val));
+    corpo.appendChild(l);
+  }
+  function mostrar(aba) {
+    Object.keys(btns).forEach(function(k){ btns[k].style.color = k === aba ? '#6a1e9a' : '#6b6b6b'; btns[k].style.borderBottomColor = k === aba ? '#6a1e9a' : 'transparent'; });
+    corpo.innerHTML = '';
+    if (aba === 'hist') { comTudo(function(){ corpo.innerHTML = ''; corpo.appendChild(montarFicha(s.rgm, s.nome)); }); return; }
+    var alertas = [], conf = conflitosDe(s, isEst), per = periodoDe(s, isEst);
+    conf.forEach(function(c){ alertas.push('⚠ ' + c); });
+    var id = idadeEm(nascDe(s), per[0] || hojeISO());
+    if (id !== null && id < 18) alertas.push('⚠ Menor de idade (' + id + ' anos)');
+    var f = fichaDe(s.rgm);
+    if (f.atrasos.length) alertas.push('⏰ ' + f.atrasos.length + ' atraso(s) anteriores');
+    if (f.avarias.length) alertas.push('🔧 ' + f.avarias.length + ' avaria(s) anteriores');
+    if (alertas.length) {
+      var al = mkEl('div', 'background:#fdecea;color:#8a1f12;border-radius:8px;padding:10px 12px;font-size:12px;font-weight:600;margin-bottom:10px;line-height:1.5');
+      al.innerHTML = alertas.map(esc).join('<br>'); corpo.appendChild(al);
+    }
+    if (isEst) {
+      linha('Estúdio', s.tipoEstudio, true); linha('Data', fmtData(s.data)); linha('Horário', s.horario);
+    } else {
+      linha('Retirada', fmtData(s.dataRetirada), true); linha('Devolução', fmtData(s.dataDevolucao));
+    }
+    linha('Finalidade', s.finalidade); linha('Descrição', s.descricao);
+    var nomes = splitLista(s.equipamentos).filter(Boolean).filter(function(n){ return !/^nenhum$/i.test(n); }), pats = splitLista(s.patrimonios);
+    var eq = mkEl('div', 'margin-top:10px;background:#f4f1f8;border-radius:8px;padding:10px 12px');
+    eq.appendChild(mkEl('div', 'font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4a1270;margin-bottom:6px', 'Equipamentos solicitados (' + nomes.length + ')'));
+    if (!nomes.length) eq.appendChild(mkEl('div', 'font-size:13px;color:#6b6b6b', 'Nenhum equipamento solicitado.'));
+    nomes.forEach(function(n, i){ eq.appendChild(mkEl('div', 'font-size:13px;padding:2px 0', '• ' + n + (pats[i] ? '  (Patrimônio ' + pats[i] + ')' : ''))); });
+    corpo.appendChild(eq);
+    if (isEst) {
+      var pb = mkEl('div', 'margin-top:10px;background:#f4f1f8;border-radius:8px;padding:10px 12px');
+      pb.appendChild(mkEl('div', 'font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4a1270;margin-bottom:6px', 'Pessoas no estúdio'));
+      pb.appendChild(mkEl('div', 'font-size:13px;white-space:pre-wrap', s.participantes || 'Não informado.'));
+      corpo.appendChild(pb);
+    }
+    var c2 = mkEl('div', 'margin-top:10px'); corpo.appendChild(c2);
+    var antes = corpo; corpo = c2;
+    linha('WhatsApp', s.whatsapp); linha('E-mail', s.email); linha('Nascimento', nascTexto(nascDe(s), per[0]));
+    linha('Enviado em', s.enviadoEm ? dataBR3(isoLocal(s.enviadoEm)) : ''); linha('Motivo recusa', s.motivoRecusa);
+    corpo = antes;
+  }
+  mostrar('reserva');
+
+  var acoes = mkEl('div', 'display:flex;gap:8px;margin-top:16px;flex-wrap:wrap');
+  function ab(txt, css, fn) { var b = mkEl('button', 'border:none;border-radius:8px;padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;' + css, txt); b.onclick = function(){ document.getElementById('_cardModal').remove(); fn(); }; acoes.appendChild(b); }
+  if (s.status === 'Pendente') {
+    ab('✅ Aprovar', 'background:#2d7a2d;color:#fff', function(){ isEst ? aprovarEst(s) : aprovarEq(s); });
+    ab('❌ Recusar', 'background:#c0392b;color:#fff', function(){ isEst ? recusarEstComMotivo(s) : recusarEqComMotivo(s); });
+    ab('✏️ Editar', 'background:#6a1e9a;color:#fff', function(){ editarSolicitacao(s, col); });
+  } else if (s.status === 'Aprovado') {
+    ab('🖨️ Termo', 'background:#6a1e9a;color:#fff', function(){ abrirTermo(s, tipo, false); });
+    ab('✏️ Editar', 'background:#eee;color:#333', function(){ editarSolicitacao(s, col); });
+    ab('❌ Cancelar', 'background:#c0392b;color:#fff', function(){ isEst ? cancelarEst(s) : cancelarEq(s); });
+  }
+  if (s.whatsapp) ab('📱 WhatsApp', 'background:#25d366;color:#fff', function(){ abrirWA(s.nome, s.whatsapp, tipo, s.status === 'Recusado' ? 'Recusado' : 'Aprovado', isEst ? s.data : s.dataRetirada, s.horario || ''); });
+  var fe = mkEl('button', 'border:none;border-radius:8px;padding:10px 16px;font-size:13px;background:#eee;cursor:pointer', 'Fechar');
+  fe.onclick = function(){ document.getElementById('_cardModal').remove(); };
+  acoes.appendChild(fe); box.appendChild(acoes);
+  var m = overlay('_cardModal', box); m.firstChild.style.maxWidth = '640px';
+}
+
+// ── aba Histórico ────────────────────────────────────────────────────
+function iniciarAuditoria() {
+  if (_auditUnsub) return;
+  try {
+    _auditUnsub = db.collection('auditoria').orderBy('em', 'desc').limit(80).onSnapshot(function(snap){
+      _auditDocs = []; snap.forEach(function(d){ _auditDocs.push(d.data()); });
+      renderHistorico();
+    }, function(){ _auditUnsub = null; });
+  } catch (e) {}
+}
+function abrirWAAniversario(nome, whatsapp) {
+  var msg = 'Olá, ' + (nome || '').split(' ')[0] + '! 🎉\n\nA Coordenação de Publicidade e Propaganda da UNIGRAN Capital deseja um feliz aniversário! Muita saúde, sucesso e criações incríveis neste novo ciclo.\n\n_Publicidade & Propaganda — UNIGRAN Capital_';
+  _waAbrir(whatsapp, msg);
+}
+function renderHistorico() {
+  var el = document.getElementById('historico'); if (!el) return;
+  if (!_tudoCarregado) { el.innerHTML = '<div class="vazio">Carregando o histórico completo...</div>'; carregarTudo(); return; }
+  iniciarAuditoria();
+  el.innerHTML = '';
+  var porRgm = {};
+  _empDocs.concat(_estDocs).forEach(function(x){ if (x.rgm) porRgm[String(x.rgm)] = x.nome; });
+  var fichas = Object.keys(porRgm).map(function(r){ var f = fichaDe(r); f.nome = porRgm[r]; return f; });
+  var finTotal = {}, itensTotal = {};
+  fichas.forEach(function(f){
+    Object.keys(f.fin).forEach(function(k){ finTotal[k] = (finTotal[k] || 0) + f.fin[k]; });
+    Object.keys(f.itens).forEach(function(k){ itensTotal[k] = (itensTotal[k] || 0) + f.itens[k]; });
+  });
+  function secao(t) { var s = mkEl('div', 'background:#fff;border:1px solid #ddd0ea;border-radius:8px;padding:16px;margin-bottom:14px'); s.appendChild(mkEl('div', 'font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4a1270;margin-bottom:10px', t)); el.appendChild(s); return s; }
+  function linha(s, txt, btnTxt, fn, cor) {
+    var l = mkEl('div', 'display:flex;gap:8px;justify-content:space-between;align-items:center;border-bottom:1px solid #f0eaf6;padding:6px 0;font-size:13px;flex-wrap:wrap');
+    l.appendChild(mkEl('div', 'flex:1;min-width:180px;' + (cor ? 'color:' + cor + ';font-weight:600' : ''), txt));
+    if (btnTxt) { var b = mkEl('button', 'border:none;background:#6a1e9a;color:#fff;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer', btnTxt); b.onclick = fn; l.appendChild(b); }
+    s.appendChild(l);
+  }
+
+  // aniversariantes
+  var mes = pad2(new Date().getMonth() + 1), hoje = hojeISO();
+  var aniv = _todosAlunos.filter(function(a){ var n = paraISO(a.nascimento); return n && n.substring(5, 7) === mes; })
+    .sort(function(a, b){ return paraISO(a.nascimento).substring(8) - paraISO(b.nascimento).substring(8); });
+  var sA = secao('🎂 Aniversariantes do mês (' + aniv.length + ')');
+  if (!aniv.length) sA.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'Nenhum aniversariante com data cadastrada neste mês.'));
+  aniv.forEach(function(a){
+    var n = paraISO(a.nascimento), ehHoje = n.substring(5) === hoje.substring(5);
+    linha(sA, n.substring(8) + '/' + n.substring(5, 7) + ' · ' + a.nome + ' (' + idadeEm(n, hoje) + ' anos)' + (ehHoje ? ' · HOJE 🎉' : ''), a.whatsapp ? '📱 Parabéns' : '', function(){ abrirWAAniversario(a.nome, a.whatsapp); }, ehHoje ? '#6a1e9a' : '');
+  });
+
+  // menores
+  var menores = _todosAlunos.filter(function(a){ var n = paraISO(a.nascimento); return n && idadeEm(n) < 18; });
+  var sM = secao('Menores de 18 anos (' + menores.length + ')');
+  if (!menores.length) sM.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'Nenhum aluno menor de idade encontrado.'));
+  menores.forEach(function(a){ linha(sM, a.nome + ' · ' + idadeEm(paraISO(a.nascimento)) + ' anos · completa 18 em ' + dataBR3((+paraISO(a.nascimento).substring(0, 4) + 18) + paraISO(a.nascimento).substring(4)), 'Ficha', function(){ abrirFicha(a.rgm, a.nome); }, '#c0392b'); });
+
+  // ranking
+  var rk = fichas.filter(function(f){ return f.aprov; }).sort(function(a, b){ return b.aprov - a.aprov; }).slice(0, 15);
+  var sR = secao('Quem mais reserva (top 15)');
+  if (!rk.length) sR.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'Ainda sem reservas aprovadas.'));
+  rk.forEach(function(f, i){
+    var fl = (f.fin['Freela/Trabalho'] || 0);
+    linha(sR, (i + 1) + '. ' + f.nome + ' · ' + f.aprov + ' reservas' + (fl ? ' · ' + fl + ' freela/trabalho' : '') + (f.atrasos.length ? ' · ⚠ ' + f.atrasos.length + ' atraso(s)' : '') + (f.avarias.length ? ' · 🔧 ' + f.avarias.length + ' avaria(s)' : ''), 'Ficha', function(){ abrirFicha(f.rgm, f.nome); }, (f.atrasos.length || f.avarias.length) ? '#8a4b0f' : '');
+  });
+
+  var oc = fichas.filter(function(f){ return f.atrasos.length || f.avarias.length; }).sort(function(a, b){ return (b.atrasos.length + b.avarias.length) - (a.atrasos.length + a.avarias.length); });
+  var sO = secao('Alunos com ocorrências (' + oc.length + ')');
+  if (!oc.length) sO.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'Nenhum atraso ou avaria registrado.'));
+  oc.forEach(function(f){ linha(sO, f.nome + ' · ' + f.atrasos.length + ' atraso(s) · ' + f.avarias.length + ' avaria(s)', 'Ficha', function(){ abrirFicha(f.rgm, f.nome); }, '#c0392b'); });
+
+  var sF = secao('Finalidade das reservas aprovadas');
+  sF.appendChild(mkEl('div', 'font-size:13px', contagemTxt(finTotal)));
+  var sI = secao('Itens mais usados');
+  var top = Object.keys(itensTotal).sort(function(a, b){ return itensTotal[b] - itensTotal[a]; }).slice(0, 10);
+  sI.appendChild(mkEl('div', 'font-size:13px', top.length ? top.map(function(k){ return k + ' (' + itensTotal[k] + ')'; }).join(', ') : '—'));
+
+  var sL = secao('Registro de ações (últimas ' + _auditDocs.length + ')');
+  if (!_auditDocs.length) sL.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'Nenhuma ação registrada ainda. As próximas aprovações, recusas e devoluções aparecem aqui.'));
+  _auditDocs.forEach(function(a){
+    var d = new Date(a.em), q = isNaN(d) ? '' : pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + ' ' + pad2(d.getHours()) + ':' + pad2(d.getMinutes());
+    linha(sL, q + ' · ' + a.acao + ' · ' + (a.nome || '') + (a.detalhe ? ' · ' + a.detalhe : '') + ' · ' + (a.por || ''));
+  });
+}
+
+// ── mensagens de WhatsApp: datas no formato brasileiro, sem emojis ───
+function fmtData(d) {
+  if (!d) return '—';
+  if (typeof d.toDate === 'function') d = d.toDate();
+  if (d instanceof Date) return pad2(d.getDate()) + '/' + pad2(d.getMonth() + 1) + '/' + d.getFullYear();
+  var iso = paraISO(d);
+  return iso ? dataBR3(iso) : String(d);
+}
+function _waAbrir(whatsapp, msg) {
+  var tel = (whatsapp || '').replace(/\D/g, '');
+  if (tel.length < 10) { alert('WhatsApp não cadastrado ou inválido: ' + (whatsapp || '(vazio)')); return; }
+  if (tel.slice(0, 2) !== '55') tel = '55' + tel;
+  // emojis são removidos porque chegam quebrados no WhatsApp em alguns navegadores
+  msg = String(msg).replace(/[\u{1F000}-\u{1FFFF}\u{2600}-\u{27BF}\u{2B00}-\u{2BFF}\uFE0F\u200D]/gu, '').replace(/^[ \t]+/gm, '').replace(/[ \t]+$/gm, '');
   window.open('https://wa.me/' + tel + '?text=' + encodeURIComponent(msg), '_blank');
+}
+function abrirWA(nome, whatsapp, tipo, status, data, horario, motivo) {
+  if (status !== 'Aprovado') { abrirWARecusa(nome, whatsapp, tipo, data, horario, motivo); return; }
+  var dataFmt = fmtData(data), msg;
+  if (tipo === 'estudio') {
+    msg = 'Olá, ' + nome + '!\n\nSua reserva no *Estúdio PP da UNIGRAN Capital* foi *aprovada*!\n\n' +
+      'Data: *' + dataFmt + '*\nHorário: *' + (horario || '') + '*\n\n' +
+      'O Termo de Uso será enviado por e-mail. Assine e entregue uma via à Coordenação *antes da retirada dos equipamentos*.\n\n' +
+      '_Publicidade & Propaganda — UNIGRAN Capital_';
+  } else {
+    msg = 'Olá, ' + nome + '!\n\nSua solicitação de *empréstimo de equipamentos* foi *aprovada*!\n\n' +
+      'Retirada: *' + dataFmt + '*\n\n' +
+      'O Termo de Responsabilidade será enviado por e-mail. Assine e entregue uma via à Coordenação *antes da retirada*.\n\n' +
+      '_Publicidade & Propaganda — UNIGRAN Capital_';
+  }
+  _waAbrir(whatsapp, msg);
+}
+
+// ═════════════════════════════════════════════════════════════════════
+//  v9 — carga parcial (últimos 30 dias), datas bloqueadas
+// ═════════════════════════════════════════════════════════════════════
+var DIAS_JANELA = 30;
+var _fonte = {est: {}, emp: {}}, _verTodos = false, _tudoCarregado = false, _tudoUnsub = [], _datasBloq = [];
+
+function corteISO() { return new Date(Date.now() - DIAS_JANELA * 86400000).toISOString(); }
+
+function visiveis(arr, tipo) {
+  if (_verTodos) return arr;
+  var corte = corteISO(), hoje = hojeISO();
+  return arr.filter(function(s){
+    if ((s.enviadoEm || '') >= corte || s.status === 'Pendente') return true;
+    if (tipo === 'est') return paraISO(s.data) >= hoje;
+    return paraISO(s.dataDevolucao) >= hoje || (s.retiradoEm && !s.devolvidoEm);
+  });
+}
+function recompor(tipo) {
+  var u = {};
+  Object.keys(_fonte[tipo]).forEach(function(n){ var m = _fonte[tipo][n]; Object.keys(m).forEach(function(id){ u[id] = m[id]; }); });
+  var arr = Object.keys(u).map(function(id){ return u[id]; }).sort(function(a, b){ return String(b.enviadoEm || '').localeCompare(String(a.enviadoEm || '')); });
+  if (tipo === 'est') { _estDocs = arr; renderEstudio(visiveis(arr, 'est')); }
+  else { _empDocs = arr; renderEquipamentos(visiveis(arr, 'emp')); }
+  renderControle(); atualizarBarraPeriodo();
+}
+function ouvir(tipo, nome, colecao, consulta) {
+  return consulta(db.collection(colecao)).onSnapshot(function(snap){
+    var m = {}; snap.forEach(function(d){ m[d.id] = Object.assign({id: d.id}, d.data()); });
+    _fonte[tipo][nome] = m; recompor(tipo);
+  }, function(err){ console.error(colecao + ' (' + nome + '):', err); });
+}
+function iniciarFontesEst() {
+  var corte = corteISO(), hoje = hojeISO(), c = 'solicitacoes';
+  var a = ouvir('est', 'recente', c, function(r){ return r.where('enviadoEm', '>=', corte); });
+  var b = ouvir('est', 'pendente', c, function(r){ return r.where('status', '==', 'Pendente'); });
+  var d = ouvir('est', 'futuro', c, function(r){ return r.where('data', '>=', hoje); });
+  return function(){ a(); b(); d(); };
+}
+function iniciarFontesEmp() {
+  var corte = corteISO(), c = 'emprestimos';
+  var a = ouvir('emp', 'recente', c, function(r){ return r.where('enviadoEm', '>=', corte); });
+  var b = ouvir('emp', 'pendente', c, function(r){ return r.where('status', '==', 'Pendente'); });
+  var d = ouvir('emp', 'aprovado', c, function(r){ return r.where('status', '==', 'Aprovado'); });
+  return function(){ a(); b(); d(); };
+}
+// Carrega todo o histórico (usado pela ficha, aba Histórico e botão "ver anteriores")
+function carregarTudo() {
+  if (_tudoCarregado) return Promise.resolve();
+  _tudoCarregado = true;
+  atualizarBarraPeriodo();
+  var esperas = [['est', 'solicitacoes'], ['emp', 'emprestimos']].map(function(par){
+    return new Promise(function(res){
+      var primeiro = true;
+      var un = db.collection(par[1]).onSnapshot(function(snap){
+        var m = {}; snap.forEach(function(d){ m[d.id] = Object.assign({id: d.id}, d.data()); });
+        _fonte[par[0]].tudo = m; recompor(par[0]);
+        if (primeiro) { primeiro = false; res(); }
+      }, function(){ if (primeiro) { primeiro = false; res(); } });
+      _tudoUnsub.push(un);
+    });
+  });
+  return Promise.all(esperas);
+}
+function comTudo(fn) {
+  if (_tudoCarregado && _fonte.est.tudo && _fonte.emp.tudo) { fn(); return; }
+  var aviso = overlay('_carregando', mkEl('div', 'text-align:center;padding:20px;font-size:14px', 'Carregando o histórico completo...'));
+  carregarTudo().then(function(){ var a = document.getElementById('_carregando'); if (a) a.remove(); fn(); });
+}
+function atualizarBarraPeriodo() {
+  var b = document.getElementById('barraPeriodo'); if (!b) return;
+  b.innerHTML = '';
+  if (_verTodos) {
+    b.appendChild(mkEl('span', 'font-size:12px;color:#4a1270', 'Mostrando todo o histórico.'));
+    var v = mkEl('button', 'border:1.5px solid #6a1e9a;background:#fff;color:#6a1e9a;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif', 'Voltar aos últimos ' + DIAS_JANELA + ' dias');
+    v.onclick = function(){ _verTodos = false; recompor('est'); recompor('emp'); };
+    b.appendChild(v);
+  } else {
+    b.appendChild(mkEl('span', 'font-size:12px;color:#4a1270', 'Mostrando os últimos ' + DIAS_JANELA + ' dias, pendentes e reservas futuras.'));
+    var x = mkEl('button', 'border:none;background:#6a1e9a;color:#fff;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif', '📂 Ver anteriores');
+    x.onclick = function(){ x.textContent = 'Carregando...'; carregarTudo().then(function(){ _verTodos = true; recompor('est'); recompor('emp'); }); };
+    b.appendChild(x);
+  }
+}
+function montarBarraPeriodo() {
+  if (document.getElementById('barraPeriodo')) return;
+  var p = document.querySelector('.painel'); if (!p) return;
+  var b = mkEl('div', 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;background:#fff;border:1px solid #ddd0ea;border-radius:8px;padding:8px 14px;margin-bottom:14px');
+  b.id = 'barraPeriodo'; p.insertBefore(b, p.firstChild); atualizarBarraPeriodo();
+}
+
+// ── datas bloqueadas (feriados, recesso) ─────────────────────────────
+function iniciarDatasBloq() {
+  return db.collection('config').doc('datasBloqueadas').onSnapshot(function(snap){
+    _datasBloq = snap.exists && Array.isArray(snap.data().itens) ? snap.data().itens : [];
+    var el = document.getElementById('listaDatasBloq'); if (el) renderListaDatasBloq(el);
+  });
+}
+function salvarDatasBloq() {
+  return db.collection('config').doc('datasBloqueadas').set({itens: _datasBloq}, {merge: true});
+}
+function renderListaDatasBloq(el) {
+  el.innerHTML = '';
+  var hoje = hojeISO();
+  var lista = _datasBloq.map(function(x, i){ return {x: x, i: i}; }).filter(function(o){ return (o.x.ate || o.x.de) >= hoje; })
+    .sort(function(a, b){ return a.x.de.localeCompare(b.x.de); });
+  if (!lista.length) { el.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b', 'Nenhuma data bloqueada.')); return; }
+  var alvoTxt = {ambos: 'estúdio e equipamentos', estudio: 'só estúdio', equip: 'só equipamentos'};
+  lista.forEach(function(o){
+    var l = mkEl('div', 'display:flex;gap:8px;align-items:center;justify-content:space-between;border-bottom:1px solid #f0eaf6;padding:6px 0;font-size:13px');
+    l.appendChild(mkEl('div', 'flex:1', dataBR3(o.x.de) + (o.x.ate && o.x.ate !== o.x.de ? ' a ' + dataBR3(o.x.ate) : '') + ' · ' + (alvoTxt[o.x.alvo] || 'estúdio e equipamentos') + (o.x.motivo ? ' · ' + o.x.motivo : '')));
+    var rm = mkEl('button', 'border:none;background:#fde;color:#c0392b;border-radius:6px;padding:4px 10px;cursor:pointer;font-weight:700', '✕');
+    rm.onclick = function(){ if (confirm('Liberar esta data novamente?')) { _datasBloq.splice(o.i, 1); salvarDatasBloq(); } };
+    l.appendChild(rm); el.appendChild(l);
+  });
+}
+function boxDatasBloqueadas() {
+  var box = document.createElement('div'); box.className = 'cfg';
+  box.appendChild(mkEl('h3', '', 'Datas bloqueadas'));
+  box.appendChild(mkEl('p', 'font-size:12px;color:#6b6b6b;margin-bottom:12px', 'Feriados, recesso e dias sem atendimento. Os dias bloqueados não aparecem para o aluno.'));
+  var css = 'border:1.5px solid #ddd0ea;border-radius:8px;padding:8px 10px;font-size:13px;font-family:Inter,sans-serif;background:#fff';
+  var linha = mkEl('div', 'display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px');
+  var de = document.createElement('input'); de.type = 'date'; de.style.cssText = css; de.title = 'De';
+  var ate = document.createElement('input'); ate.type = 'date'; ate.style.cssText = css; ate.title = 'Até (opcional, para vários dias)';
+  var motivo = document.createElement('input'); motivo.type = 'text'; motivo.placeholder = 'Motivo (ex.: Feriado)'; motivo.style.cssText = css + ';flex:1;min-width:140px';
+  var alvo = document.createElement('select'); alvo.style.cssText = css;
+  [['ambos', 'Estúdio e equipamentos'], ['estudio', 'Só estúdio'], ['equip', 'Só equipamentos']].forEach(function(o){ var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; alvo.appendChild(op); });
+  var add = mkEl('button', 'border:none;background:#6a1e9a;color:#fff;border-radius:8px;padding:9px 16px;font-size:13px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif', 'Bloquear');
+  add.onclick = function(){
+    if (!de.value) { alert('Escolha a data (ou a primeira data do período).'); return; }
+    var fim = ate.value && ate.value >= de.value ? ate.value : de.value;
+    _datasBloq.push({de: de.value, ate: fim, motivo: motivo.value.trim(), alvo: alvo.value});
+    salvarDatasBloq().catch(function(e){ alert('Erro ao salvar: ' + e.message); });
+    de.value = ''; ate.value = ''; motivo.value = '';
+  };
+  [de, ate, motivo, alvo, add].forEach(function(e){ linha.appendChild(e); });
+  box.appendChild(mkEl('div', 'font-size:11px;color:#6b6b6b;margin-bottom:4px', 'De / Até (o segundo campo é opcional)'));
+  box.appendChild(linha);
+  var lista = document.createElement('div'); lista.id = 'listaDatasBloq'; box.appendChild(lista);
+  renderListaDatasBloq(lista);
+  return box;
 }
 
 </script>
