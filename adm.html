@@ -93,7 +93,7 @@ header span{font-size:12px;opacity:.7}
 .campo{margin-bottom:14px}.campo label{display:block;font-size:12px;font-weight:500;color:var(--roxo2);margin-bottom:5px}
 .campo input,.campo select{width:100%;border:1.5px solid var(--borda);border-radius:var(--r);padding:9px 11px;font-size:13px;outline:none;font-family:Inter,sans-serif}
 .campo input:focus,.campo select:focus{border-color:var(--roxo)}
-.cancelado{background:#e2e3e5;color:#383d41}.bicon{padding:8px 12px}
+#ctlView,#ctlStatus{display:none!important}.cancelado{background:#e2e3e5;color:#383d41}.bicon{padding:8px 12px}
 @media(max-width:700px){header{padding:12px 16px}.tabs{padding:0 8px}.tab{padding:12px 14px}.cgrid{grid-template-columns:1fr}.btns .btn{flex:1 1 calc(50% - 8px);text-align:center;padding:12px 10px}.btns .btn.bicon{flex:0 0 auto}.acard .abtns .btn{flex:1;padding:9px 10px!important}.mbox,.emodal-box{padding:18px}.header-right{gap:10px}input,select,textarea{font-size:16px!important}#ctlLista{overflow-x:auto}.painel{padding:12px}}
 @media(max-width:600px){.cgrid{grid-template-columns:1fr 1fr}.painel{padding:16px}.cat-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}}
 </style>
@@ -120,9 +120,9 @@ header span{font-size:12px;opacity:.7}
     </div>
   </header>
   <div class="tabs">
-    <div class="tab on" onclick="mudarAba('estudio',this)">📷 Estúdio</div>
-    <div class="tab" onclick="mudarAba('equipamentos',this)">🎥 Equipamentos</div>
-    <div class="tab" onclick="mudarAba('controle',this)">📋 Controle</div>
+    <div class="tab on" onclick="mudarAba('estudio',this)">📷 Controle Estúdio</div>
+    <div class="tab" onclick="mudarAba('equipamentos',this)">🎥 Controle Equipamentos</div>
+    <div class="tab" onclick="mudarAba('controle',this)">📅 Calendário</div>
     <div class="tab" onclick="mudarAba('historico',this)">📊 Histórico</div>
     <div class="tab" onclick="mudarAba('patrimonio',this)">📦 Patrimônio</div>
     <div class="tab" onclick="mudarAba('alunos',this)">🎓 Alunos</div>
@@ -365,13 +365,14 @@ function renderPatrimonio(docs) {
         '<span class="ecard-badge">'+disponiveis+'/'+unidades.length+'</span>'+
         '<span class="ecard-icon">'+icone+'</span>'+
         '<div class="ecard-nome">'+esc(modelo.descricao)+'</div>'+
-        '<div class="ecard-info">'+esc(modelo.marca)+'</div>';
+        '<div class="ecard-info">'+esc(modelo.marca)+'</div><div class="ecard-res" style="font-size:10px;color:#8a1f12;font-weight:700;margin-top:3px"></div>';
       c.onclick=(function(cat,modelo,unidades,restrito,icone){return function(){abrirEmodal(cat,modelo,unidades,restrito,icone);};})(cat,modelo,unidades,restrito,icone);
-      cardsDiv.appendChild(c);
+      c._un = unidades; cardsDiv.appendChild(c);
     });
     section.appendChild(cardsDiv); catGrid.appendChild(section);
   });
   el.appendChild(catGrid);
+  atualizarBadgesReservas();
 }
 
 function abrirEmodal(cat, modelo, unidades, restrito, icone) {
@@ -399,14 +400,16 @@ function abrirEmodal(cat, modelo, unidades, restrito, icone) {
       if(confirm('Remover?')){ db.collection('patrimonio').doc(u.id).delete(); abrirEmodal(cat,modelo,unidades.filter(function(x){return x.id!==u.id;}),restrito,icone); }
     }; })(u,unidades,cat,modelo,restrito,icone);
     row.appendChild(num); row.appendChild(inp); row.appendChild(badge); row.appendChild(bDel);
-    patsDiv.appendChild(row);
+    patsDiv.appendChild(row); infoReservasItem(patsDiv, u);
   });
   var btnsDiv=document.getElementById('emodalBtns'); btnsDiv.innerHTML='';
   var bAdd=document.createElement('button'); bAdd.className='btn broxo'; bAdd.textContent='+ Adicionar unidade';
   bAdd.onclick=function(){ document.getElementById('emodal').classList.remove('on'); abrirModal({categoria:cat,descricao:modelo.descricao,marca:modelo.marca,patrimonio:'',status:'Disponivel',restrito4sem:restrito}); };
   var bEdit=document.createElement('button'); bEdit.className='btn bno'; bEdit.textContent='✏️ Editar modelo';
   bEdit.onclick=function(){ document.getElementById('emodal').classList.remove('on'); abrirModal(Object.assign({},modelo)); };
-  btnsDiv.appendChild(bAdd); btnsDiv.appendChild(bEdit);
+  var bTudo=document.createElement('button'); bTudo.className='btn bverm'; bTudo.textContent='🗑️ Apagar equipamento inteiro'; bTudo.style.marginLeft='auto';
+  bTudo.onclick=function(){ if(apagarModeloInteiro(cat,unidades)) document.getElementById('emodal').classList.remove('on'); };
+  btnsDiv.appendChild(bAdd); btnsDiv.appendChild(bEdit); btnsDiv.appendChild(bTudo);
   document.getElementById('emodal').classList.add('on');
 }
 
@@ -891,6 +894,7 @@ function iniciar() {
   var u1 = iniciarFontesEst();
   var u2 = iniciarFontesEmp();
   var u6 = iniciarDatasBloq();
+  var u7 = iniciarConfigControle();
   montarBarraPeriodo();
   var u3 = db.collection('patrimonio').onSnapshot(function(snap) {
     var docs = []; snap.forEach(function(d){ docs.push(Object.assign({id:d.id},d.data())); });
@@ -912,7 +916,7 @@ function iniciar() {
     var me=document.getElementById('msgEst');   if(me) me.value = d.msgEstudio||'';
     var mq=document.getElementById('msgEq');    if(mq) mq.value = d.msgEquip||'';
   });
-  _unsubscribers = [u1,u2,u3,u4,u5,u6];
+  _unsubscribers = [u1,u2,u3,u4,u5,u6,u7];
 }
 
 // ── cards ────────────────────────────────────────────────────────────
@@ -1432,12 +1436,13 @@ function sincronizarBloqueios(todos) {
 }
 
 // ── controle: barra, lista e calendário ──────────────────────────────
-var _ctlView = 'lista', _ctlMes = hojeISO().substring(0, 7), _ctlDia = '';
+var _ctlView = 'calendario', _ctlMes = hojeISO().substring(0, 7), _ctlDia = '';
 
 function montarBarraControle() {
   var el = document.getElementById('controle');
   if (document.getElementById('ctlLista')) return;
   el.innerHTML = '';
+  setTimeout(montarAvisoInicioCtl, 0);
   var resumo = mkEl('div', 'display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px'); resumo.id = 'ctlResumo'; el.appendChild(resumo);
   var barra = mkEl('div', 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center');
   var css = 'border:1.5px solid #ddd0ea;border-radius:8px;padding:8px 10px;font-size:13px;font-family:Inter,sans-serif;background:#fff;outline:none';
@@ -1716,45 +1721,127 @@ function periodoDe(s, isEst) {
   if (isEst) { var d = paraISO(s.data); return [d, d]; }
   var r = paraISO(s.dataRetirada); return [r, paraISO(s.dataDevolucao) || r];
 }
-function usoDetalhado(ini, fim, ignoreId) {
-  var uso = {}, hoje = hojeISO();
-  function marca(lista, quem, desc) { splitLista(lista).forEach(function(p){ if (p && !uso[p]) uso[p] = quem + ' (' + desc + ')'; }); }
-  _estDocs.forEach(function(x){
-    if (x.id === ignoreId || x.status !== 'Aprovado' || x.devolvidoEm) return;
-    var d = paraISO(x.data);
-    if (d >= ini && d <= fim) marca(x.patrimonios, x.nome, 'estúdio ' + dataBR3(d));
-  });
-  _empDocs.forEach(function(x){
-    if (x.id === ignoreId || x.status !== 'Aprovado' || x.devolvidoEm) return;
-    var r = paraISO(x.dataRetirada), d = paraISO(x.dataDevolucao) || r;
-    var fimEf = (x.retiradoEm && d < hoje) ? '9999-12-31' : d;
-    if (r <= fim && fimEf >= ini) marca(x.patrimonios, x.nome, 'empréstimo ' + dataBR3(r) + ' a ' + dataBR3(d));
-  });
-  return uso;
+// ── estados e início do controle ─────────────────────────────────────
+var _inicioCtl = '2026-10-27';   // atrasos e pendências só contam a partir desta data
+function temEquipamento(doc) { var e = String(doc.equipamentos || '').trim(); return !!e && !/^nenhum$/i.test(e); }
+function estadoReserva(doc, tipo) {
+  if (doc.status !== 'Aprovado') return doc.status || 'Pendente';
+  var ini = tipo === 'est' ? paraISO(doc.data) : paraISO(doc.dataRetirada);
+  var fim = tipo === 'est' ? ini : (paraISO(doc.dataDevolucao) || ini);
+  if (doc.devolvidoEm) return 'devolvido';
+  if (fim && fim < _inicioCtl) return 'anterior';
+  var hoje = hojeISO();
+  if (tipo === 'est' && !temEquipamento(doc)) return ini >= hoje ? 'aguardando' : 'realizado';
+  if (doc.retiradoEm) return fim < hoje ? 'atrasado' : 'em_uso';
+  return ini < hoje ? 'nao_retirado' : 'aguardando';
 }
-function conflitosDe(s, isEst) {
-  var per = periodoDe(s, isEst); if (!per[0]) return [];
-  var uso = usoDetalhado(per[0], per[1], s.id), out = [];
-  splitLista(s.patrimonios).forEach(function(p){
-    if (!p) return;
-    var nm = nomePat(p), rotulo = p + (nm ? ' ' + nm : '');
-    if (uso[p]) out.push(rotulo + ' já está com ' + uso[p]);
-    else {
-      var pd = _patDocs.filter(function(x){ return String(x.patrimonio) === p; })[0];
-      if (pd && pd.status === 'Manutencao') out.push(rotulo + ' está em manutenção');
-    }
+function estadoItem(it) { return estadoReserva(it.doc, it.tipo === 'equip' ? 'emp' : 'est'); }
+function itensControle() {
+  var out = [];
+  _empDocs.forEach(function(x){
+    if (x.status !== 'Aprovado') return;
+    var ret = paraISO(x.dataRetirada); if (!ret) return;
+    var it = {col:'emprestimos', tipo:'equip', doc:x, retirada:ret, devolucao:paraISO(x.dataDevolucao) || ret, onde:'Empréstimo'};
+    if (estadoItem(it) === 'anterior') return;
+    out.push(it);
+  });
+  _estDocs.forEach(function(x){
+    if (x.status !== 'Aprovado' || !temEquipamento(x)) return;
+    var d = paraISO(x.data); if (!d) return;
+    var it = {col:'solicitacoes', tipo:'estudio', doc:x, retirada:d, devolucao:d, onde:(x.tipoEstudio || 'Estúdio') + ' às ' + (x.horario || '')};
+    if (estadoItem(it) === 'anterior') return;
+    out.push(it);
   });
   return out;
 }
-function conflitoDet(s, isEst) {
-  var c = conflitosDe(s, isEst);
-  return c.length ? [['⚠ CONFLITO', c.join(' | ')]] : [];
+
+// ── conflitos de patrimônio ──────────────────────────────────────────
+// Aprovar não significa que o aluno está com o item: só "retirado e não devolvido" é posse.
+// Reserva aprovada e ainda não retirada = item reservado para aquele período.
+// Reserva cujo período passou sem retirada, item devolvido ou período anterior ao controle: não bloqueiam.
+function analiseConflitos(s, isEst) {
+  var graves = [], suaves = [], per = periodoDe(s, isEst), ini = per[0], fim = per[1];
+  var pats = splitLista(s.patrimonios).filter(Boolean);
+  if (!ini || !pats.length) return {graves: graves, suaves: suaves};
+  var hoje = hojeISO(), outros = [];
+  _estDocs.forEach(function(x){ if (x.id !== s.id) outros.push({doc: x, col: 'est', r: paraISO(x.data), d: paraISO(x.data)}); });
+  _empDocs.forEach(function(x){ if (x.id !== s.id) outros.push({doc: x, col: 'emp', r: paraISO(x.dataRetirada), d: paraISO(x.dataDevolucao) || paraISO(x.dataRetirada)}); });
+  pats.forEach(function(p){
+    var nm = nomePat(p), rot = p + (nm ? ' ' + nm : '');
+    var pd = _patDocs.filter(function(x){ return String(x.patrimonio) === p; })[0];
+    if (pd && pd.status === 'Manutencao') graves.push(rot + ' está em manutenção');
+    outros.forEach(function(o){
+      var x = o.doc;
+      if (x.status !== 'Aprovado' && x.status !== 'Pendente') return;
+      if (x.devolvidoEm || !o.r) return;
+      if (!splitLista(x.patrimonios).some(function(q){ return q === p; })) return;
+      var com = !!x.retiradoEm;
+      if (x.status === 'Aprovado' && o.d < _inicioCtl) return;
+      if (!com && o.d < hoje) return;
+      var dEf = (com && o.d < hoje) ? '9999-12-31' : o.d;
+      if (!(o.r <= fim && dEf >= ini)) return;
+      var quem = x.nome || 'outro aluno', per2 = dataBR3(o.r) + (o.d !== o.r ? ' a ' + dataBR3(o.d) : '');
+      if (x.status === 'Pendente') { suaves.push(rot + ': ' + quem + ' também pediu este item (' + per2 + ', ainda pendente)'); return; }
+      var devolveNoDia = o.col === 'emp' && o.d === ini && o.r < ini;
+      var retiraNoDia = o.col === 'emp' && o.r === fim && o.d > fim && !com;
+      if (devolveNoDia) suaves.push(rot + ': ' + quem + ' devolve em ' + dataBR3(o.d) + ', mesmo dia desta reserva. Só entregue depois da devolução.');
+      else if (retiraNoDia) suaves.push(rot + ': ' + quem + ' retira em ' + dataBR3(o.r) + ', último dia desta reserva. O item precisa voltar antes.');
+      else if (com) graves.push(rot + ' está com ' + quem + ' (retirado, devolução prevista ' + dataBR3(o.d) + ')');
+      else graves.push(rot + ' está reservado para ' + quem + ' (' + per2 + '), ainda não retirado');
+    });
+  });
+  return {graves: graves, suaves: suaves};
 }
-function conflitoTag(s, isEst) { return conflitosDe(s, isEst).length ? ' · ⚠ CONFLITO' : ''; }
+function conflitosDe(s, isEst) { return analiseConflitos(s, isEst).graves; }
+function conflitoDet(s, isEst) {
+  var a = analiseConflitos(s, isEst), out = [];
+  if (a.graves.length) out.push(['⚠ CONFLITO', a.graves.join(' | ')]);
+  if (a.suaves.length) out.push(['Atenção', a.suaves.join(' | ')]);
+  return out;
+}
+function conflitoTag(s, isEst) { var a = analiseConflitos(s, isEst); return a.graves.length ? ' · ⚠ CONFLITO' : a.suaves.length ? ' · atenção' : ''; }
+
+// Quem está com o item agora (retirado e não devolvido), para avisar na retirada
+function itensComOutro(d) {
+  var pats = splitLista(d.patrimonios).filter(Boolean), out = [];
+  _estDocs.concat(_empDocs).forEach(function(x){
+    if (x.id === d.id || !x.retiradoEm || x.devolvidoEm) return;
+    splitLista(x.patrimonios).forEach(function(q){ if (q && pats.indexOf(q) >= 0) out.push(q + (nomePat(q) ? ' ' + nomePat(q) : '') + ' está com ' + (x.nome || 'outro aluno')); });
+  });
+  return out;
+}
+// Reservas de um item, para o acervo geral
+function reservasDoItem(pat) {
+  var out = [], hoje = hojeISO();
+  if (!pat) return out;
+  function add(x, r, d, tipo) {
+    if (x.devolvidoEm || (x.status !== 'Aprovado' && x.status !== 'Pendente') || !r) return;
+    if (!splitLista(x.patrimonios).some(function(q){ return q === String(pat); })) return;
+    var com = !!x.retiradoEm;
+    if (x.status === 'Aprovado' && d < _inicioCtl) return;
+    if (!com && d < hoje) return;
+    out.push({r: r, texto: (com ? 'Com ' : x.status === 'Pendente' ? 'Pedido de ' : 'Reservado: ') + (x.nome || '') + ' (' + (tipo === 'est' ? 'estúdio ' : '') + dataBR3(r) + (d !== r ? ' a ' + dataBR3(d) : '') + ')'});
+  }
+  _estDocs.forEach(function(x){ var d = paraISO(x.data); add(x, d, d, 'est'); });
+  _empDocs.forEach(function(x){ var r = paraISO(x.dataRetirada); add(x, r, paraISO(x.dataDevolucao) || r, 'emp'); });
+  return out.sort(function(a, b){ return a.r.localeCompare(b.r); });
+}
+function infoReservasItem(container, u) {
+  var l = reservasDoItem(u.patrimonio); if (!l.length) return;
+  container.appendChild(mkEl('div', 'font-size:11px;color:#8a1f12;margin:-4px 0 8px 26px;line-height:1.4', '🔒 ' + l.map(function(x){ return x.texto; }).join(' · ')));
+}
+function atualizarBadgesReservas() {
+  document.querySelectorAll('.ecard').forEach(function(c){
+    var r = c.querySelector('.ecard-res'); if (!r || !c._un) return;
+    var n = c._un.filter(function(u){ return reservasDoItem(u.patrimonio).length; }).length;
+    r.textContent = n ? '🔒 ' + n + ' reservado' + (n > 1 ? 's' : '') : '';
+  });
+}
 
 function avisosAprovacao(s, isEst) {
-  var linhas = [], c = conflitosDe(s, isEst);
-  if (c.length) linhas.push('\n⚠ CONFLITO DE ITENS:\n- ' + c.join('\n- '));
+  var linhas = [], a = analiseConflitos(s, isEst);
+  if (a.graves.length) linhas.push('\n⚠ CONFLITO DE ITENS:\n- ' + a.graves.join('\n- '));
+  if (a.suaves.length) linhas.push('\nAtenção:\n- ' + a.suaves.join('\n- '));
   var f = _tudoCarregado ? fichaDe(s.rgm) : {atrasos: [], avarias: []};
   if (f.atrasos.length || f.avarias.length) linhas.push('\n⚠ Histórico: ' + f.atrasos.length + ' atraso(s), ' + f.avarias.length + ' avaria(s).');
   return linhas.join('\n');
@@ -1796,10 +1883,10 @@ function fichaDe(rgm) {
     if (d.devolvidoEm) {
       f.devolvidos++;
       var dd = isoLocal(d.devolvidoEm), dias = r.fim ? diasEntre(r.fim, dd) : 0;
-      if (dias > 0) f.atrasos.push({r: r, dias: dias, aberto: false});
-    } else if (d.retiradoEm && r.fim && r.fim < hoje) {
+      if (dias > 0 && r.fim >= _inicioCtl) f.atrasos.push({r: r, dias: dias, aberto: false});
+    } else if (d.retiradoEm && r.fim && r.fim < hoje && r.fim >= _inicioCtl) {
       f.atrasos.push({r: r, dias: diasEntre(r.fim, hoje), aberto: true});
-    } else if (!d.retiradoEm && temEquip && r.ini && r.ini < hoje) {
+    } else if (!d.retiradoEm && temEquip && r.ini && r.ini < hoje && r.fim >= _inicioCtl) {
       f.naoRetirou++;
     }
     [['Retirada', d.checkRetirada], ['Devolução', d.checkDevolucao]].forEach(function(par){
@@ -1955,6 +2042,7 @@ function abrirCardReserva(s, col) {
     if (aba === 'hist') { comTudo(function(){ corpo.innerHTML = ''; corpo.appendChild(montarFicha(s.rgm, s.nome)); }); return; }
     var alertas = [], conf = conflitosDe(s, isEst), per = periodoDe(s, isEst);
     conf.forEach(function(c){ alertas.push('⚠ ' + c); });
+    analiseConflitos(s, isEst).suaves.forEach(function(c){ alertas.push('Atenção: ' + c); });
     var id = idadeEm(nascDe(s), per[0] || hojeISO());
     if (id !== null && id < 18) alertas.push('⚠ Menor de idade (' + id + ' anos)');
     var f = fichaDe(s.rgm);
@@ -2261,6 +2349,258 @@ function boxDatasBloqueadas() {
   var lista = document.createElement('div'); lista.id = 'listaDatasBloq'; box.appendChild(lista);
   renderListaDatasBloq(lista);
   return box;
+}
+
+
+// ═════════════════════════════════════════════════════════════════════
+//  v10 — abas "Controle Estúdio" e "Controle Equipamentos"
+// ═════════════════════════════════════════════════════════════════════
+var _tabF = {est: {busca: '', sem: 'todos'}, emp: {busca: '', sem: 'todos'}};
+var _tabDocs = {est: [], emp: []};
+var TAB_ID = {est: 'estudio', emp: 'equipamentos'}, TAB_COL = {est: 'solicitacoes', emp: 'emprestimos'};
+var ROTULO_ESTADO = {Pendente: 'Aguardando aprovação', aguardando: 'Aprovada', nao_retirado: 'Não retirado', em_uso: 'Em uso', atrasado: 'Devolução atrasada',
+  devolvido: 'Devolvido', realizado: 'Realizada', anterior: 'Anterior ao controle', Recusado: 'Recusada', Cancelado: 'Cancelada'};
+var COR_ESTADO = {Pendente: '#fff3cd;color:#856404', aguardando: '#d4edda;color:#155724', nao_retirado: '#ffe5d0;color:#8a4b0f', em_uso: '#d6e4ff;color:#1d3f8c',
+  atrasado: '#f8d7da;color:#721c24', devolvido: '#d4edda;color:#155724', realizado: '#e2e3e5;color:#383d41', anterior: '#e2e3e5;color:#383d41', Recusado: '#f8d7da;color:#721c24', Cancelado: '#e2e3e5;color:#383d41'};
+var COR_BORDA = {Pendente: '#d9a400', aguardando: '#2d7a2d', nao_retirado: '#d9822b', em_uso: '#1d3f8c', atrasado: '#c0392b', devolvido: '#9bb89b', realizado: '#bbb', anterior: '#bbb', Recusado: '#c99', Cancelado: '#bbb'};
+
+function renderEstudio(docs) { renderTabControle('est', docs); }
+function renderEquipamentos(docs) { renderTabControle('emp', docs); }
+
+function renderTabControle(tipo, docs) {
+  _tabDocs[tipo] = docs;
+  var raiz = document.getElementById(TAB_ID[tipo]); if (!raiz) return;
+  var idLista = 'tabLista_' + tipo;
+  if (!document.getElementById(idLista)) {
+    raiz.innerHTML = '';
+    var css = 'border:1.5px solid #ddd0ea;border-radius:8px;padding:8px 10px;font-size:13px;font-family:Inter,sans-serif;background:#fff;outline:none';
+    var barra = mkEl('div', 'display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center');
+    var busca = document.createElement('input'); busca.type = 'text'; busca.placeholder = 'Buscar aluno, RGM ou equipamento...'; busca.style.cssText = css + ';flex:1;min-width:200px';
+    busca.oninput = function(){ _tabF[tipo].busca = busca.value; renderTabControle(tipo, _tabDocs[tipo]); };
+    var sem = document.createElement('select'); sem.style.cssText = css; sem.id = 'tabSem_' + tipo;
+    sem.onchange = function(){ _tabF[tipo].sem = sem.value; renderTabControle(tipo, _tabDocs[tipo]); };
+    barra.appendChild(busca); barra.appendChild(sem); raiz.appendChild(barra);
+    var l = document.createElement('div'); l.id = idLista; raiz.appendChild(l);
+  }
+  var sel = document.getElementById('tabSem_' + tipo);
+  var sems = []; docs.forEach(function(d){ var sm = semestreDe(d); if (sems.indexOf(sm) < 0) sems.push(sm); }); sems.sort();
+  sel.innerHTML = '';
+  var o0 = document.createElement('option'); o0.value = 'todos'; o0.textContent = 'Todos os semestres'; sel.appendChild(o0);
+  sems.forEach(function(sm){ var o = document.createElement('option'); o.value = sm; o.textContent = sm === '?' ? 'Sem semestre' : sm + 'º semestre'; sel.appendChild(o); });
+  if (_tabF[tipo].sem !== 'todos' && sems.indexOf(_tabF[tipo].sem) < 0) _tabF[tipo].sem = 'todos';
+  sel.value = _tabF[tipo].sem;
+
+  var busca = _tabF[tipo].busca.toLowerCase();
+  var itens = docs.filter(function(d){
+    if (_tabF[tipo].sem !== 'todos' && semestreDe(d) !== _tabF[tipo].sem) return false;
+    if (busca && [d.nome, d.rgm, d.equipamentos, d.patrimonios].join(' ').toLowerCase().indexOf(busca) < 0) return false;
+    return true;
+  }).map(function(d){ return {d: d, e: estadoReserva(d, tipo)}; });
+  var chave = function(d){ return tipo === 'est' ? paraISO(d.data) + (d.horario || '') : paraISO(d.dataRetirada); };
+  var asc = function(a, b){ return chave(a.d).localeCompare(chave(b.d)); };
+  var desc = function(a, b){ return chave(b.d).localeCompare(chave(a.d)); };
+
+  var nPend = docs.filter(function(d){ return d.status === 'Pendente'; }).length;
+  var tab = document.querySelector('.tab[onclick*="\'' + TAB_ID[tipo] + '\'"]');
+  if (tab) tab.textContent = (tipo === 'est' ? '📷 Controle Estúdio' : '🎥 Controle Equipamentos') + (nPend ? ' (' + nPend + ')' : '');
+
+  var secoes = tipo === 'est' ? [
+    ['⏳ Aguardando aprovação', ['Pendente'], true, asc, 'Nenhum pedido pendente.'],
+    ['📅 Reservas aprovadas (próximas)', ['aguardando'], true, asc, ''],
+    ['📦 Equipamento a retirar (data passou)', ['nao_retirado'], true, asc, ''],
+    ['🔄 Equipamento em uso', ['em_uso'], true, asc, ''],
+    ['🚨 Devolução atrasada', ['atrasado'], true, asc, ''],
+    ['✅ Concluídas', ['devolvido', 'realizado'], false, desc, ''],
+    ['🗂️ Recusadas, canceladas e anteriores ao controle', ['Recusado', 'Cancelado', 'anterior'], false, desc, '']
+  ] : [
+    ['⏳ Aguardando aprovação', ['Pendente'], true, asc, 'Nenhum pedido pendente.'],
+    ['📦 A retirar', ['aguardando'], true, asc, ''],
+    ['⚠ Retirada não registrada (data passou)', ['nao_retirado'], true, asc, ''],
+    ['🔄 Em uso', ['em_uso'], true, asc, ''],
+    ['🚨 Devolução atrasada', ['atrasado'], true, asc, ''],
+    ['✅ Devolvidos', ['devolvido'], false, desc, ''],
+    ['🗂️ Recusados, cancelados e anteriores ao controle', ['Recusado', 'Cancelado', 'anterior'], false, desc, '']
+  ];
+  var lista = document.getElementById(idLista); lista.innerHTML = '';
+  // guarda quais seções fechadas o usuário abriu
+  secoes.forEach(function(sc){
+    var grupo = itens.filter(function(x){ return sc[1].indexOf(x.e) >= 0; }).sort(sc[3]);
+    if (!grupo.length && !sc[4]) return;
+    var det = document.createElement('details'); det.open = sc[2];
+    det.style.cssText = 'background:#fff;border:1px solid #ddd0ea;border-radius:8px;margin-bottom:12px;padding:0 14px 6px';
+    det.appendChild(mkEl('summary', 'cursor:pointer;font-size:12px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#4a1270;padding:12px 0', sc[0] + ' (' + grupo.length + ')'));
+    if (!grupo.length) det.appendChild(mkEl('div', 'font-size:13px;color:#6b6b6b;padding:6px 0 10px', sc[4]));
+    var grid = mkEl('div', 'display:grid;grid-template-columns:repeat(auto-fill,minmax(min(340px,100%),1fr));gap:10px;margin-bottom:8px');
+    grupo.slice(0, 80).forEach(function(x){ grid.appendChild(cartaoUnico(x.d, tipo, x.e)); });
+    det.appendChild(grid);
+    if (grupo.length > 80) det.appendChild(mkEl('div', 'font-size:12px;color:#6b6b6b;padding:4px 0 8px', 'Mostrando 80 de ' + grupo.length + '. Use a busca para achar os demais.'));
+    lista.appendChild(det);
+  });
+}
+
+function acaoRetirada(d, col, nomes) {
+  var outros = itensComOutro(d);
+  if (outros.length && !confirm('ATENÇÃO:\n- ' + outros.join('\n- ') + '\n\nMarcar a retirada mesmo assim?')) return;
+  var pats = splitLista(d.patrimonios);
+  var porItem = nomes.map(function(n, i){ return 'Entregue: ' + n + (pats[i] ? ' (patrimônio ' + pats[i] + ')' : ''); });
+  checklistModal('Registrar retirada', (d.nome || '') + ' · confira cada unidade antes de entregar', porItem.concat(CHECK_RETIRADA), function(res){
+    auditar('Registrou retirada', col, d, res.obs || '');
+    db.collection(col).doc(d.id).update({retiradoEm: res.em, checkRetirada: res});
+  });
+}
+function acaoDevolucao(d, col, nomes) {
+  checklistModal('Registrar devolução', (d.nome || '') + ' · ' + nomes.join(', '), CHECK_DEVOLUCAO, function(res){
+    auditar('Registrou devolução', col, d, res.obs || '');
+    db.collection(col).doc(d.id).update({devolvidoEm: res.em, checkDevolucao: res});
+    var avaria = res.itens.some(function(x){ return !x.ok && /avaria/i.test(x.t); });
+    if (avaria && confirm('Houve avaria. Marcar os itens como "Manutenção" no patrimônio? (eles saem da lista do aluno até você liberar)')) marcarPatrimonios(d, 'Manutencao');
+  });
+}
+
+function cartaoUnico(d, tipo, estado) {
+  var isEst = tipo === 'est', col = TAB_COL[tipo], tp = isEst ? 'estudio' : 'equip';
+  var c = mkEl('div', 'border:1px solid #ddd0ea;border-left:4px solid ' + (COR_BORDA[estado] || '#ccc') + ';border-radius:8px;padding:12px;background:#fff');
+  var top = mkEl('div', 'display:flex;justify-content:space-between;gap:8px;align-items:flex-start;cursor:pointer');
+  top.title = 'Abrir card da reserva'; top.onclick = function(){ abrirCardReserva(d, col); };
+  var nm = document.createElement('div');
+  nm.appendChild(mkEl('div', 'font-weight:600;font-size:14px', d.nome || ''));
+  nm.appendChild(mkEl('div', 'font-size:11px;color:#6b6b6b', 'RGM ' + (d.rgm || '') + (semestreDe(d) !== '?' ? ' · ' + semestreDe(d) + 'º sem.' : '') + (d.whatsapp ? ' · ' + d.whatsapp : '')));
+  top.appendChild(nm);
+  top.appendChild(mkEl('span', 'font-size:10px;font-weight:700;padding:3px 8px;border-radius:12px;white-space:nowrap;background:' + (COR_ESTADO[estado] || '#eee'), ROTULO_ESTADO[estado] || estado));
+  c.appendChild(top);
+
+  var ini = isEst ? paraISO(d.data) : paraISO(d.dataRetirada), fim = isEst ? ini : (paraISO(d.dataDevolucao) || ini);
+  c.appendChild(mkEl('div', 'font-size:13px;font-weight:600;margin:8px 0 4px', isEst ? (d.tipoEstudio || 'Estúdio') + ' · ' + dataCurta(ini) + ' às ' + (d.horario || '') : 'Retirada ' + dataCurta(ini) + '  →  Devolução ' + dataCurta(fim)));
+  var nomes = splitLista(d.equipamentos).filter(Boolean).filter(function(n){ return !/^nenhum$/i.test(n); }), pats = splitLista(d.patrimonios);
+  var ul = mkEl('div', 'font-size:12px;color:#333;line-height:1.5');
+  if (!nomes.length) ul.appendChild(mkEl('div', 'color:#6b6b6b', 'Sem equipamentos'));
+  nomes.forEach(function(n, i){ ul.appendChild(mkEl('div', '', '• ' + n + (pats[i] ? '  (' + pats[i] + ')' : ''))); });
+  c.appendChild(ul);
+  if (isEst && d.participantes) c.appendChild(mkEl('div', 'font-size:12px;margin-top:6px;color:#333;white-space:pre-wrap', '👥 ' + String(d.participantes).substring(0, 120) + (String(d.participantes).length > 120 ? '…' : '')));
+  if (d.finalidade) c.appendChild(mkEl('div', 'font-size:12px;margin-top:4px;color:#555', 'Finalidade: ' + d.finalidade + (d.descricao ? ' · ' + String(d.descricao).substring(0, 100) : '')));
+
+  if (estado === 'Pendente' || estado === 'aguardando') {
+    var a = analiseConflitos(d, isEst), alertas = [];
+    a.graves.forEach(function(t){ alertas.push(['#fdecea', '#8a1f12', '⚠ ' + t]); });
+    a.suaves.forEach(function(t){ alertas.push(['#fff8e1', '#7a5b00', 'Atenção: ' + t]); });
+    var per = periodoDe(d, isEst), id = idadeEm(nascDe(d), per[0] || hojeISO());
+    if (id !== null && id < 18) alertas.push(['#fdecea', '#8a1f12', '⚠ Menor de idade (' + id + ' anos)']);
+    if (estado === 'Pendente' && _tudoCarregado) {
+      var f = fichaDe(d.rgm);
+      if (f.atrasos.length || f.avarias.length) alertas.push(['#fff8e1', '#7a5b00', 'Histórico: ' + f.atrasos.length + ' atraso(s), ' + f.avarias.length + ' avaria(s)']);
+    }
+    alertas.forEach(function(al){ c.appendChild(mkEl('div', 'font-size:12px;font-weight:600;margin-top:6px;padding:6px 8px;border-radius:6px;background:' + al[0] + ';color:' + al[1], al[2])); });
+  }
+  if (d.retiradoEm) c.appendChild(mkEl('div', 'font-size:11px;color:#6b6b6b;margin-top:6px', 'Retirado em ' + dataCurta(paraISO(d.retiradoEm)) + (d.devolvidoEm ? ' · devolvido em ' + dataCurta(paraISO(d.devolvidoEm)) : '')));
+  [['Retirada', d.checkRetirada], ['Devolução', d.checkDevolucao]].forEach(function(par){
+    var ch = par[1]; if (!ch) return;
+    var falhas = (ch.itens || []).filter(function(x){ return !x.ok; }).map(function(x){ return x.t; });
+    if (falhas.length) c.appendChild(mkEl('div', 'font-size:11px;color:#c0392b;margin-top:4px;font-weight:600', '⚠ ' + par[0] + ': ' + falhas.join('; ')));
+    if (ch.obs) c.appendChild(mkEl('div', 'font-size:11px;color:#555;margin-top:2px', '📝 ' + par[0] + ': ' + ch.obs));
+  });
+  if (d.motivoRecusa) c.appendChild(mkEl('div', 'font-size:11px;color:#555;margin-top:4px', 'Motivo: ' + d.motivoRecusa));
+
+  var btns = mkEl('div', 'display:flex;gap:6px;flex-wrap:wrap;margin-top:10px');
+  function b(txt, css, fn, titulo) { var x = mkEl('button', 'border:none;border-radius:6px;padding:7px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif;' + css, txt); if (titulo) x.title = titulo; x.onclick = fn; btns.appendChild(x); }
+  var VERDE = 'background:#2d7a2d;color:#fff', VERM = 'background:#c0392b;color:#fff', ROXO = 'background:#6a1e9a;color:#fff', CINZA = 'background:#eee;color:#333';
+  var apagarCampo = firebase.firestore.FieldValue.delete(), ref = db.collection(col).doc(d.id);
+  var temEq = tipo === 'emp' || temEquipamento(d);
+  if (estado === 'Pendente') {
+    b('✅ Aprovar', VERDE, function(){ isEst ? aprovarEst(d) : aprovarEq(d); });
+    b('❌ Recusar', VERM, function(){ isEst ? recusarEstComMotivo(d) : recusarEqComMotivo(d); });
+    b('✏️ Editar', ROXO, function(){ editarSolicitacao(d, col); });
+  } else if (estado === 'aguardando' || estado === 'nao_retirado') {
+    if (temEq) b('✅ Marcar retirado', ROXO, function(){ acaoRetirada(d, col, nomes); });
+    b('✏️ Editar', CINZA, function(){ editarSolicitacao(d, col); });
+    b('❌ Cancelar', VERM, function(){ isEst ? cancelarEst(d) : cancelarEq(d); });
+  } else if (estado === 'em_uso' || estado === 'atrasado') {
+    b('↩️ Marcar devolvido', VERDE, function(){ acaoDevolucao(d, col, nomes); });
+    if (estado === 'atrasado') b('📱 Cobrar', VERM, function(){ abrirWACobranca(d.nome, d.whatsapp, d.equipamentos, fim); });
+    b('Desfazer retirada', CINZA, function(){ auditar('Desfez retirada', col, d, ''); ref.update({retiradoEm: apagarCampo, checkRetirada: apagarCampo}); });
+  } else if (estado === 'devolvido') {
+    b('Desfazer devolução', CINZA, function(){ auditar('Desfez devolução', col, d, ''); ref.update({devolvidoEm: apagarCampo, checkDevolucao: apagarCampo}); });
+  }
+  if ((estado === 'Pendente' || estado === 'aguardando') && temEq && analiseConflitos(d, isEst).graves.length)
+    b('🔄 Trocar unidade', 'background:#e67e22;color:#fff', function(){ trocarUnidades(d, col, isEst); }, 'Troca o item em conflito por outra unidade livre do mesmo modelo');
+  if (estado === 'aguardando' || estado === 'nao_retirado' || estado === 'em_uso' || estado === 'atrasado' || estado === 'devolvido' || estado === 'realizado')
+    b('🖨️ Termo', ROXO, function(){ abrirTermo(d, tp, false); });
+  b('🗂️ Abrir', CINZA, function(){ abrirCardReserva(d, col); }, 'Abrir card da reserva');
+  if (d.whatsapp && estado !== 'Pendente') b('📱', 'background:#25d366;color:#fff', function(){
+    abrirWA(d.nome, d.whatsapp, tp, (estado === 'Recusado' || estado === 'Cancelado') ? 'Recusado' : 'Aprovado', isEst ? d.data : d.dataRetirada, d.horario || '', d.motivoRecusa);
+  }, 'WhatsApp');
+  b('🗑️', 'background:#fde;color:#c0392b', function(){ apagarSolicitacao(col, d); }, 'Apagar');
+  c.appendChild(btns);
+  return c;
+}
+
+// ── início do controle de atrasos ────────────────────────────────────
+function iniciarConfigControle() {
+  return db.collection('config').doc('controle').onSnapshot(function(snap){
+    if (snap.exists && snap.data().inicio) _inicioCtl = snap.data().inicio;
+    else if (!snap.exists) db.collection('config').doc('controle').set({inicio: _inicioCtl}).catch(function(){});
+    recompor('est'); recompor('emp');
+    var t = document.getElementById('txtInicioCtl'); if (t) t.textContent = 'Controle de atrasos e pendências válido a partir de ' + dataBR3(_inicioCtl) + '.';
+  });
+}
+function montarAvisoInicioCtl() {
+  var el = document.getElementById('controle'); if (!el || document.getElementById('txtInicioCtl')) return;
+  var box = mkEl('div', 'display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px;color:#4a1270;margin-bottom:12px;background:#fff;border:1px solid #ddd0ea;border-radius:8px;padding:8px 14px');
+  var t = mkEl('span', '', 'Controle de atrasos e pendências válido a partir de ' + dataBR3(_inicioCtl) + '.'); t.id = 'txtInicioCtl';
+  var b = mkEl('button', 'border:1.5px solid #6a1e9a;background:#fff;color:#6a1e9a;border-radius:8px;padding:5px 12px;font-size:12px;font-weight:600;cursor:pointer;font-family:Inter,sans-serif', 'Zerar a partir de hoje');
+  b.onclick = function(){ if (confirm('Pedidos com devolução anterior a hoje deixam de contar como atraso ou pendência. Continuar?')) db.collection('config').doc('controle').set({inicio: hojeISO()}); };
+  box.appendChild(t); box.appendChild(b); el.insertBefore(box, el.firstChild);
+}
+
+
+// ── troca automática de unidade em conflito ──────────────────────────
+function unidadeAlternativa(d, isEst, p, jaUsadas) {
+  var base = _patDocs.filter(function(x){ return String(x.patrimonio) === String(p); })[0];
+  if (!base) return null;
+  var cand = _patDocs.filter(function(x){
+    return x.patrimonio && String(x.patrimonio) !== String(p) && x.categoria === base.categoria && (x.descricao || '') === (base.descricao || '') &&
+           (x.marca || '') === (base.marca || '') && x.status === 'Disponivel' && jaUsadas.indexOf(String(x.patrimonio)) < 0;
+  });
+  var semGrave = null;
+  for (var i = 0; i < cand.length; i++) {
+    var a = analiseConflitos(Object.assign({}, d, {patrimonios: String(cand[i].patrimonio)}), isEst);
+    if (a.graves.length) continue;
+    if (!a.suaves.length) return cand[i];
+    if (!semGrave) semGrave = cand[i];
+  }
+  return semGrave;
+}
+function trocarUnidades(d, col, isEst) {
+  var pats = splitLista(d.patrimonios), novos = pats.slice(), trocas = [], semOpcao = [], usadas = pats.filter(Boolean).map(String);
+  pats.forEach(function(p, i){
+    if (!p) return;
+    if (!analiseConflitos(Object.assign({}, d, {patrimonios: p}), isEst).graves.length) return;
+    var alt = unidadeAlternativa(d, isEst, p, usadas);
+    if (alt) { novos[i] = String(alt.patrimonio); usadas.push(String(alt.patrimonio)); trocas.push(p + ' ' + nomePat(p) + '  →  ' + alt.patrimonio); }
+    else semOpcao.push(p + ' ' + nomePat(p));
+  });
+  if (!trocas.length) { alert('Não há outra unidade livre do mesmo modelo para este período.' + (semOpcao.length ? '\n\nSem opção: ' + semOpcao.join(', ') : '')); return; }
+  var msg = 'Trocar para:\n- ' + trocas.join('\n- ') + (semOpcao.length ? '\n\nSem opção livre (continuam em conflito): ' + semOpcao.join(', ') : '') + '\n\nConfirmar?';
+  if (!confirm(msg)) return;
+  auditar('Trocou unidade', col, d, trocas.join('; '));
+  db.collection(col).doc(d.id).update({patrimonios: novos.join(', ')});
+}
+
+
+// ── apagar um modelo inteiro (todas as unidades) ─────────────────────
+function apagarModeloInteiro(cat, unidades) {
+  var nome = (unidades[0] && unidades[0].descricao) || 'equipamento';
+  var reservadas = unidades.filter(function(u){ return reservasDoItem(u.patrimonio).length; });
+  var msg = 'Apagar "' + nome + '" com todas as ' + unidades.length + ' unidade(s)?';
+  if (reservadas.length) msg += '\n\nATENÇÃO: ' + reservadas.length + ' unidade(s) têm reserva ou estão emprestadas:\n- ' +
+    reservadas.map(function(u){ return u.patrimonio + ': ' + reservasDoItem(u.patrimonio).map(function(x){ return x.texto; }).join(', '); }).join('\n- ') +
+    '\n\nAs reservas continuam no sistema, mas o equipamento some do acervo.';
+  msg += '\n\nIsso não pode ser desfeito.';
+  if (!confirm(msg)) return false;
+  var batch = db.batch();
+  unidades.forEach(function(u){ batch.delete(db.collection('patrimonio').doc(u.id)); });
+  auditar('Apagou equipamento inteiro', 'patrimonio', {id: unidades[0].id, nome: nome}, unidades.length + ' unidade(s)');
+  batch.commit().catch(function(e){ alert('Erro ao apagar: ' + e.message); });
+  return true;
 }
 
 </script>
